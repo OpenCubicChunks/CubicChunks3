@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
+import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.TransformFrom;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
@@ -20,9 +21,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChunkTaskPriorityQueueSorter.class)
-public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter {
+public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter, MarkableAsCubic {
     protected boolean cc_isCubic;
 
+    @Override
+    public void cc_setCubic() {
+        cc_isCubic = true;
+    }
+
+    /**
+     * This is a method that is only used for debugging, so we don't currently test it.
+     */
     @WrapOperation(method = "getDebugStatus", at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;map(Ljava/util/function/Function;)Ljava/util/stream/Stream;"))
     private Stream<String> cc_replaceChunkPosInDebugStatus(Stream<Long> instance, Function<? super Long, ? extends String> function, Operation<Stream<String>> original) {
         if (!cc_isCubic) return original.call(instance, function);

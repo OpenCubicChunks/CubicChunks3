@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.opencubicchunks.cubicchunks.mixin.access.common.DistanceManagerAccess;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
+import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
@@ -22,13 +23,22 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(DistanceManager.PlayerTicketTracker.class)
 public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceChunkTracker {
     @SuppressWarnings("target") @Shadow @Final DistanceManager this$0;
+
+
+    /**
+     * This modifies the call to new Ticket to use a CloPos and CubicTicketType instead of a ChunkPos and TicketType.
+     */
     @WrapOperation(method = "onLevelChange(JIZZ)V", at = @At(value = "NEW",
         target = "(Lnet/minecraft/server/level/TicketType;ILjava/lang/Object;)Lnet/minecraft/server/level/Ticket;"))
     private Ticket<?> cc_onTicketConstruct(TicketType<?> ttype, int a, Object pos, Operation<Ticket> original) {
         if (!cc_isCubic)
             return original.call(ttype, a, pos);
-        return original.call(ttype, a, CloPos.fromLong(((ChunkPos) pos).toLong()));
+        return original.call(CubicTicketType.PLAYER, a, CloPos.fromLong(((ChunkPos) pos).toLong()));
     }
+
+    /**
+     * This modifies the lambda inside Distance.this.ticketThrottler.onLevelChange to use a CloPos instead of a ChunkPos.
+     */
     @WrapWithCondition(method = "runAllUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
     private boolean cc_onRunAllUpdates(ChunkTaskPriorityQueueSorter instance, ChunkPos p_140616_, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_) {
         if(!cc_isCubic) return true;
