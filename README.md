@@ -46,21 +46,20 @@ If running with IntelliJ, ensure that `io.github.opencubicchunks.[folder name].m
 ### Contributing
 
 #### PR Guidelines
-- All mixin methods and fields _**must**_ have a `cc_` prefix // todo automate this check in gh workflows
-- If significant a class is significantly modified with mixins, it _**must**_ have documentation explaining:
-  - The original vanilla behaviour, can mention important fields/methods
-    - If the vanilla class has sufficient javadoc (through parchment), this can be skipped. Our javadoc should link to the parchment javadoc
-  - The goal of all mixins targetting the class
+- All mixin methods and fields _**must**_ have a `cc_` prefix // todo automate this check in gh workflows.
+- If a class is significantly modified with mixins, it _**must**_ have documentation explaining:
+	- The original vanilla behaviour, can mention important fields/methods.
+		- If the vanilla class has sufficient javadoc (through parchment), this can be skipped. Our javadoc should link to the parchment javadoc.
+	- The goal of all mixins targeting the class.
 - Any merged mixins _**must**_ have tests associated with them. 
- - If a mixin is "untestable" its test class should have a comment explaining *why* it's untestable. 
-  - Optionally a to-do (project task? issue?) suggesting integration tests when possible
- - All non-trivial mixins _**must**_ have a comment explaining their purpose
- - _**Must**_ pass checkstyle
- - _**Must**_ build
- - All tests _**must**_ pass (no regressions)
- -  //todo Investigate code coverage for mixin tests ([jacoco?](https://docs.gradle.org/current/userguide/jacoco_plugin.html) [other link maybe it's bad](https://igorski.co/generating-junit-test-coverage-using-gradle-and-jacoco/)) 
-- Any non-mixin class _**must**_ have tests associated with it
- - The tests should reasonably cover all expected usage of the class (its external api)
- - Any method(s) that can be reasonably unit tested _**must**_ be
-
+	- If a mixin is "untestable" its test class should have a comment explaining *why* it's untestable. 
+		- Optionally a to-do (project task? issue?) suggesting integration tests when possible.
+	- All non-trivial mixins _**must**_ have a comment explaining their purpose.
+	- _**Must**_ pass checkstyle.
+	- _**Must**_ build.
+	- All tests _**must**_ pass (no regressions).
+	-  //todo Investigate code coverage for mixin tests ([jacoco?](https://docs.gradle.org/current/userguide/jacoco_plugin.html) [other link maybe it's bad](https://igorski.co/generating-junit-test-coverage-using-gradle-and-jacoco/)) .
+- Any non-mixin class _**must**_ have tests associated with it.
+	- The tests should reasonably cover all expected usage of the class (its external api).
+	- Any method(s) that can be reasonably unit tested _**must**_ be.
 (TODO more contributing docs)
