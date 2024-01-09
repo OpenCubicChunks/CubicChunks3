@@ -11,12 +11,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
+/**
+ * A representation of the position of either a Chunk or a Cube.
+ * <br><br>
+ * When packed as a long, chunk positions are encoded the same as {@link ChunkPos#toLong}; cube positions are packed with 21 bits per axis. The parity of the top two bits of the long is
+ * used to distinguish between chunks and cubes (if bit 0 XOR bit 1, it is a cube, otherwise it is a chunk).
+ * <br>
+ * Also note that the top two bits (the parity bit, and the top bit of the Z coordinate) are inverted, as otherwise {@link Long#MAX_VALUE} would be a valid position (-1, -1, -1).
+ */
 public class CloPos {
     private static final int CLO_Y_COLUMN_INDICATOR = Integer.MAX_VALUE;
-    // 22 bits including sign; 2^21-1 is the highest 22-bit signed integer
-    private static final int CLO_PACKED_Y_COLUMN_INDICATOR = (1 << 21) - 1;
-    // TODO might want to change this to asLong(Integer.MAX_VALUE, Integer.MAX_VALUE),
-    //  but it requires overrides in some places - DynamicGraphMinFixedPoint defaults to Long.MAX_VALUE as source
+
+    private static final long TOP_TWO_BITS_MASK = (0b11L << 62);
+    /**
+     * long representing an invalid CloPos. This is the same value as {@link ChunkPos#INVALID_CHUNK_POS}.
+     */
     public static final long INVALID_CLO_POS = Long.MAX_VALUE;
     private final int x, y, z;
 
@@ -49,10 +58,13 @@ public class CloPos {
     }
 
 
-    public static CloPos column(int x, int z) {
+    public static CloPos chunk(int x, int z) {
         return new CloPos(x, CLO_Y_COLUMN_INDICATOR, z);
     }
 
+    /**
+     * Create a CloPos representing a CubePos containing a given section
+     */
     public static CloPos section(SectionPos section) {
         return cube(
             Coords.sectionToCube(section.x()),
@@ -65,7 +77,7 @@ public class CloPos {
         return new CloPos(cubePos);
     }
 
-    public static CloPos column(ChunkPos pos) {
+    public static CloPos chunk(ChunkPos pos) {
         return new CloPos(pos);
     }
 
@@ -77,27 +89,11 @@ public class CloPos {
         );
     }
 
-    public static CloPos fromLong(long cloPos) {
-        int x = extractRawX(cloPos);
-        int y = extractRawY(cloPos);
-        int z = extractRawZ(cloPos);
-        if (isPackedColumnYMarker(y)) {
-            int idx = CLO_PACKED_Y_COLUMN_INDICATOR - y;
-            int localX = Coords.indexToColumnX(idx);
-            int localZ = Coords.indexToColumnZ(idx);
-            int colX = Coords.cubeToSection(x, localX);
-            int colZ = Coords.cubeToSection(z, localZ);
-            return CloPos.column(colX, colZ);
-        } else {
-            return CloPos.cube(x, y, z);
-        }
-    }
-
     public boolean isCube() {
         return this.y != CLO_Y_COLUMN_INDICATOR;
     }
 
-    public boolean isColumn() {
+    public boolean isChunk() {
         return this.y == CLO_Y_COLUMN_INDICATOR;
     }
 
@@ -116,19 +112,38 @@ public class CloPos {
         return z;
     }
 
-    public long asLong() {
-        long i = 0L;
-        if (isCube()) {
-            i |= ((long) this.x & (1 << 21) - 1) << 43;
-            i |= ((long) this.y & (1 << 22) - 1);
-            i |= ((long) this.z & (1 << 21) - 1) << 22;
-        } else {
-            int yMarker = packedColumnYMarker(this.x, this.z);
-            i |= ((long) Coords.sectionToCube(this.x) & (1 << 21) - 1) << 43;
-            i |= ((long) yMarker & (1 << 22) - 1);
-            i |= ((long) Coords.sectionToCube(this.z) & (1 << 21) - 1) << 22;
+    public static boolean isCube(long cloPos) {
+        return (((cloPos >> 1) ^ cloPos) & (1L<<62)) != 0;
+    }
+
+    public static boolean isChunk(long cloPos) {
+        return (((cloPos >> 1) ^ cloPos) & (1L<<62)) == 0;
+    }
+
+    public static CloPos fromLong(long cloPos) {
+        if (CloPos.isCube(cloPos)) {
+            int x = extractCubeX(cloPos);
+            int y = extractCubeY(cloPos);
+            int z = extractCubeZ(cloPos);
+            return CloPos.cube(x, y, z);
         }
-        return i;
+        return CloPos.chunk(ChunkPos.getX(cloPos), ChunkPos.getZ(cloPos));
+    }
+
+    public long asLong() {
+        if (isCube()) {
+            long i = 0L;
+            i |= ((long) this.x & (1 << 21) - 1);
+            i |= ((long) this.y & (1 << 21) - 1) << 21;
+            i |= ((long) this.z & (1 << 21) - 1) << 42;
+            // If 2nd bit isn't set, set 1st bit, since cubes are marked by starting with 0b01 or 0b10
+            if (i < (1L << 62)) i |= (1L << 63);
+            // invert the top two bits for storage
+            i ^= TOP_TWO_BITS_MASK;
+            return i;
+        } else {
+            return ChunkPos.asLong(this.x, this.z);
+        }
     }
 
     /**
@@ -140,103 +155,85 @@ public class CloPos {
     }
 
     public static long asLong(int x, int y, int z) {
-        if (isPackedColumnYMarker(y)) {
-            throw new IllegalArgumentException("y coordinate " + y + " is a column marker but attempting to pack cube!");
-        }
-        return packRaw(x, y, z);
-    }
-
-    private static boolean isPackedColumnYMarker(int y) {
-        return y > CLO_PACKED_Y_COLUMN_INDICATOR - CubicConstants.CHUNK_COUNT;
-    }
-
-    public static int packedColumnYMarker(int x, int z) {
-        return CLO_PACKED_Y_COLUMN_INDICATOR - Coords.columnToIndex(x, z);
-    }
-
-    public static long packRaw(long x, long y, long z) {
         long i = 0L;
-        i |= (x & (1L << 21) - 1) << 43;
-        i |= (y & (1L << 22) - 1);
-        i |= (z & (1L << 21) - 1) << 22;
+        i |= ((long) x & (1 << 21) - 1);
+        i |= ((long) y & (1 << 21) - 1) << 21;
+        i |= ((long) z & (1 << 21) - 1) << 42;
+        // If 2nd bit isn't set, set 1st bit, since cubes are marked by starting with 0b01 or 0b10
+        if (i < (1L << 62)) i |= (1L << 63);
+        // invert the top two bits for storage (as explained in the class javadoc)
+        i ^= TOP_TWO_BITS_MASK;
         return i;
     }
 
-    public static long setRawX(long packed, int x) {
-        packed &= ~(((1L << 21) - 1) << 43);
-        return packed | ((x & (1L << 21) - 1) << 43);
-    }
-
-    public static long setRawY(long packed, int y) {
-        //noinspection PointlessBitwiseExpression: yes intellij, it *is* equivalent to "-(1L << 22)" but it's also not as obvious
-        packed &= ~((1L << 22) - 1);
-        return packed | (y & (1L << 22) - 1);
-    }
-
-    public static long setRawZ(long packed, int z) {
-        packed &= ~(((1L << 21) - 1) << 22);
-        return packed | ((z & (1L << 21) - 1) << 22);
-    }
-
     public static long asLong(int x, int z) {
-        return packRaw(Coords.sectionToCube(x), packedColumnYMarker(x, z), Coords.sectionToCube(z));
+        return ChunkPos.asLong(x, z);
     }
 
-    public static int extractRawX(long packed) {
-        return (int) (packed >> 43);
+    private static int extractCubeX(long packed) {
+        return (int) (packed << 43 >> 43);
     }
 
-    public static int extractRawY(long packed) {
-        return (int) (packed << 42 >> 42);
+    private static int extractCubeY(long packed) {
+        return (int) (packed << 22 >> 43);
     }
 
-    public static int extractRawZ(long packed) {
-        return (int) (packed << 21 >> 43);
+    private static int extractCubeZ(long packed) {
+        // re-invert the top two bits, since they were inverted for storage
+        packed ^= TOP_TWO_BITS_MASK;
+        return (int) (packed << 1 >> 43);
     }
 
     public static int extractX(long packed) {
-        int x = extractRawX(packed);
-        int y = extractRawY(packed);
-        if (isPackedColumnYMarker(y)) {
-            int idx = CLO_PACKED_Y_COLUMN_INDICATOR - y;
-            int localX = Coords.indexToColumnX(idx);
-            return Coords.cubeToSection(x, localX);
-        } else {
-            return x;
-        }
+        if (isCube(packed)) return extractCubeX(packed);
+        return ChunkPos.getX(packed);
     }
 
     public static int extractY(long packed) {
-        int y = extractRawY(packed);
-        if (isPackedColumnYMarker(y)) {
+        if (isChunk(packed)) {
             throw new IllegalArgumentException("Column CloPos doesn't have a Y coordinate!");
         }
-        return y;
+        return extractCubeY(packed);
     }
 
     public static int extractZ(long packed) {
-        int y = extractRawY(packed);
-        int z = extractRawZ(packed);
-        if (isPackedColumnYMarker(y)) {
-            int idx = CLO_PACKED_Y_COLUMN_INDICATOR - y;
-            int localZ = Coords.indexToColumnZ(idx);
-            return Coords.cubeToSection(z, localZ);
-        } else {
-            return z;
+        if (isCube(packed)) return extractCubeZ(packed);
+        return ChunkPos.getZ(packed);
+    }
+
+    public static long setX(long packed, int x) {
+        if (isChunk(packed)) {
+            return ChunkPos.asLong(x, ChunkPos.getZ(packed));
         }
+        //noinspection PointlessBitwiseExpression: yes intellij, it *is* equivalent to "-(1L << 21)" but it's also not as obvious
+        packed &= ~((1L << 21) - 1);
+        return packed | (x & (1L << 21) - 1);
     }
 
-    public static boolean isCube(long packed) {
-        return !isPackedColumnYMarker(extractRawY(packed));
+    public static long setY(long packed, int y) {
+        if (isChunk(packed)) {
+            throw new IllegalArgumentException("Column CloPos doesn't have a Y coordinate!");
+        }
+        packed &= ~(((1L << 21) - 1) << 21);
+        return packed | ((y & (1L << 21) - 1) << 21);
     }
 
-    public static boolean isColumn(long packed) {
-        return isPackedColumnYMarker(extractRawY(packed));
+    public static long setZ(long packed, int z) {
+        if (isChunk(packed)) {
+            return ChunkPos.asLong(ChunkPos.getX(packed), z);
+        }
+        // mask is one bit larger (22 instead of 21) to also reset the parity bit
+        packed &= ~(((1L << 22) - 1) << 42);
+        packed |= ((z & (1L << 21) - 1) << 42);
+        // If 2nd bit isn't set, set 1st bit, since cubes are marked by starting with 0b01 or 0b10
+        if (packed < (1L << 62)) packed |= (1L << 63);
+        // invert the top two bits for storage (as explained in the class javadoc)
+        return packed ^ TOP_TWO_BITS_MASK;
     }
 
     public CubePos cubePos() {
-        if (isColumn()) {
-            throw new UnsupportedOperationException("Calling getY() on column CloPos");
+        if (isChunk()) {
+            throw new UnsupportedOperationException("Calling getY() on chunk CloPos");
         }
         return CubePos.of(this.x, this.y, this.z);
     }
@@ -250,7 +247,7 @@ public class CloPos {
 
     public CloPos correspondingCubeCloPos(int y) {
         if (isCube()) {
-            return this;
+            return CloPos.cube(this.x, y, this.z);
         } else {
             return CloPos.cube(Coords.sectionToCube(this.x), y, Coords.sectionToCube(this.z));
         }
@@ -258,10 +255,9 @@ public class CloPos {
 
     public CubePos correspondingCubePos(int y) {
         if (isCube()) {
-            return cubePos();
+            return CubePos.of(this.x, y, this.z);
         } else {
-            throw new UnsupportedOperationException(); // TODO
-//            return CubePos.fromColumn(this.x, this.z, y);
+            return CubePos.of(Coords.sectionToCube(this.x), y, Coords.sectionToCube(this.z));
         }
     }
 
@@ -277,18 +273,21 @@ public class CloPos {
         }
     }
 
-    public CloPos correspondingColumnCloPos() {
-        return correspondingColumnCloPos(0, 0);
+    public CloPos correspondingChunkCloPos() {
+        return correspondingChunkCloPos(0, 0);
     }
 
-    public CloPos correspondingColumnCloPos(int localX, int localZ) {
+    public CloPos correspondingChunkCloPos(int localX, int localZ) {
         if (isCube()) {
-            return CloPos.column(Coords.cubeToSection(this.x, localX), Coords.cubeToSection(this.z, localZ));
+            return CloPos.chunk(Coords.cubeToSection(this.x, localX), Coords.cubeToSection(this.z, localZ));
         } else {
-            return CloPos.column(this.x, this.z);
+            return CloPos.chunk(this.x, this.z);
         }
     }
 
+    /**
+     * Iterate over neighbors of this position. Chunks are treated as neighbors of cubes, but not the reverse (there is a mono-directional edge from cubes to chunks)
+     */
     public void forEachNeighbor(Consumer<? super CloPos> consumer) {
         if (isCube()) {
             for (int dx = -1; dx <= 1; dx++) {
@@ -301,29 +300,26 @@ public class CloPos {
             }
             for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                 for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
-                    consumer.accept(correspondingColumnCloPos(dx, dz));
+                    consumer.accept(correspondingChunkCloPos(dx, dz));
                 }
             }
         } else {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     if (dx != 0 || dz != 0)
-                        consumer.accept(CloPos.column(this.x + dx, this.z + dz));
+                        consumer.accept(CloPos.chunk(this.x + dx, this.z + dz));
                 }
             }
         }
     }
-
-
-
-
-
-
+    /**
+     * Iterate over neighbors of the given position. Chunks are treated as neighbors of cubes, but not the reverse (there is a mono-directional edge from cubes to chunks)
+     */
     public static void forEachNeighbor(long packed, LongConsumer consumer) {
         if (isCube(packed)) {
-            int x = extractRawX(packed);
-            int y = extractRawY(packed);
-            int z = extractRawZ(packed);
+            int x = extractCubeX(packed);
+            int y = extractCubeY(packed);
+            int z = extractCubeZ(packed);
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     for (int dy = -1; dy <= 1; dy++) {
@@ -334,13 +330,12 @@ public class CloPos {
             }
             for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                 for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
-                    int markY = packedColumnYMarker(x + dx, z + dz);
-                    consumer.accept(setRawY(packed, markY));
+                    consumer.accept(CloPos.asLong(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
                 }
             }
         } else {
-            int x = extractX(packed);
-            int z = extractZ(packed);
+            int x = ChunkPos.getX(packed);
+            int z = ChunkPos.getZ(packed);
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     if (dx != 0 || dz != 0)
