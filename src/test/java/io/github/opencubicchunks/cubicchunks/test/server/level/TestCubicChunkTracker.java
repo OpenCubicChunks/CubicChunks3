@@ -18,8 +18,6 @@ import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.server.level.ChunkTracker;
-import net.minecraft.server.level.TickingTracker;
-import net.minecraft.world.level.ChunkPos;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -128,7 +126,7 @@ public class TestCubicChunkTracker {
         }
         for (int i = 0; i < 100; i++) {
             var testPos = CloPos.cube(rand.nextInt(0, 20) - 10, 0, rand.nextInt(0, 20) - 10);
-            var testCol = testPos.correspondingColumnCloPos(rand.nextInt(0, CubicConstants.DIAMETER_IN_SECTIONS), rand.nextInt(0, CubicConstants.DIAMETER_IN_SECTIONS));
+            var testCol = testPos.correspondingChunkCloPos(rand.nextInt(0, CubicConstants.DIAMETER_IN_SECTIONS), rand.nextInt(0, CubicConstants.DIAMETER_IN_SECTIONS));
             // Minimum distance from all sources should be the level
             var dist = Integer.MAX_VALUE;
             for (int j = 0; j < srcPosClo.size(); j++) {
@@ -142,7 +140,7 @@ public class TestCubicChunkTracker {
         for (int i = 0; i < srcPosClo.size(); i++) {
             for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                 for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
-                    var srcChunk = srcPosClo.get(i).correspondingColumnCloPos(dx, dz);
+                    var srcChunk = srcPosClo.get(i).correspondingChunkCloPos(dx, dz);
                     assertEquals(0, tracker.getLevel(srcChunk.asLong()), "Level should be zero at chunks intersecting source cube.");
                 }
             }
@@ -230,14 +228,14 @@ public class TestCubicChunkTracker {
     @Test public void testSingleChunkSource() {
         var tracker = new TestCubicTracker(8, 16, 256);
         ((MarkableAsCubic) tracker).cc_setCubic();
-        var srcPos = CloPos.column(-4, 3);
+        var srcPos = CloPos.chunk(-4, 3);
         tracker.addSource(srcPos.asLong(), 0);
         tracker.runAllUpdates();
         var rand = new Random(333);
         assertEquals(0, tracker.getLevel(srcPos.asLong()), "Level should be zero at source chunk.");
-        assertThat(tracker.chunks.keySet()).withFailMessage("No cubes should be loaded by columns.").allSatisfy(CloPos::isColumn);
+        assertThat(tracker.chunks.keySet()).withFailMessage("No cubes should be loaded by columns.").allSatisfy(CloPos::isChunk);
         for (int i = 0; i < 1000; i++) {
-            var testPos = CloPos.column(srcPos.getX() + rand.nextInt(0, 20) - 10, srcPos.getZ() + rand.nextInt(0, 20) - 10);
+            var testPos = CloPos.chunk(srcPos.getX() + rand.nextInt(0, 20) - 10, srcPos.getZ() + rand.nextInt(0, 20) - 10);
             var dist = Misc.chebyshevDistance(srcPos.chunkPos(), testPos.chunkPos());
             assertEquals(Math.min(7, dist), tracker.getLevel(testPos.asLong()), String.format("Level at chunk %d %d.", testPos.getX(), testPos.getZ()));
         }
@@ -249,7 +247,7 @@ public class TestCubicChunkTracker {
     private void addAndTestVanillaChunkSources(List<CloPos> srcPosClo, TestCubicTracker tracker, Random rand, int numSourcesAdded) {
         if (numSourcesAdded == 0) {
             for (int i = 0; i < numSourcesAdded; i++) {
-                srcPosClo.add(CloPos.column(rand.nextInt(0, 20)-10, rand.nextInt(0, 20)-10));
+                srcPosClo.add(CloPos.chunk(rand.nextInt(0, 20)-10, rand.nextInt(0, 20)-10));
                 tracker.addSource(srcPosClo.get(srcPosClo.size() - 1).toLong(), 0);
             }
             tracker.runAllUpdates();
@@ -280,7 +278,7 @@ public class TestCubicChunkTracker {
 
     private void testVanillaChunkSourcePropagation(List<CloPos> srcPosClo, TestCubicTracker tracker, Random rand) {
         for (int i = 0; i < 1000; i++) {
-            var testPos = CloPos.column(rand.nextInt(0, 20) - 10, rand.nextInt(0, 20) - 10).chunkPos();
+            var testPos = CloPos.chunk(rand.nextInt(0, 20) - 10, rand.nextInt(0, 20) - 10).chunkPos();
             var dist = Integer.MAX_VALUE;
             for (int j = 0; j < srcPosClo.size(); j++) {
                 dist = Math.min(dist, Misc.chebyshevDistance(srcPosClo.get(j).chunkPos(), testPos));

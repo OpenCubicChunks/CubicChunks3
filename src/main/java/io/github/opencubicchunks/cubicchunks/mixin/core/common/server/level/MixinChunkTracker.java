@@ -1,6 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -58,7 +59,7 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
 
     @ModifyConstant(method = "computeLevelFromNeighbor", constant = @Constant(intValue = 1))
     private int cc_dontIncrementLevelOnCubeChunkEdge(int constant, @Local(ordinal = 0, argsOnly = true) long fromPos, @Local(ordinal = 1, argsOnly = true) long toPos) {
-        if (cc_isCubic && CloPos.isCube(fromPos) && CloPos.isColumn(toPos)) return 0;
+        if (cc_isCubic && CloPos.isCube(fromPos) && CloPos.isChunk(toPos)) return 0;
         return constant;
     }
 
@@ -82,7 +83,7 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     @Inject(method = "getComputedLevel", at=@At("HEAD"), cancellable = true)
     private void cc_onGetComputedLevel(long pos, long excludedSourcePos, int level, CallbackInfoReturnable<Integer> cir) {
         if (!cc_isCubic) return;
-        if (CloPos.isColumn(pos)) {
+        if (CloPos.isChunk(pos)) {
             int out = level;
 
             int x = CloPos.extractX(pos);
@@ -108,10 +109,11 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
                 }
             }
             // This is propagating the level from neighboring cubes to this column.
-            IntSet neighborCubeYSet = this.cc_existingCubesForCubeColumns.get(CloPos.setRawY(pos, 0));
+            long cubeColumnKey = CloPos.asLong(Coords.sectionToCube(x), 0, Coords.sectionToCube(z));
+            IntSet neighborCubeYSet = this.cc_existingCubesForCubeColumns.get(cubeColumnKey);
             if (neighborCubeYSet != null) {
                 for (Integer cubeY : neighborCubeYSet) {
-                    long neighbor = CloPos.setRawY(pos, cubeY);
+                    long neighbor = CloPos.setY(cubeColumnKey, cubeY);
                     assert neighbor != pos;
                     if (neighbor != excludedSourcePos) {
                         int k1 = this.computeLevelFromNeighbor(neighbor, pos, this.getLevel(neighbor));
@@ -130,9 +132,9 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
         } else {
             int out = level;
 
-            int x = CloPos.extractRawX(pos);
-            int y = CloPos.extractRawY(pos);
-            int z = CloPos.extractRawZ(pos);
+            int x = CloPos.extractX(pos);
+            int y = CloPos.extractY(pos);
+            int z = CloPos.extractZ(pos);
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     for (int dy = -1; dy <= 1; dy++) {
@@ -167,11 +169,11 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
      */
     protected void cc_onSetLevel(long pos, int level) {
         if (cc_isCubic && CloPos.isCube(pos)) {
-            long key = CloPos.setRawY(pos, 0);
+            long key = CloPos.setY(pos, 0);
             IntSet cubes = cc_existingCubesForCubeColumns.get(key);
             if (level >= cc_noChunkLevel) {
                 if (cubes != null) {
-                    cubes.remove(CloPos.extractRawY(pos));
+                    cubes.remove(CloPos.extractY(pos));
                     if (cubes.isEmpty()) {
                         cc_existingCubesForCubeColumns.remove(key);
                     }
@@ -180,7 +182,7 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
                 if (cubes == null) {
                     cc_existingCubesForCubeColumns.put(key, cubes = new IntOpenHashSet());
                 }
-                cubes.add(CloPos.extractRawY(pos));
+                cubes.add(CloPos.extractY(pos));
             }
         }
     }
