@@ -1,5 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
+import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -134,6 +136,16 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
     private long cc_replaceTicketTypeOnRemovePlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos p_140803) {
         if(!cc_isCubic) return original.call(chunkPos);
         return CloPos.section(p_140803).toLong();
+    }
+
+    /**
+     * This function adds in the CC-specific ticket types to immutableset, since immutableset contains the list of tickets that cannot be removed
+     * (they are all added under very specific circumstances and are removed at some point later). We can have that set contain both CC and
+     * non-CC tickets and still function correctly.
+     */
+    @Redirect(method = "removeTicketsOnClosing", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableSet;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Lcom/google/common/collect/ImmutableSet;" ))
+    private ImmutableSet<Object> cc_addIrremovableTicketsToSet(Object e1, Object e2, Object e3) {
+        return ImmutableSet.of(e1, e2, e3, CubicTicketType.UNKNOWN, CubicTicketType.LIGHT);
     }
 
     // TODO: Make mixins for dumpTickets if you're feeling ambitious (I'm not, and it is debug code, so it's not a priority)

@@ -1,6 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import javax.annotation.Nullable;
 
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.CubicDistanceManagerTestAccess;
+import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
+import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -21,6 +24,8 @@ import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.util.Unit;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.level.ChunkPos;
 import org.junit.jupiter.api.BeforeAll;
@@ -100,7 +105,7 @@ public class TestCubicDistanceManager {
         DistanceManager distanceManager = setupDistanceManager();
         ((CubicDistanceManagerTestAccess) distanceManager).invoke_updateChunkForced(ChunkPos.ZERO, true);
         distanceManager.runAllUpdates(mock(ChunkMap.class));
-        assertEquals(true, distanceManager.inEntityTickingRange(ChunkPos.ZERO.toLong()), "ChunkPos.ZERO is not in entity ticking range");
+        assertTrue(distanceManager.inEntityTickingRange(ChunkPos.ZERO.toLong()), "ChunkPos.ZERO is not in entity ticking range");
     }
 
     @Test public void testUpdateChunkForced() {
@@ -108,7 +113,7 @@ public class TestCubicDistanceManager {
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         ((CubicDistanceManagerTestAccess)distanceManager).invoke_updateCubeForced(CloPos.cube(0, 0, 0), true);
         distanceManager.runAllUpdates(mock(ChunkMap.class));
-        assertEquals(true, distanceManager.inEntityTickingRange(CloPos.cube(0, 0, 0).toLong()), "CloPos.ZERO is not in entity ticking range");
+        assertTrue(distanceManager.inEntityTickingRange(CloPos.cube(0, 0, 0).toLong()), "CloPos.ZERO is not in entity ticking range");
     }
 
     private void addAndTestPlayersVanilla(DistanceManager distanceManager, List<ServerPlayerAndPosition> players, int count, Random rand) {
@@ -122,7 +127,7 @@ public class TestCubicDistanceManager {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertEquals(true, distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
+            assertTrue(distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
         }
     }
 
@@ -140,7 +145,7 @@ public class TestCubicDistanceManager {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertEquals(true, distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
+            assertTrue(distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
         }
     }
 
@@ -168,7 +173,7 @@ public class TestCubicDistanceManager {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertEquals(true, distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
+            assertTrue(distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
         }
     }
 
@@ -186,7 +191,7 @@ public class TestCubicDistanceManager {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertEquals(true, distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
+            assertTrue(distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
         }
     }
 
@@ -223,28 +228,87 @@ public class TestCubicDistanceManager {
         testAddAndRemove(distanceManager, 50, 50, 0.5f);
     }
 
+    @Test public void testRemoveTicketsOnClosingVanilla() {
+        var distanceManager = setupDistanceManager();
+        distanceManager.addTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        assertTrue(distanceManager.hasTickets());
+        distanceManager.removeTicketsOnClosing();
+        assertFalse(distanceManager.hasTickets());
+    }
+
+    @Test public void testRemoveTicketsOnClosing() {
+        var distanceManager = setupDistanceManager();
+        ((MarkableAsCubic) distanceManager).cc_setCubic();
+        ((CubicDistanceManager)distanceManager).addTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        assertTrue(distanceManager.hasTickets());
+        distanceManager.removeTicketsOnClosing();
+        assertFalse(distanceManager.hasTickets());
+    }
+
+    @Test public void testAddRemoveTicketsVanilla() {
+        var distanceManager = setupDistanceManager();
+        distanceManager.addTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        assertTrue(distanceManager.hasTickets());
+        distanceManager.removeTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        assertFalse(distanceManager.hasTickets());
+        distanceManager.addRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        assertTrue(distanceManager.hasTickets());
+        distanceManager.removeRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        assertFalse(distanceManager.hasTickets());
+    }
+
+    @Test public void testAddRemoveTickets() {
+        var distanceManager = setupDistanceManager();
+        ((MarkableAsCubic) distanceManager).cc_setCubic();
+        ((CubicDistanceManager)distanceManager).addTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        assertTrue(distanceManager.hasTickets());
+        ((CubicDistanceManager)distanceManager).removeTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        assertFalse(distanceManager.hasTickets());
+        ((CubicDistanceManager)distanceManager).addRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        assertTrue(distanceManager.hasTickets());
+        ((CubicDistanceManager)distanceManager).removeRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        assertFalse(distanceManager.hasTickets());
+    }
+
+    @Test public void testShouldForceTicksVanilla() {
+        var distanceManager = setupDistanceManager();
+        distanceManager.addRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE, true);
+        assertTrue(distanceManager.shouldForceTicks(0));
+        distanceManager.removeRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE, true);
+        assertFalse(distanceManager.shouldForceTicks(0));
+    }
+
+    @Test public void testShouldForceTicks() {
+        var distanceManager = setupDistanceManager();
+        ((MarkableAsCubic) distanceManager).cc_setCubic();
+        ((CubicDistanceManager)distanceManager).addRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
+        assertTrue(distanceManager.shouldForceTicks(0));
+        ((CubicDistanceManager)distanceManager).removeRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
+        assertFalse(distanceManager.shouldForceTicks(0));
+    }
+
     // Tests for PlayerTicketTracker
     // TODO: The two functions being tested are complex and confusing, and I don't know how to test them at this moment beyond verifying they don't crash anything.
 
-    @Test public void onLevelChangeVanilla() {
+    @Test public void testOnLevelChangeVanilla() {
         var distanceManager = setupDistanceManager();
         // Update view distance calls onLevelChange
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().updateViewDistance(10);
     }
 
-    @Test public void runAllUpdatesVanilla() {
+    @Test public void testRunAllUpdatesVanilla() {
         var distanceManager = setupDistanceManager();
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().runAllUpdates();
     }
 
-    @Test public void onLevelChange() {
+    @Test public void testOnLevelChange() {
         var distanceManager = setupDistanceManager();
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         // Update view distance calls onLevelChange
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().updateViewDistance(10);
     }
 
-    @Test public void runAllUpdates() {
+    @Test public void testRunAllUpdates() {
         var distanceManager = setupDistanceManager();
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().runAllUpdates();
