@@ -17,7 +17,13 @@ import net.minecraft.world.level.ChunkPos;
  * When packed as a long, chunk positions are encoded the same as {@link ChunkPos#toLong}; cube positions are packed with 21 bits per axis. The parity of the top two bits of the long is
  * used to distinguish between chunks and cubes (if bit 0 XOR bit 1, it is a cube, otherwise it is a chunk).
  * <br>
- * Also note that the top two bits (the parity bit, and the top bit of the Z coordinate) are inverted, as otherwise {@link Long#MAX_VALUE} would be a valid position (-1, -1, -1).
+ * Also note that for cubes the top two bits (the parity bit, and the top bit of the Z coordinate) are inverted, as otherwise {@link Long#MAX_VALUE} would be a valid position (-1, -1, -1).
+ * <br>
+ * Invalid CloPos long:          <br> <code> 0b01111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 </code> <br>
+ * Positive Z cube CloPos long:  <br> <code> 0b01ZZZZZZ ZZZZZZZZ ZZZZZZYY YYYYYYYY YYYYYYYY YYYXXXXX XXXXXXXX XXXXXXXX </code> <br>
+ * Negative Z cube CloPos long:  <br> <code> 0b10ZZZZZZ ZZZZZZZZ ZZZZZZYY YYYYYYYY YYYYYYYY YYYXXXXX XXXXXXXX XXXXXXXX </code> <br>
+ * Positive Z chunk CloPos long: <br> <code> 0b00ZZZZZZ ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX </code> <br>
+ * Negative Z chunk CloPos long: <br> <code> 0b11ZZZZZZ ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX </code>
  */
 public class CloPos {
     private static final int CLO_Y_COLUMN_INDICATOR = Integer.MAX_VALUE;
@@ -132,17 +138,9 @@ public class CloPos {
 
     public long asLong() {
         if (isCube()) {
-            long i = 0L;
-            i |= ((long) this.x & (1 << 21) - 1);
-            i |= ((long) this.y & (1 << 21) - 1) << 21;
-            i |= ((long) this.z & (1 << 21) - 1) << 42;
-            // If 2nd bit isn't set, set 1st bit, since cubes are marked by starting with 0b01 or 0b10
-            if (i < (1L << 62)) i |= (1L << 63);
-            // invert the top two bits for storage
-            i ^= TOP_TWO_BITS_MASK;
-            return i;
+            return CloPos.asLong(x, y, z);
         } else {
-            return ChunkPos.asLong(this.x, this.z);
+            return CloPos.asLong(x, z);
         }
     }
 
