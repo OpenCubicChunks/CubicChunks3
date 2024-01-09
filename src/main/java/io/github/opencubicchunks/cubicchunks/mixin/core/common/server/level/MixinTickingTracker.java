@@ -41,8 +41,7 @@ public abstract class MixinTickingTracker extends MixinChunkTracker implements C
 
     @Inject(method = "getLevel(Lnet/minecraft/world/level/ChunkPos;)I", at = @At("HEAD"))
     private void cc_onChunkGetLevel(ChunkPos p_184162_, CallbackInfoReturnable<Integer> cir) {
-        // TODO: Add this assert back in once we can run DASM before Mixin
-        /*assert !cc_isCubic;*/
+        assert !cc_isCubic;
     }
 
     /**

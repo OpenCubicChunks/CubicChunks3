@@ -12,8 +12,11 @@
         "conformVisibility": true
     },
     "mixins": [
+        "common.server.level.MixinChunkTaskPriorityQueue",
+        "common.server.level.MixinChunkTaskPriorityQueueSorter",
         "common.server.level.MixinChunkTicketTracker",
         "common.server.level.MixinChunkTracker",
+        "common.server.level.MixinDistanceManager",
         "common.server.level.MixinFixedPlayerDistanceChunkTracker",
         "common.server.level.MixinPlayerTicketTracker",
         "common.server.level.MixinTickingTracker",
