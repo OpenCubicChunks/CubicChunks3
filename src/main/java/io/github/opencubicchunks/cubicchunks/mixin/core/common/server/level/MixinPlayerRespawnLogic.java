@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+// TODO: Verify why this priority is here
 @Mixin(value = PlayerRespawnLogic.class, priority = 999)
 public class MixinPlayerRespawnLogic {
 
