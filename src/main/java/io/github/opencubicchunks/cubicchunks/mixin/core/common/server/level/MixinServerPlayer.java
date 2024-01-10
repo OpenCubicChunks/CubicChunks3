@@ -3,8 +3,6 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -41,4 +39,8 @@ public abstract class MixinServerPlayer extends Player implements MarkableAsCubi
         //instance.addRegionTicket(ticketType, CloPos.cube(BlockPos.containing(x, y, z)), 1, this.getId());
         return false;
     }
+
+    // TODO: phase 3 - findDimensionEntryPoint
+
+    // TODO: phase 3 - changeDimension
 }
