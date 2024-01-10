@@ -28,7 +28,6 @@ public abstract class MixinServerLevel extends Level implements CubicServerLevel
         cc_isCubic = true;
     }
 
-
     @Inject(method = {"isNaturalSpawningAllowed(Lnet/minecraft/world/level/ChunkPos;)Z"}, at = @At("HEAD"))
     private void cc_onIsNaturalSpawningAllowed(ChunkPos p_201917_, CallbackInfoReturnable<Boolean> cir){
         assert !cc_isCubic;
@@ -48,4 +47,15 @@ public abstract class MixinServerLevel extends Level implements CubicServerLevel
     @UsedFromASM
     @TransformFrom("isNaturalSpawningAllowed(Lnet/minecraft/world/level/ChunkPos;)Z")
     public abstract boolean isNaturalSpawningAllowed(CloPos cloPos);
+
+    // tickCube - new function
+
+    // sendBlockUpdated - mixin
+
+    // setCubeForced - new function
+
+    // saveDebugReport - mixins, debug only, low priority
+
+    // isPositionEntityTicking - mixin
+
 }

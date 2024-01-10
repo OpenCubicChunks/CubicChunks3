@@ -11,4 +11,8 @@ public class MixinMinecraftServer implements MarkableAsCubic {
     @Override
     public void cc_setCubic() { cc_isCubic = true;}
 
+    // setInitialSpawn - mixin
+
+    // prepareLevels - mixin
+
 }

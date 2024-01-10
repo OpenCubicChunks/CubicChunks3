@@ -34,15 +34,12 @@ public class TestServerPlayer {
         return new ServerPlayer(mock(), new ServerLevel(mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), false, 0, mock(RETURNS_DEEP_STUBS), false, mock(RETURNS_DEEP_STUBS)), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS));
     }
 
-    // TODO: Phase 3
-    @Test public void testFindDimensionEntryPointVanilla() {}
-
-    // TODO: Phase 3 maybe
-    @Test public void testChangeDimensionVanilla() {}
-
+    /**
+     * This test is ignored for now. setupServerPlayer() needs to be correctly mocked first.
+     */
     @Ignore @Test public void testTeleportToVanilla() {
-        ServerPlayer player = setupServerPlayer();
-        player.teleportTo(player.serverLevel(), 0, 0, 0, mock(), 0, 0);
-        assertTrue(player.serverLevel().getChunkSource().hasChunk(0, 0));
+        //ServerPlayer player = setupServerPlayer();
+        //player.teleportTo(player.serverLevel(), 0, 0, 0, mock(), 0, 0);
+        //assertTrue(player.serverLevel().getChunkSource().hasChunk(0, 0));
     }
 }
