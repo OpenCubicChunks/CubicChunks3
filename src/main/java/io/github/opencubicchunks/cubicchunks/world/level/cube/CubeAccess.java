@@ -1,4 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.world.level.cube;
 
-public class CubeAccess {
+import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
+
+public class CubeAccess implements CloAccess {
 }
