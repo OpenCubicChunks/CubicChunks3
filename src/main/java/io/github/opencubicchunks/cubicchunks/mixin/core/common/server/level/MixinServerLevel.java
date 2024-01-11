@@ -28,25 +28,9 @@ public abstract class MixinServerLevel extends Level implements CubicServerLevel
         cc_isCubic = true;
     }
 
-    @Inject(method = {"isNaturalSpawningAllowed(Lnet/minecraft/world/level/ChunkPos;)Z"}, at = @At("HEAD"))
-    private void cc_onIsNaturalSpawningAllowed(ChunkPos p_201917_, CallbackInfoReturnable<Boolean> cir){
-        assert !cc_isCubic;
-    }
+    // isNaturalSpawningAllowed - mixin? new function?
 
-    @Inject(method = {"invalidateCapabilities(Lnet/minecraft/world/level/ChunkPos;)V"}, at = {@At("HEAD")})
-    private void cc_onInvalidateCapabilities(ChunkPos p_201917_, CallbackInfo ci){
-        assert !cc_isCubic;
-    }
-
-    @Override
-    @UsedFromASM
-    @TransformFrom("invalidateCapabilities(Lnet/minecraft/world/level/ChunkPos;)V")
-    public abstract void invalidateCapabilities(CloPos cloPos);
-
-    @Override
-    @UsedFromASM
-    @TransformFrom("isNaturalSpawningAllowed(Lnet/minecraft/world/level/ChunkPos;)Z")
-    public abstract boolean isNaturalSpawningAllowed(CloPos cloPos);
+    // invalidateCapabilites - phase 3, neoforge api
 
     // tickCube - new function
 
