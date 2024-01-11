@@ -58,8 +58,4 @@ public class Misc {
                 mock(RETURNS_DEEP_STUBS)),
             randomStateMockedStatic);
     }
-
-    public static void unregisterServerLevel() {
-
-    }
 }
