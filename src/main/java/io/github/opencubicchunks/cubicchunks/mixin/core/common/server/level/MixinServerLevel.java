@@ -50,8 +50,6 @@ public abstract class MixinServerLevel extends Level implements CubicServerLevel
 
     // tickCube - new function
 
-    // sendBlockUpdated - mixin
-
     // setCubeForced - new function
 
     // saveDebugReport - mixins, debug only, low priority

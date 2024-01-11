@@ -12,15 +12,21 @@
         "conformVisibility": true
     },
     "mixins": [
+        "common.client.multiplayer.MixinClientLevel",
         "common.server.level.MixinChunkTaskPriorityQueue",
         "common.server.level.MixinChunkTaskPriorityQueueSorter",
         "common.server.level.MixinChunkTicketTracker",
         "common.server.level.MixinChunkTracker",
         "common.server.level.MixinDistanceManager",
         "common.server.level.MixinFixedPlayerDistanceChunkTracker",
+        "common.server.level.MixinPlayerRespawnLogic",
         "common.server.level.MixinPlayerTicketTracker",
+        "common.server.level.MixinServerLevel",
+        "common.server.level.MixinServerPlayer",
         "common.server.level.MixinTickingTracker",
-        "common.TestMixin"
+        "common.server.MixinMinecraftServer",
+        "common.TestMixin",
+        "common.world.level.MixinLevel"
     ],
     "client": [],
     "server": []
