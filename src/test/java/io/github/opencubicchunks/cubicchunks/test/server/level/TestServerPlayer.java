@@ -31,7 +31,7 @@ public class TestServerPlayer {
         return new ServerPlayer(mock(RETURNS_DEEP_STUBS), serverLevel, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS));
     }
 
-    // TODO: Stub. This test needs a mixin from MixinEntityTest to ignore a NeoForge thing but it won't apply.
+    // TODO: Stub. This test needs a mixin from MixinEntityTest to ignore forgeFluidTypeOnEyes from NeoForge.
     @Disabled @Test public void testTeleportToVanilla() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             ServerPlayer player = setupServerPlayer(serverLevelReference.value());

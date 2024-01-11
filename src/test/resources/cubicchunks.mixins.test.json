@@ -13,8 +13,7 @@
     },
     "mixins": [
         "common.server.level.ChunkTrackerTestAccess",
-        "common.server.level.CubicDistanceManagerTestAccess",
-        "common.server.level.MixinEntityTest"
+        "common.server.level.CubicDistanceManagerTestAccess"
     ],
     "client": [],
     "server": []
