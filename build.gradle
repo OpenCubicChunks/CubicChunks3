@@ -213,7 +213,7 @@ dependencies {
         targetConfiguration = "testArchivesOutput"
     }
 
-    libraries("com.github.OpenCubicChunks:dasm:c6572af851") {
+    libraries("com.github.OpenCubicChunks:dasm:cd078a82cd") {
         transitive = false
     }
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")

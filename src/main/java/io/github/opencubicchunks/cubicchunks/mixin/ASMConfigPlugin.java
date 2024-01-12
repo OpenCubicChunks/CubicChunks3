@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -142,10 +143,12 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         try {
             var mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
             var target = new RedirectsParser.ClassTarget(targetClassName);
-            List<RedirectsParser.RedirectSet> redirectSets = new ArrayList<>();
+            Set<RedirectsParser.RedirectSet> redirectSets = new HashSet<>();
 
             findRedirectSets(targetClassName, mixinClass, redirectSets);
             buildClassTarget(mixinClass, target, TransformFrom.ApplicationStage.PRE_APPLY);
+            findRedirectSets(targetClassName, targetClass, redirectSets);
+            buildClassTarget(targetClass, target, TransformFrom.ApplicationStage.PRE_APPLY);
 
             if (classDuplicationDummyTargets.containsKey(targetClassName)) {
                 if (!classesToDuplicateSrc.containsKey(targetClassName)) {
@@ -171,7 +174,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
 //                return;
             }
 
-            this.transformer.transformClass(targetClass, target, redirectSets);
+            this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
             try {
                 // ugly hack to add class metadata to mixin
                 // based on https://github.com/Chocohead/OptiFabric/blob/54fc2ef7533e43d1982e14bc3302bcf156f590d8/src/main/java/me/modmuss50/optifabric/compat/fabricrendererapi
@@ -204,12 +207,14 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             throw new RuntimeException(e);
         }
         var target = new RedirectsParser.ClassTarget(targetClassName);
-        List<RedirectsParser.RedirectSet> redirectSets = new ArrayList<>();
+        Set<RedirectsParser.RedirectSet> redirectSets = new HashSet<>();
 
         findRedirectSets(targetClassName, mixinClass, redirectSets);
         buildClassTarget(mixinClass, target, TransformFrom.ApplicationStage.POST_APPLY);
+        findRedirectSets(targetClassName, targetClass, redirectSets);
+        buildClassTarget(targetClass, target, TransformFrom.ApplicationStage.PRE_APPLY);
 
-        this.transformer.transformClass(targetClass, target, redirectSets);
+        this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
 
         // Find all DASM-added method nodes and their corresponding MixinMerged method nodes
         record PrefixMethodPair(MethodNode dasmAddedMethod, MethodNode mixinAddedMethod) { }
@@ -239,7 +244,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         });
     }
 
-    private void findRedirectSets(String targetClassName, ClassNode targetClass, List<RedirectsParser.RedirectSet> redirectSets) {
+    private void findRedirectSets(String targetClassName, ClassNode targetClass, Set<RedirectsParser.RedirectSet> redirectSets) {
         if (targetClass.invisibleAnnotations == null) {
             return;
         }
@@ -341,6 +346,10 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                         "cc_dasm$" + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
                         true, makeSyntheticAccessor
                     );
+                }
+                if (classTarget.getTargetMethods().stream().anyMatch(t -> t.method().method.equals(targetMethod.method().method))) {
+                    throw new RuntimeException(String.format("Trying to add duplicate TargetMethod to ClassTarget:\n\t\t\t\t%s | %s", targetMethod.method().owner,
+                        targetMethod.method().method));
                 }
                 classTarget.addTarget(targetMethod);
             }
