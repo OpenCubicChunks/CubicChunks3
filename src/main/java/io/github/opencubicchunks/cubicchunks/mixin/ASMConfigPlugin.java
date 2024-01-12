@@ -212,7 +212,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         findRedirectSets(targetClassName, mixinClass, redirectSets);
         buildClassTarget(mixinClass, target, TransformFrom.ApplicationStage.POST_APPLY);
         findRedirectSets(targetClassName, targetClass, redirectSets);
-        buildClassTarget(targetClass, target, TransformFrom.ApplicationStage.PRE_APPLY);
+        buildClassTarget(targetClass, target, TransformFrom.ApplicationStage.POST_APPLY);
 
         this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
 
