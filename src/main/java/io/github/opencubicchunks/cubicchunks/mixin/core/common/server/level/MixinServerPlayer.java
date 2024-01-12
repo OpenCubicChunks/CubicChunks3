@@ -36,6 +36,7 @@ public abstract class MixinServerPlayer extends Player implements MarkableAsCubi
         if (!cc_isCubic) {
             return true;
         }
+        // TODO: Add once Cubic ServerChunkCache exists
         //instance.addRegionTicket(ticketType, CloPos.cube(BlockPos.containing(x, y, z)), 1, this.getId());
         return false;
     }
