@@ -3,8 +3,6 @@ package io.github.opencubicchunks.cubicchunks.mixin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +24,6 @@ import io.github.opencubicchunks.dasm.MappingsProvider;
 import io.github.opencubicchunks.dasm.RedirectsParseException;
 import io.github.opencubicchunks.dasm.RedirectsParser;
 import io.github.opencubicchunks.dasm.Transformer;
-import io.github.opencubicchunks.dasm.TypeRedirect;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -35,12 +31,10 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.asm.mixin.transformer.ClassInfo;
 import org.spongepowered.asm.service.MixinService;
 
 public class ASMConfigPlugin implements IMixinConfigPlugin {
-    private final ConcurrentHashMap<String, ClassNode> classesToDuplicateSrc = new ConcurrentHashMap<>();
-    private final Map<String, String> classDuplicationDummyTargets = new HashMap<>();
+    private final Map<String, Boolean> dasmTransformedInPreApply = new ConcurrentHashMap<>();
     private final Map<String, RedirectsParser.RedirectSet> redirectSetByName = new HashMap<>();
     private final Throwable constructException;
 
@@ -84,36 +78,11 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             for (RedirectsParser.RedirectSet redirectSet : redirectSets) {
                 redirectSetByName.put(redirectSet.getName(), redirectSet);
             }
-            // TODO: whole-class redirects
-//            for (RedirectsParser.ClassTarget target : targetClasses) {
-//                List<RedirectsParser.RedirectSet> sets = new ArrayList<>();
-//                for (String set : target.getSets()) {
-//                    sets.add(redirectSetByName.get(set));
-//                }
-//                redirectSetsByClassTarget.put(target, sets);
-//                if (target.isWholeClass()) {
-//                    classDuplicationDummyTargets.put(
-//                        mappings.mapClassName(findWholeClassTypeRedirectFor(target, redirectSetByName)),
-//                        target.getClassName());
-//                }
-//            }
         } catch (Throwable e) {
             constructException = e; // Annoying because mixin catches Throwable for creating a config plugin >:(
             return;
         }
         constructException = null;
-    }
-
-    private String findWholeClassTypeRedirectFor(RedirectsParser.ClassTarget target, Map<String, RedirectsParser.RedirectSet> redirects) {
-        List<String> sets = target.getSets();
-        for (String set : sets) {
-            for (TypeRedirect typeRedirect : redirects.get(set).getTypeRedirects()) {
-                if (typeRedirect.srcClassName().equals(target.getClassName())) {
-                    return typeRedirect.dstClassName();
-                }
-            }
-        }
-        throw new IllegalStateException("No type redirect for whole class redirect " + target.getClassName());
     }
 
     @Override public void onLoad(String mixinPackage) {
@@ -130,9 +99,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         return true;
     }
 
-    @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
-
-    }
+    @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) { }
 
     @Nullable
     @Override public List<String> getMixins() {
@@ -140,81 +107,17 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
     }
 
     @Override public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-        try {
-            var mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-            var target = new RedirectsParser.ClassTarget(targetClassName);
-            Set<RedirectsParser.RedirectSet> redirectSets = new HashSet<>();
-
-            findRedirectSets(targetClassName, mixinClass, redirectSets);
-            buildClassTarget(mixinClass, target, TransformFrom.ApplicationStage.PRE_APPLY);
-            findRedirectSets(targetClassName, targetClass, redirectSets);
-            buildClassTarget(targetClass, target, TransformFrom.ApplicationStage.PRE_APPLY);
-
-            if (classDuplicationDummyTargets.containsKey(targetClassName)) {
-                if (!classesToDuplicateSrc.containsKey(targetClassName)) {
-                    throw new IllegalStateException("Class " + targetClassName + " has been loaded before " + classDuplicationDummyTargets.get(targetClassName));
-                }
-                replaceClassContent(targetClass, classesToDuplicateSrc.get(targetClassName));
-                return;
-            }
-
-            //TODO: untangle the mess of some methods accepting the/class/name, and others accepting the.class.name
-            //Ideally the input json would all have the same, and we'd just figure it out here
-            if (target.getTargetMethods().isEmpty()) {
-                return;
-            }
-            if (target.isWholeClass()) {
-                throw new RuntimeException("Whole-class DASM duplication not supported yet");
-                // TODO: whole-class redirects
-//                ClassNode duplicate = new ClassNode();
-//                targetClass.accept(duplicate);
-//
-//                this.transformer.transformClass(duplicate, target, redirectSetsByClassTarget.get(target));
-//                classesToDuplicateSrc.put(duplicate.name.replace('/', '.'), duplicate);
-//                return;
-            }
-
-            this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
-            try {
-                // ugly hack to add class metadata to mixin
-                // based on https://github.com/Chocohead/OptiFabric/blob/54fc2ef7533e43d1982e14bc3302bcf156f590d8/src/main/java/me/modmuss50/optifabric/compat/fabricrendererapi
-                // /RendererMixinPlugin.java#L25:L44
-                Method addMethod = ClassInfo.class.getDeclaredMethod("addMethod", MethodNode.class, boolean.class);
-                addMethod.setAccessible(true);
-
-                ClassInfo ci = ClassInfo.forName(targetClassName);
-                Set<String> existingMethods = ci.getMethods().stream().map(x -> x.getName() + x.getDesc()).collect(Collectors.toSet());
-                for (MethodNode method : targetClass.methods) {
-                    if (!existingMethods.contains(method.name + method.desc)) {
-                        addMethod.invoke(ci, method, false);
-                    }
-                }
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
-            throw new RuntimeException(t);
-        }
+        var wasTransformed = transformClass(targetClassName, targetClass, mixinClassName, TransformFrom.ApplicationStage.PRE_APPLY);
+        dasmTransformedInPreApply.put(mixinClassName + "|" + targetClassName, wasTransformed);
     }
 
     @Override public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         // Apply POST_APPLY dasm transforms
-        ClassNode mixinClass = null;
-        try {
-            mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-        } catch (ClassNotFoundException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        var target = new RedirectsParser.ClassTarget(targetClassName);
-        Set<RedirectsParser.RedirectSet> redirectSets = new HashSet<>();
+        boolean wasTransformed = transformClass(targetClassName, targetClass, mixinClassName, TransformFrom.ApplicationStage.POST_APPLY);
 
-        findRedirectSets(targetClassName, mixinClass, redirectSets);
-        buildClassTarget(mixinClass, target, TransformFrom.ApplicationStage.POST_APPLY);
-        findRedirectSets(targetClassName, targetClass, redirectSets);
-        buildClassTarget(targetClass, target, TransformFrom.ApplicationStage.POST_APPLY);
-
-        this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
+        // If no DASM transformation happened to this class, we can skip removing the prefixed methods
+        if (!(wasTransformed | dasmTransformedInPreApply.get(mixinClassName + "|" + targetClassName)))
+            return;
 
         // Find all DASM-added method nodes and their corresponding MixinMerged method nodes
         record PrefixMethodPair(MethodNode dasmAddedMethod, MethodNode mixinAddedMethod) { }
@@ -227,7 +130,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     .findFirst();
 
                 if (mixinAddedMethod.isEmpty()) {
-                    CubicChunks.LOGGER.warn("Found DASM added method `%s` without a corresponding MixinMerged method", methodNameWithoutPrefix);
+                    CubicChunks.LOGGER.info(String.format("Found DASM added method `%s` without a corresponding MixinMerged method", methodNameWithoutPrefix));
                 }
                 methodPairs.add(new PrefixMethodPair(methodNode, mixinAddedMethod.orElse(null)));
             }
@@ -242,6 +145,37 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 prefixMethodPair.dasmAddedMethod.name.indexOf("$") + 1
             );
         });
+    }
+
+    /**
+     * @return Whether any transformation was done to the targetClass
+     */
+    private boolean transformClass(String targetClassName, ClassNode targetClass, String mixinClassName, TransformFrom.ApplicationStage stage) {
+        ClassNode mixinClass;
+        try {
+            mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        var target = new RedirectsParser.ClassTarget(targetClassName);
+        Set<RedirectsParser.RedirectSet> redirectSets = new HashSet<>();
+
+        findRedirectSets(targetClassName, mixinClass, redirectSets);
+        buildClassTarget(mixinClass, target, stage, "cc_dasm$");
+        findRedirectSets(targetClassName, targetClass, redirectSets);
+        buildClassTarget(targetClass, target, stage, "cc_dasm$");
+
+        if (target.getTargetMethods().isEmpty() && target.wholeClass() == null) {
+            return false;
+        }
+
+        if (target.wholeClass() != null) {
+            this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
+        } else {
+            this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
+        }
+        return true;
     }
 
     private void findRedirectSets(String targetClassName, ClassNode targetClass, Set<RedirectsParser.RedirectSet> redirectSets) {
@@ -270,6 +204,10 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     useSets = (List<String>) value;
                 }
             }
+            if (useSets == null) {
+                redirectSets.add(redirectSetByName.get("general"));
+                continue;
+            }
             for (String useSet : useSets) {
                 RedirectsParser.RedirectSet redirectSet = redirectSetByName.get(useSet);
                 if (redirectSet == null) {
@@ -280,13 +218,43 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         }
     }
 
-    private static void buildClassTarget(ClassNode targetClass, RedirectsParser.ClassTarget classTarget, TransformFrom.ApplicationStage stage) {
+    private static void buildClassTarget(ClassNode targetClass, RedirectsParser.ClassTarget classTarget, TransformFrom.ApplicationStage stage, String methodPrefix) {
+        if (targetClass.invisibleAnnotations == null) {
+            return;
+        }
+        for (AnnotationNode ann : targetClass.invisibleAnnotations) {
+            if (!ann.desc.equals("Lio/github/opencubicchunks/cubicchunks/mixin/TransformFromClass;") || ann.values == null) {
+                continue;
+            }
+
+            List<Object> values = ann.values;
+            Type srcClass = null;
+            TransformFrom.ApplicationStage requestedStage = TransformFrom.ApplicationStage.PRE_APPLY;
+            for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
+                String name = (String) values.get(i);
+                Object value = values.get(i + 1);
+                if (name.equals("value")) {
+                    Type val = (Type) value;
+                    if (!Objects.equals(val, Type.getObjectType(Object.class.getName()))) { // Special case the default
+                        srcClass = val;
+                    }
+                } else if (name.equals("stage")) {
+                    var parts = ((String[]) value);
+                    requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
+                }
+            }
+            if (stage != requestedStage) {
+                continue;
+            }
+            classTarget.targetWholeClass(srcClass);
+        }
+
         for (Iterator<MethodNode> iterator = targetClass.methods.iterator(); iterator.hasNext(); ) {
             MethodNode method = iterator.next();
             if (method.invisibleAnnotations == null) {
                 continue;
             }
-            differentStage:
+
             for (AnnotationNode ann : method.invisibleAnnotations) {
                 if (!ann.desc.equals("Lio/github/opencubicchunks/cubicchunks/mixin/TransformFrom;")) {
                     continue;
@@ -307,19 +275,19 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
                     String name = (String) values.get(i);
                     Object value = values.get(i + 1);
-                    if (name.equals("value")) {
-                        targetName = (String) value;
-                    } else if (name.equals("makeSyntheticAccessor")) {
-                        makeSyntheticAccessor = (Boolean) value;
-                    } else if (name.equals("signature")) {
-                        desc = parseMethodDescriptor((AnnotationNode) value);
-                    } else if (name.equals("stage")) {
-                        var parts = ((String[]) value);
-                        requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
-                    } else if (name.equals("copyFrom")) {
-                        var val = (Type) value;
-                        if (!Objects.equals(val, Type.getObjectType(Object.class.getName()))) { // Special case the default
-                            srcOwner = val;
+                    switch (name) {
+                        case "value" -> targetName = (String) value;
+                        case "makeSyntheticAccessor" -> makeSyntheticAccessor = (Boolean) value;
+                        case "signature" -> desc = parseMethodDescriptor((AnnotationNode) value);
+                        case "stage" -> {
+                            var parts = ((String[]) value);
+                            requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
+                        }
+                        case "copyFrom" -> {
+                            var val = (Type) value;
+                            if (!Objects.equals(val, Type.getObjectType(Object.class.getName()))) { // Special case the default
+                                srcOwner = val;
+                            }
                         }
                     }
                 }
@@ -336,19 +304,19 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 if (srcOwner == null) {
                      targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
                         new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
-                        "cc_dasm$" + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
+                         methodPrefix + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
                         true, makeSyntheticAccessor
                     );
                 } else {
                     targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
                         srcOwner,
                         new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
-                        "cc_dasm$" + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
+                        methodPrefix + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
                         true, makeSyntheticAccessor
                     );
                 }
                 if (classTarget.getTargetMethods().stream().anyMatch(t -> t.method().method.equals(targetMethod.method().method))) {
-                    throw new RuntimeException(String.format("Trying to add duplicate TargetMethod to ClassTarget:\n\t\t\t\t%s | %s", targetMethod.method().owner,
+                    throw new RuntimeException(String.format("Trying to add duplicate TargetMethod to %s:\n\t\t\t\t%s | %s", classTarget.getClassName(), targetMethod.method().owner,
                         targetMethod.method().method));
                 }
                 classTarget.addTarget(targetMethod);
@@ -368,46 +336,16 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
             String name = (String) values.get(i);
             Object value = values.get(i + 1);
-            if (name.equals("ret")) {
-                ret = (Type) value;
-            } else if (name.equals("args")) {
-                args = (List<Type>) value;
-            } else if (name.equals("useFromString")) {
-                useFromString = (Boolean) value;
+            switch (name) {
+                case "ret" -> ret = (Type) value;
+                case "args" -> args = (List<Type>) value;
+                case "useFromString" -> useFromString = (Boolean) value;
             }
         }
         if (useFromString) {
             return null;
         }
         return Type.getMethodDescriptor(ret, args.toArray(new Type[0]));
-    }
-
-    private void replaceClassContent(ClassNode node, ClassNode replaceWith) {
-        node.access = 0;
-        node.name = null;
-        node.signature = null;
-        node.superName = null;
-        node.interfaces.clear();
-        node.sourceFile = null;
-        node.sourceDebug = null;
-        node.module = null;
-        node.outerClass = null;
-        node.outerMethod = null;
-        node.outerMethodDesc = null;
-        node.visibleAnnotations = null;
-        node.invisibleAnnotations = null;
-        node.visibleTypeAnnotations = null;
-        node.invisibleTypeAnnotations = null;
-        node.attrs = null;
-        node.innerClasses.clear();
-        node.nestHostClass = null;
-        node.nestMembers = null;
-        node.permittedSubclasses = null;
-        node.recordComponents = null;
-        node.fields.clear();
-        node.methods.clear();
-
-        replaceWith.accept(node);
     }
 
     private JsonElement parseFileAsJson(String fileName) {
