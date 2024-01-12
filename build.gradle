@@ -116,10 +116,6 @@ mixinGen {
     }*/
 }
 
-repositories {
-    mavenLocal()
-}
-
 base {
     archivesName = mod_id
 }
@@ -217,7 +213,7 @@ dependencies {
         targetConfiguration = "testArchivesOutput"
     }
 
-    libraries("com.github.OpenCubicChunks:dasm:25c621acae") {
+    libraries("com.github.OpenCubicChunks:dasm:c6572af851") {
         transitive = false
     }
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")

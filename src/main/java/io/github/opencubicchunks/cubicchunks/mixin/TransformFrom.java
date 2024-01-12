@@ -11,6 +11,8 @@ public @interface TransformFrom {
 
     String value();
 
+    Class<?> copyFrom() default Object.class;
+
     Signature signature() default @Signature(fromString = true);
 
     ApplicationStage stage() default ApplicationStage.PRE_APPLY;
