@@ -3,8 +3,8 @@
         "io.github.opencubicchunks.cc_core.api.CubePos",
         "io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos",
         "net.minecraft.world.level.ChunkPos",
-        "net.minecraft.world.level.LevelChunk",
-        "net.minecraft.world.level.ChunkAccess",
+        "net.minecraft.world.level.chunk.LevelChunk",
+        "net.minecraft.world.level.chunk.ChunkAccess",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess"
     ],
