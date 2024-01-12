@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -65,7 +66,14 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             }
         };
 
-        this.transformer = new Transformer(mappings, developmentEnvironment);
+        // TODO: breaks on fabric (remapped at runtime)
+        this.transformer = new Transformer(mappings, s -> {
+            try (var classStream = ASMConfigPlugin.class.getClassLoader().getResourceAsStream(s.replace(".", "/") + ".class")){
+                return classStream.readAllBytes();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, developmentEnvironment);
 
         List<RedirectsParser.RedirectSet> redirectSets;
         try {
@@ -290,6 +298,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 boolean makeSyntheticAccessor = false;
                 String desc = null;
                 TransformFrom.ApplicationStage requestedStage = TransformFrom.ApplicationStage.PRE_APPLY;
+                Type srcOwner = null;
                 for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
                     String name = (String) values.get(i);
                     Object value = values.get(i + 1);
@@ -302,6 +311,11 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     } else if (name.equals("stage")) {
                         var parts = ((String[]) value);
                         requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
+                    } else if (name.equals("copyFrom")) {
+                        var val = (Type) value;
+                        if (!Objects.equals(val, Type.getObjectType(Object.class.getName()))) { // Special case the default
+                            srcOwner = val;
+                        }
                     }
                 }
                 if (stage != requestedStage) {
@@ -313,11 +327,21 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     desc = targetName.substring(split);
                     targetName = targetName.substring(0, split);
                 }
-                RedirectsParser.ClassTarget.TargetMethod targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
-                    new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
-                    "cc_dasm$" + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
-                    true, makeSyntheticAccessor
-                );
+                RedirectsParser.ClassTarget.TargetMethod targetMethod;
+                if (srcOwner == null) {
+                     targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
+                        new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
+                        "cc_dasm$" + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
+                        true, makeSyntheticAccessor
+                    );
+                } else {
+                    targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
+                        srcOwner,
+                        new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
+                        "cc_dasm$" + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
+                        true, makeSyntheticAccessor
+                    );
+                }
                 classTarget.addTarget(targetMethod);
             }
         }
