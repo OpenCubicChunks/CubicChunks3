@@ -1,16 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.mixin;
 
-import javax.annotation.Nullable;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import io.github.opencubicchunks.cubicchunks.CubicChunks;
-import io.github.opencubicchunks.dasm.MappingsProvider;
-import io.github.opencubicchunks.dasm.RedirectsParseException;
-import io.github.opencubicchunks.dasm.RedirectsParser;
-import io.github.opencubicchunks.dasm.Transformer;
-import io.github.opencubicchunks.dasm.TypeRedirect;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,6 +14,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import io.github.opencubicchunks.cubicchunks.CubicChunks;
+import io.github.opencubicchunks.dasm.MappingsProvider;
+import io.github.opencubicchunks.dasm.RedirectsParseException;
+import io.github.opencubicchunks.dasm.RedirectsParser;
+import io.github.opencubicchunks.dasm.Transformer;
+import io.github.opencubicchunks.dasm.TypeRedirect;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -67,10 +68,9 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         this.transformer = new Transformer(mappings, developmentEnvironment);
 
         List<RedirectsParser.RedirectSet> redirectSets;
-        List<RedirectsParser.ClassTarget> targetClasses;
         try {
             //TODO: add easy use of multiple set and target json files
-            redirectSets = loadSetsFile("dasm/sets/sets.json");
+            redirectSets = loadSetsFile("dasm/sets/sets.dasm");
 
             for (RedirectsParser.RedirectSet redirectSet : redirectSets) {
                 redirectSetByName.put(redirectSet.getName(), redirectSet);

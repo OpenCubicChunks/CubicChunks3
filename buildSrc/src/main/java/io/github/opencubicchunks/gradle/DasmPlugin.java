@@ -134,7 +134,7 @@ public class DasmPlugin implements Plugin<Project> {
             Mappings mappings = new Mappings();
 
             File destinationDir = processResources.getDestinationDir();
-            processResources.filesMatching("dasm/**/*.json", copySpec -> {
+            processResources.filesMatching("dasm/**/*.dasm", copySpec -> {
                 copySpec.exclude();
                 File file = copySpec.getFile();
                 File output = copySpec.getRelativePath().getFile(destinationDir);
@@ -148,7 +148,7 @@ public class DasmPlugin implements Plugin<Project> {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
 
             JsonObject parsed = new JsonParser().parse(bufferedReader).getAsJsonObject();
-            if (file.getName().equals("targets.json")) {
+            if (file.getName().equals("targets.dasm")) {
                 parsed = processTargets(parsed, mappings);
             } else {
                 parsed = processSets(parsed, mappings);
