@@ -12,8 +12,9 @@ public class MixinClientLevel implements CubicClientLevel, MarkableAsCubic {
     @Override
     public void cc_setCubic() { cc_isCubic = true;}
 
-    // onCubeLoaded - new function
+    // unload
+    // TODO: Phase 2 - this interacts with the lighting engine and will need to change to support cubes
 
-    // hasCube - new function
-
+    // onCubeLoaded
+    // TODO: Phase 3 - we will need to interact with entityStorage correctly at a per-cube level
 }
