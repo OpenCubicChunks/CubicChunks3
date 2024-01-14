@@ -5,19 +5,32 @@
         "net.minecraft.world.level.ChunkPos",
         "net.minecraft.world.level.chunk.LevelChunk",
         "net.minecraft.world.level.chunk.ChunkAccess",
-        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube",
+        "io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess"
     ],
     "sets": {
         "general": {
             "typeRedirects": {
                 "ChunkPos": "CloPos",
-                "LevelChunk": "LevelCube",
-                "ChunkAccess": "CubeAccess"
+                "ChunkAccess": "CloAccess"
             },
             "fieldRedirects": {
             },
             "methodRedirects": {
+                "ChunkAccess | ChunkPos getPos()": "cc_getCloPos"
+            }
+        },
+        "cubeAccessAndDescendants": {
+            "typeRedirects": {
+                "ChunkPos": "CloPos",
+                "ChunkAccess": "CubeAccess"
+            },
+            "fieldRedirects": {
+                // TODO field redirects seem to break things currently?
+//                "ChunkAccess | ChunkPos chunkPos": "cloPos"
+            },
+            "methodRedirects": {
+                "ChunkAccess | ChunkPos getPos()": "cc_getCloPos"
             }
         }
     }

@@ -26,6 +26,8 @@
         "common.server.level.MixinTickingTracker",
         "common.server.MixinMinecraftServer",
         "common.TestMixin",
+        "common.world.level.chunk.MixinChunkAccess",
+        "common.world.level.cube.MixinCubeAccess",
         "common.world.level.MixinLevel"
     ],
     "client": [],
