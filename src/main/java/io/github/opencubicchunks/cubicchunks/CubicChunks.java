@@ -19,6 +19,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 @Mod("cubicchunks")
 public class CubicChunks extends CubicChunksBase {
     protected static CommonConfig config = null;
+    // For hardcoding height in P1
+    public static final int SUPERFLAT_HEIGHT = 5;
 
     public CubicChunks(IEventBus modEventBus) {
         ChunkMap.class.getName();
