@@ -11,7 +11,7 @@ public @interface TransformFrom {
 
     String value();
 
-    Class<?> copyFrom() default Object.class;
+    CopyFrom copyFrom() default @CopyFrom();
 
     Signature signature() default @Signature(fromString = true);
 
