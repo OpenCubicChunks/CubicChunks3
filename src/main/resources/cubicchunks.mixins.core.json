@@ -13,6 +13,7 @@
     },
     "mixins": [
         "common.client.multiplayer.MixinClientLevel",
+        "common.server.MixinMinecraftServer",
         "common.server.level.MixinChunkTaskPriorityQueue",
         "common.server.level.MixinChunkTaskPriorityQueueSorter",
         "common.server.level.MixinChunkTicketTracker",
@@ -24,11 +25,9 @@
         "common.server.level.MixinServerLevel",
         "common.server.level.MixinServerPlayer",
         "common.server.level.MixinTickingTracker",
-        "common.server.MixinMinecraftServer",
-        "common.TestMixin",
+        "common.world.level.MixinLevel",
         "common.world.level.chunk.MixinChunkAccess",
-        "common.world.level.cube.MixinCubeAccess",
-        "common.world.level.MixinLevel"
+        "common.world.level.cube.MixinCubeAccess"
     ],
     "client": [],
     "server": []

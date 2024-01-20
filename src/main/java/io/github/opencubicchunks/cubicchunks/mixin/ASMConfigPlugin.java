@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -234,10 +233,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 String name = (String) values.get(i);
                 Object value = values.get(i + 1);
                 if (name.equals("value")) {
-                    Type val = (Type) value;
-                    if (!Objects.equals(val, Type.getObjectType(Object.class.getName()))) { // Special case the default
-                        srcClass = val;
-                    }
+                    srcClass = parseCopyFromAnnotation((AnnotationNode) value);
                 } else if (name.equals("stage")) {
                     var parts = ((String[]) value);
                     requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
@@ -283,12 +279,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                             var parts = ((String[]) value);
                             requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
                         }
-                        case "copyFrom" -> {
-                            var val = (Type) value;
-                            if (!Objects.equals(val, Type.getObjectType(Object.class.getName()))) { // Special case the default
-                                srcOwner = val;
-                            }
-                        }
+                        case "copyFrom" -> srcOwner = parseCopyFromAnnotation((AnnotationNode) value);
                     }
                 }
                 if (stage != requestedStage) {
@@ -322,6 +313,17 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 classTarget.addTarget(targetMethod);
             }
         }
+    }
+
+    private static Type parseCopyFromAnnotation(AnnotationNode copyFromAnnotation) {
+        assert copyFromAnnotation.values.size() == 2 : "CopyFrom annotation has multiple targeting fields";
+
+        if ((copyFromAnnotation.values.get(0)).equals("clazz")) {
+            return (Type) copyFromAnnotation.values.get(1);
+        } else if ((copyFromAnnotation.values.get(0)).equals("string")) {
+            return Type.getObjectType((String) copyFromAnnotation.values.get(1));
+        }
+        return Type.getType(Object.class);
     }
 
     private static String parseMethodDescriptor(AnnotationNode ann) {
