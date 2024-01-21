@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ImposterProtoChunk.class)
 public abstract class MixinImposterProtoChunk implements ImposterProtoClo {
-    public LevelClo cc_getWrappedClo() {
+    @Override public LevelClo cc_getWrappedClo() {
         return (LevelClo) this.getWrapped();
     }
 
