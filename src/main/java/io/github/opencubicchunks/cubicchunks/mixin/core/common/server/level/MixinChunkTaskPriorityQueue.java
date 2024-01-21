@@ -22,11 +22,11 @@ public abstract class MixinChunkTaskPriorityQueue implements MarkableAsCubic {
     }
 
     @Inject(method = "resortChunkTasks", at = @At("HEAD"))
-    private void cc_onResortChunkTasks(int p_140522_, ChunkPos p_140523_, int p_140524_, CallbackInfo ci) {
+    private void cc_onResortChunkTasks(int queueLevel, ChunkPos chunkPos, int ticketLevel, CallbackInfo ci) {
         assert !cc_isCubic;
     }
 
     @UsedFromASM
     @TransformFrom("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V")
-    protected abstract <T> void resortCubicTasks(int p_140522_, CloPos p_140523_, int p_140524_);
+    protected abstract <T> void resortCubicTasks(int queueLevel, CloPos cloPos, int ticketLevel);
 }

@@ -39,12 +39,12 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
     }
 
     @Inject(method = "onLevelChange", at = @At("HEAD"))
-    private void cc_onChunkOnLevelChange(ChunkPos p_140616_, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_, CallbackInfo ci) {
+    private void cc_onChunkOnLevelChange(ChunkPos chunkPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_, CallbackInfo ci) {
         assert !cc_isCubic;
     }
 
     @Override
     @UsedFromASM
     @TransformFrom("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V")
-    public abstract <T> void onLevelChange(CloPos p_140616_, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
+    public abstract <T> void onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
 }

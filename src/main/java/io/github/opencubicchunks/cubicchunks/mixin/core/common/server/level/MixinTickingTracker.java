@@ -35,12 +35,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(TickingTracker.class)
 public abstract class MixinTickingTracker extends MixinChunkTracker implements CubicTickingTracker {
     @Inject(method = "setLevel", at = @At("HEAD"))
-    private void cc_onSetLevel(long pos, int level, CallbackInfo ci) {
-        super.cc_onSetLevel(pos, level);
+    private void cc_onSetLevel(long chunkPos, int level, CallbackInfo ci) {
+        super.cc_onSetLevel(chunkPos, level);
     }
 
     @Inject(method = "getLevel(Lnet/minecraft/world/level/ChunkPos;)I", at = @At("HEAD"))
-    private void cc_onChunkGetLevel(ChunkPos p_184162_, CallbackInfoReturnable<Integer> cir) {
+    private void cc_onChunkGetLevel(ChunkPos chunkPos, CallbackInfoReturnable<Integer> cir) {
         assert !cc_isCubic;
     }
 
@@ -50,11 +50,11 @@ public abstract class MixinTickingTracker extends MixinChunkTracker implements C
      */
     @WrapWithCondition(method = "replacePlayerTicketsLevel", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/server/level/TickingTracker;addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_onReplacePlayerTicketsLevel(TickingTracker instance, TicketType<T> ticketType, ChunkPos pos, int a, T b) {
+    private <T> boolean cc_onReplacePlayerTicketsLevel(TickingTracker instance, TicketType<T> type, ChunkPos chunkPos, int ticketLevel, T key) {
         if (!cc_isCubic) return true;
         // if isCubic then we expect tickets to be TicketType<CloPos> not TicketType<ChunkPos>
-        var cloPos = CloPos.fromLong(pos.toLong());
-        this.addTicket((TicketType<CloPos>) ticketType, cloPos, a, cloPos);
+        var cloPos = CloPos.fromLong(chunkPos.toLong());
+        this.addTicket((TicketType<CloPos>) type, cloPos, ticketLevel, cloPos);
         return false;
     }
 
@@ -68,11 +68,11 @@ public abstract class MixinTickingTracker extends MixinChunkTracker implements C
     }
 
     @TransformFrom("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void addTicket(TicketType<T> p_184155_, CloPos p_184156_, int p_184157_, T p_184158_);
+    public abstract <T> void addTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
     @TransformFrom("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void removeTicket(TicketType<T> p_184169_, CloPos p_184170_, int p_184171_, T p_184172_);
+    public abstract <T> void removeTicket(TicketType<T> type, CloPos p_184170_, int ticketLevel, T key);
 
     @TransformFrom("getLevel(Lnet/minecraft/world/level/ChunkPos;)I")
-    public abstract int getLevel(CloPos p_184162_);
+    public abstract int getLevel(CloPos cloPos);
 }

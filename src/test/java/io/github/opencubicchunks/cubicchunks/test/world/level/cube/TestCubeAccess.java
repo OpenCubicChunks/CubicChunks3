@@ -57,19 +57,19 @@ public class TestCubeAccess {
             return null;
         }
 
-        @Override public @Nullable BlockState setBlockState(BlockPos blockPos, BlockState state, boolean unused) {
-            int sectionIndex = Coords.blockToIndex(blockPos);
-            int localX = Coords.blockToSectionLocal(blockPos.getX());
-            int localY = Coords.blockToSectionLocal(blockPos.getY());
-            int localZ = Coords.blockToSectionLocal(blockPos.getZ());
+        @Override public @Nullable BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving) {
+            int sectionIndex = Coords.blockToIndex(pos);
+            int localX = Coords.blockToSectionLocal(pos.getX());
+            int localY = Coords.blockToSectionLocal(pos.getY());
+            int localZ = Coords.blockToSectionLocal(pos.getZ());
             return this.sections[sectionIndex].setBlockState(localX, localY, localZ, state);
         }
 
-        @Override public void setBlockEntity(BlockEntity p_156114_) {
+        @Override public void setBlockEntity(BlockEntity blockEntity) {
 
         }
 
-        @Override public void addEntity(Entity p_62078_) {
+        @Override public void addEntity(Entity entity) {
 
         }
 
@@ -77,7 +77,7 @@ public class TestCubeAccess {
             return null;
         }
 
-        @Override public void removeBlockEntity(BlockPos p_62101_) {
+        @Override public void removeBlockEntity(BlockPos pos) {
 
         }
 
@@ -93,15 +93,15 @@ public class TestCubeAccess {
             return null;
         }
 
-        @Nullable @Override public BlockEntity getBlockEntity(BlockPos p_45570_) {
+        @Nullable @Override public BlockEntity getBlockEntity(BlockPos pos) {
             return null;
         }
 
-        @Override public BlockState getBlockState(BlockPos p_45571_) {
+        @Override public BlockState getBlockState(BlockPos pos) {
             return null;
         }
 
-        @Override public FluidState getFluidState(BlockPos p_45569_) {
+        @Override public FluidState getFluidState(BlockPos pos) {
             return null;
         }
     }

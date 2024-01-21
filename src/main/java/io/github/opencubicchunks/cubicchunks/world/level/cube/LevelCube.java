@@ -78,23 +78,23 @@ public class LevelCube extends CubeAccess implements LevelClo {
     private final LevelChunkTicks<Fluid> fluidTicks;
 
     // Constructors mirroring vanilla signatures
-    public LevelCube(Level p_187945_, CloPos p_187946_) {
-        this(p_187945_, p_187946_, UpgradeData.EMPTY, new LevelChunkTicks<>(), new LevelChunkTicks<>(), 0L, null, null, null);
+    public LevelCube(Level level, CloPos pos) {
+        this(level, pos, UpgradeData.EMPTY, new LevelChunkTicks<>(), new LevelChunkTicks<>(), 0L, null, null, null);
     }
 
     public LevelCube(
-        Level p_196854_,
-        CloPos p_196855_,
-        UpgradeData p_196856_,
-        LevelChunkTicks<Block> p_196857_,
-        LevelChunkTicks<Fluid> p_196858_,
-        long p_196859_,
-        @Nullable LevelChunkSection[] p_196860_,
-        @Nullable PostLoadProcessor p_196861_,
-        @Nullable BlendingData p_196862_
+        Level level,
+        CloPos pos,
+        UpgradeData data,
+        LevelChunkTicks<Block> blockTicks,
+        LevelChunkTicks<Fluid> fluidTicks,
+        long inhabitedTime,
+        @Nullable LevelChunkSection[] sections,
+        @Nullable PostLoadProcessor postLoad,
+        @Nullable BlendingData blendingData
     ) {
-        super(p_196855_, p_196856_, p_196854_, p_196854_.registryAccess().registryOrThrow(Registries.BIOME), p_196859_, p_196860_, p_196862_);
-        this.level = p_196854_;
+        super(pos, data, level, level.registryAccess().registryOrThrow(Registries.BIOME), inhabitedTime, sections, blendingData);
+        this.level = level;
         this.gameEventListenerRegistrySections = new Int2ObjectOpenHashMap<>();
 
         for(Heightmap.Types heightmap$types : Heightmap.Types.values()) {
@@ -104,46 +104,46 @@ public class LevelCube extends CubeAccess implements LevelClo {
             }
         }
 
-        this.postLoad = p_196861_;
-        this.blockTicks = p_196857_;
-        this.fluidTicks = p_196858_;
+        this.postLoad = postLoad;
+        this.blockTicks = blockTicks;
+        this.fluidTicks = fluidTicks;
     }
 
-    public LevelCube(ServerLevel p_196850_, ProtoCube p_196851_, @Nullable PostLoadProcessor p_196852_) {
+    public LevelCube(ServerLevel level, ProtoCube cube, @Nullable PostLoadProcessor postLoad) {
         this(
-            p_196850_,
-            p_196851_.cc_getCloPos(),
-            p_196851_.getUpgradeData(),
-            p_196851_.unpackBlockTicks(),
-            p_196851_.unpackFluidTicks(),
-            p_196851_.getInhabitedTime(),
-            p_196851_.getSections(),
-            p_196852_,
-            p_196851_.getBlendingData()
+            level,
+            cube.cc_getCloPos(),
+            cube.getUpgradeData(),
+            cube.unpackBlockTicks(),
+            cube.unpackFluidTicks(),
+            cube.getInhabitedTime(),
+            cube.getSections(),
+            postLoad,
+            cube.getBlendingData()
         );
 
-        for(BlockEntity blockentity : p_196851_.getBlockEntities().values()) {
+        for(BlockEntity blockentity : cube.getBlockEntities().values()) {
             this.setBlockEntity(blockentity);
         }
 
-        this.pendingBlockEntities.putAll(p_196851_.getBlockEntityNbts());
+        this.pendingBlockEntities.putAll(cube.getBlockEntityNbts());
 
-        for(int i = 0; i < p_196851_.getPostProcessing().length; ++i) {
-            this.postProcessing[i] = p_196851_.getPostProcessing()[i];
+        for(int i = 0; i < cube.getPostProcessing().length; ++i) {
+            this.postProcessing[i] = cube.getPostProcessing()[i];
         }
 
-        this.setAllStarts(p_196851_.getAllStarts());
-        this.setAllReferences(p_196851_.getAllReferences());
+        this.setAllStarts(cube.getAllStarts());
+        this.setAllReferences(cube.getAllReferences());
 
-        for(Map.Entry<Heightmap.Types, Heightmap> entry : p_196851_.getHeightmaps()) {
+        for(Map.Entry<Heightmap.Types, Heightmap> entry : cube.getHeightmaps()) {
             if (ChunkStatus.FULL.heightmapsAfter().contains(entry.getKey())) {
                 // TODO (P2) heightmaps
 //                this.setHeightmap(entry.getKey(), entry.getValue().getRawData());
             }
         }
 
-        this.skyLightSources = p_196851_.skyLightSources;
-        this.setLightCorrect(p_196851_.isLightCorrect());
+        this.skyLightSources = cube.skyLightSources;
+        this.setLightCorrect(cube.isLightCorrect());
         this.unsaved = true;
     }
 
@@ -169,10 +169,10 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
     // dasm + mixin
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getFluidState(III)Lnet/minecraft/world/level/material/FluidState;")
-    @Override public native FluidState getFluidState(int p_62815_, int p_62816_, int p_62817_);
+    @Override public native FluidState getFluidState(int x, int y, int z);
 
     // TODO might be dasm-able eventually, if we get more powerful mixin tools
-    @Nullable @Override public BlockState setBlockState(BlockPos pos, BlockState state, boolean p_62867_) {
+    @Nullable @Override public BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving) {
         var chunkSection = this.getSection(Coords.blockToIndex(pos));
         boolean isOnlyAir = chunkSection.hasOnlyAir();
         if (isOnlyAir && state.isAir()) {
@@ -190,7 +190,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
                 boolean flag2 = previousState.hasBlockEntity();
                 if (!this.level.isClientSide) {
-                    previousState.onRemove(this.level, pos, state, p_62867_);
+                    previousState.onRemove(this.level, pos, state, isMoving);
                 } else if ((!previousState.is(block) || !state.hasBlockEntity()) && flag2) {
                     this.removeBlockEntity(pos);
                 }
@@ -199,7 +199,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
                     return null;
                 } else {
                     if (!this.level.isClientSide && !this.level.captureBlockSnapshots) {
-                        state.onPlace(this.level, pos, previousState, p_62867_);
+                        state.onPlace(this.level, pos, previousState, isMoving);
                     }
 
                     if (state.hasBlockEntity()) {
@@ -223,47 +223,47 @@ public class LevelCube extends CubeAccess implements LevelClo {
     }
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "addEntity(Lnet/minecraft/world/entity/Entity;)V")
-    @Deprecated @Override public native void addEntity(Entity p_62826_);
+    @Deprecated @Override public native void addEntity(Entity entity);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "createBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;")
-    @Nullable private native BlockEntity createBlockEntity(BlockPos p_62935_);
+    @Nullable private native BlockEntity createBlockEntity(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;")
-    @Override @Nullable public native BlockEntity getBlockEntity(BlockPos p_62912_);
+    @Override @Nullable public native BlockEntity getBlockEntity(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
         + "Lnet/minecraft/world/level/block/entity/BlockEntity;")
-    @Nullable public native BlockEntity getBlockEntity(BlockPos p_62868_, LevelChunk.EntityCreationType p_62869_);
+    @Nullable public native BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V")
-    public native void addAndRegisterBlockEntity(BlockEntity p_156391_);
+    public native void addAndRegisterBlockEntity(BlockEntity blockEntity);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "isInLevel()Z")
     private native boolean isInLevel();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "isTicking(Lnet/minecraft/core/BlockPos;)Z")
-    public native boolean isTicking(BlockPos p_156411_);
+    public native boolean isTicking(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V")
-    @Override public native void setBlockEntity(BlockEntity p_156374_);
+    @Override public native void setBlockEntity(BlockEntity blockEntity);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
-    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos p_62932_);
+    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "removeBlockEntity(Lnet/minecraft/core/BlockPos;)V")
-    @Override public native void removeBlockEntity(BlockPos p_62919_);
+    @Override public native void removeBlockEntity(BlockPos pos);
 
     // TODO maybe shouldn't be dasm
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "removeGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;"
         + "Lnet/minecraft/server/level/ServerLevel;"
         + ")V")
-    private native <T extends BlockEntity> void removeGameEventListener(T p_223413_, ServerLevel p_223414_);
+    private native <T extends BlockEntity> void removeGameEventListener(T blockEntity, ServerLevel level);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "removeGameEventListenerRegistry(I)V")
     private native void removeGameEventListenerRegistry(int p_283355_);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "removeBlockEntityTicker(Lnet/minecraft/core/BlockPos;)V")
-    private native void removeBlockEntityTicker(BlockPos p_156413_);
+    private native void removeBlockEntityTicker(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "runPostLoad()V")
     public native void runPostLoad();
@@ -272,19 +272,19 @@ public class LevelCube extends CubeAccess implements LevelClo {
     public native boolean isEmpty();
 
     public void replaceWithPacketData(
-        FriendlyByteBuf p_187972_, CompoundTag p_187973_, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> p_187974_
+        FriendlyByteBuf buffer, CompoundTag tag, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
     ) {
         this.clearAllBlockEntities();
 
         for(LevelChunkSection levelchunksection : this.sections) {
-            levelchunksection.read(p_187972_);
+            levelchunksection.read(buffer);
         }
 
         // TODO (P2) heightmaps - see vanilla equivalent
 
         // TODO (P2) lighting
 //        this.initializeLightSources();
-        p_187974_.accept((p_187968_, p_187969_, p_187970_) -> {
+        outputTagConsumer.accept((p_187968_, p_187969_, p_187970_) -> {
             BlockEntity blockentity = this.getBlockEntity(p_187968_, LevelChunk.EntityCreationType.IMMEDIATE);
             if (blockentity != null && p_187970_ != null && blockentity.getType() == p_187969_) {
                 blockentity.handleUpdateTag(p_187970_);
@@ -293,10 +293,10 @@ public class LevelCube extends CubeAccess implements LevelClo {
     }
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "replaceBiomes(Lnet/minecraft/network/FriendlyByteBuf;)V")
-    public native void replaceBiomes(FriendlyByteBuf p_275574_);
+    public native void replaceBiomes(FriendlyByteBuf buffer);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "setLoaded(Z)V")
-    public native void setLoaded(boolean p_62914_);
+    public native void setLoaded(boolean loaded);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getLevel()Lnet/minecraft/world/level/Level;")
     public native Level getLevel();
@@ -324,13 +324,13 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @Nullable private native BlockEntity promotePendingBlockEntity(BlockPos p_62871_, CompoundTag p_62872_);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "unpackTicks(J)V")
-    public native void unpackTicks(long p_187986_);
+    public native void unpackTicks(long pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "registerTickContainerInLevel(Lnet/minecraft/server/level/ServerLevel;)V")
-    public native void registerTickContainerInLevel(ServerLevel p_187959_);
+    public native void registerTickContainerInLevel(ServerLevel level);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "unregisterTickContainerFromLevel(Lnet/minecraft/server/level/ServerLevel;)V")
-    public native void unregisterTickContainerFromLevel(ServerLevel p_187980_);
+    public native void unregisterTickContainerFromLevel(ServerLevel level);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;")
     @Override public native ChunkStatus getStatus();
@@ -339,7 +339,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     public native FullChunkStatus getFullStatus();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "setFullStatus(Ljava/util/function/Supplier;)V")
-    public native void setFullStatus(Supplier<FullChunkStatus> p_62880_);
+    public native void setFullStatus(Supplier<FullChunkStatus> fullStatus);
 
     // TODO a bit concerning
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "clearAllBlockEntities()V")
@@ -351,15 +351,15 @@ public class LevelCube extends CubeAccess implements LevelClo {
     // TODO (P3): GameEvent stuff is a bit concerning
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "addGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;"
         + "Lnet/minecraft/server/level/ServerLevel;)V")
-    private native <T extends BlockEntity> void addGameEventListener(T p_223416_, ServerLevel p_223417_);
+    private native <T extends BlockEntity> void addGameEventListener(T blockEntity, ServerLevel level);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "updateBlockEntityTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;)V")
-    private native <T extends BlockEntity> void updateBlockEntityTicker(T p_156407_);
+    private native <T extends BlockEntity> void updateBlockEntityTicker(T blockEntity);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "createTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;"
         + "Lnet/minecraft/world/level/block/entity/BlockEntityTicker;)"
         + "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;")
-    private native <T extends BlockEntity> TickingBlockEntity createTicker(T p_156376_, BlockEntityTicker<T> p_156377_);
+    private native <T extends BlockEntity> TickingBlockEntity createTicker(T blockEntity, BlockEntityTicker<T> ticker);
 
     // TODO forge stuff
     // FORGE START
@@ -390,7 +390,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         private final BlockEntityTicker<T> ticker;
         private boolean loggedInvalidBlockState;
 
-        BoundTickingBlockEntity(T p_156433_, BlockEntityTicker<T> p_156434_) {
+        BoundTickingBlockEntity(T blockEntity, BlockEntityTicker<T> ticker) {
             throw new IllegalStateException("DASM failed to apply");
         }
 
@@ -407,7 +407,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
     @FunctionalInterface
     public interface PostLoadProcessor {
-        void run(LevelCube p_196867_);
+        void run(LevelCube cube);
     }
 
     @DasmRedirect({ "cubeAccessAndDescendants" })
@@ -415,7 +415,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     public class RebindableTickingBlockEntityWrapper implements TickingBlockEntity {
         private TickingBlockEntity ticker;
 
-        RebindableTickingBlockEntityWrapper(TickingBlockEntity p_156447_) {
+        RebindableTickingBlockEntityWrapper(TickingBlockEntity ticker) {
             throw new IllegalStateException("DASM failed to apply");
         }
 

@@ -54,36 +54,36 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
     @Override
     @UsedFromASM
     @TransformFrom("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void addTicket(TicketType<T> p_140793_, CloPos p_140794_, int p_140795_, T p_140796_);
+    public abstract <T> void addTicket(TicketType<T> type, CloPos pos, int level, T value);
 
     @Override
     @UsedFromASM
     @TransformFrom("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void removeTicket(TicketType<T> p_140824_, CloPos p_140825_, int p_140826_, T p_140827_);
+    public abstract <T> void removeTicket(TicketType<T> type, CloPos pos, int level, T value);
 
     @Override
     @UsedFromASM
     @TransformFrom("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void addRegionTicket(TicketType<T> p_140841_, CloPos p_140842_, int p_140843_, T p_140844_);
+    public abstract <T> void addRegionTicket(TicketType<T> type, CloPos pos, int distance, T value);
 
     @Override
     @UsedFromASM
     @TransformFrom("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V")
-    public abstract <T> void addRegionTicket(TicketType<T> p_140841_, CloPos p_140842_, int p_140843_, T p_140844_, boolean forceTicks);
+    public abstract <T> void addRegionTicket(TicketType<T> type, CloPos pos, int distance, T value, boolean forceTicks);
 
     @Override
     @UsedFromASM
     @TransformFrom("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void removeRegionTicket(TicketType<T> p_140850_, CloPos p_140851_, int p_140852_, T p_140853_);
+    public abstract <T> void removeRegionTicket(TicketType<T> type, CloPos pos, int distance, T value);
 
     @Override
     @UsedFromASM
     @TransformFrom("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V")
-    public abstract <T> void removeRegionTicket(TicketType<T> p_140850_, CloPos p_140851_, int p_140852_, T p_140853_, boolean forceTicks);
+    public abstract <T> void removeRegionTicket(TicketType<T> type, CloPos pos, int distance, T value, boolean forceTicks);
 
     @UsedFromASM
     @TransformFrom("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V")
-    protected abstract void updateCubeForced(CloPos p_140800_, boolean p_140801_);
+    protected abstract void updateCubeForced(CloPos pos, boolean add);
 
     /**
      * This function replaces a TicketType with a CubicTicketType.
@@ -100,10 +100,10 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
      * This requires replacing the TicketType with a CubicTicketType and the ChunkPos with a CloPos.
      */
     @WrapWithCondition(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/TickingTracker;addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_replaceTicketTypeOnAddPlayer(TickingTracker instance, TicketType<T> p_184155_, ChunkPos p_184156_, int p_184157_, T p_184158_, SectionPos p_140803) {
+    private <T> boolean cc_replaceTicketTypeOnAddPlayer(TickingTracker instance, TicketType<T> type, ChunkPos chunkPos, int ticketLevel, T key, SectionPos sectionPos) {
         if(!cc_isCubic) return true;
-        CloPos cloPos = CloPos.section(p_140803);
-        ((CubicTickingTracker)instance).addTicket(CubicTicketType.PLAYER, cloPos, p_184157_, cloPos);
+        CloPos cloPos = CloPos.section(sectionPos);
+        ((CubicTickingTracker)instance).addTicket(CubicTicketType.PLAYER, cloPos, ticketLevel, cloPos);
         return false;
     }
 
@@ -113,10 +113,10 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
      * This requires replacing the TicketType with a CubicTicketType and the ChunkPos with a CloPos.
      */
     @WrapWithCondition(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/TickingTracker;removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_replaceTicketTypeOnRemovePlayer(TickingTracker instance, TicketType<T> p_184169_, ChunkPos p_184170_, int p_184171_, T p_184172_, SectionPos p_140803) {
+    private <T> boolean cc_replaceTicketTypeOnRemovePlayer(TickingTracker instance, TicketType<T> type, ChunkPos chunkPos, int ticketLevel, T key, SectionPos sectionPos) {
         if(!cc_isCubic) return true;
-        CloPos cloPos = CloPos.section(p_140803);
-        ((CubicTickingTracker)instance).removeTicket(CubicTicketType.PLAYER, cloPos, p_184171_, cloPos);
+        CloPos cloPos = CloPos.section(sectionPos);
+        ((CubicTickingTracker)instance).removeTicket(CubicTicketType.PLAYER, cloPos, ticketLevel, cloPos);
         return false;
     }
 
@@ -124,18 +124,18 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
      * The original function expects chunkPos.toLong(), but we need to replace it with cloPos.toLong() instead.
      */
     @WrapOperation(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;toLong()J"))
-    private long cc_replaceTicketTypeOnAddPlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos p_140803) {
+    private long cc_replaceTicketTypeOnAddPlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos sectionPos) {
         if(!cc_isCubic) return original.call(chunkPos);
-        return CloPos.section(p_140803).toLong();
+        return CloPos.section(sectionPos).toLong();
     }
 
     /**
      * The original function expects chunkPos.toLong(), but we need to replace it with cloPos.toLong() instead.
      */
     @WrapOperation(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;toLong()J"))
-    private long cc_replaceTicketTypeOnRemovePlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos p_140803) {
+    private long cc_replaceTicketTypeOnRemovePlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos sectionPos) {
         if(!cc_isCubic) return original.call(chunkPos);
-        return CloPos.section(p_140803).toLong();
+        return CloPos.section(sectionPos).toLong();
     }
 
     /**

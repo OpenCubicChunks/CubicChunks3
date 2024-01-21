@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(TicketType.class)
 public interface TicketTypeAccess {
-    @Invoker("<init>") static <T> TicketType<T> createNew(String string, Comparator<T> comparator, long l) {
+    @Invoker("<init>") static <T> TicketType<T> createNew(String string, Comparator<T> comparator, long timeout) {
         throw new Error("Mixin did not apply");
     }
 }

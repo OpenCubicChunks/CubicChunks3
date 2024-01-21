@@ -29,7 +29,7 @@ public abstract class MixinServerPlayer extends Player implements MarkableAsCubi
      */
     @WrapWithCondition(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level"
         + "/ServerChunkCache;addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public <T> boolean cc_wrapAddRegionTicket(ServerChunkCache instance, TicketType<T> ticketType, ChunkPos chunkPos, int p_8390_, T p_8391_,
+    public <T> boolean cc_wrapAddRegionTicket(ServerChunkCache instance, TicketType<T> type, ChunkPos pos, int distance, T value,
                                               @Local(ordinal = 0, argsOnly = true)double x,
                                               @Local(ordinal = 1, argsOnly = true)double y,
                                               @Local(ordinal = 2, argsOnly = true)double z) {
@@ -37,7 +37,7 @@ public abstract class MixinServerPlayer extends Player implements MarkableAsCubi
             return true;
         }
         // TODO: Add once Cubic ServerChunkCache exists
-        //instance.addRegionTicket(ticketType, CloPos.cube(BlockPos.containing(x, y, z)), 1, this.getId());
+        //instance.addRegionTicket(type, CloPos.cube(BlockPos.containing(x, y, z)), 1, this.getId());
         return false;
     }
 

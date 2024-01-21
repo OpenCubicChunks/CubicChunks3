@@ -58,8 +58,8 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     }
 
     @ModifyConstant(method = "computeLevelFromNeighbor", constant = @Constant(intValue = 1))
-    private int cc_dontIncrementLevelOnCubeChunkEdge(int constant, @Local(ordinal = 0, argsOnly = true) long fromPos, @Local(ordinal = 1, argsOnly = true) long toPos) {
-        if (cc_isCubic && CloPos.isCube(fromPos) && CloPos.isChunk(toPos)) return 0;
+    private int cc_dontIncrementLevelOnCubeChunkEdge(int constant, @Local(ordinal = 0, argsOnly = true) long startPos, @Local(ordinal = 1, argsOnly = true) long endPos) {
+        if (cc_isCubic && CloPos.isCube(startPos) && CloPos.isChunk(endPos)) return 0;
         return constant;
     }
 
