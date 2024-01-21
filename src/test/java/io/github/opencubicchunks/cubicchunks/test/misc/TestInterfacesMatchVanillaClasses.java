@@ -4,14 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
+import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
+import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
+import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
 import net.minecraft.SharedConstants;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ImposterProtoChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -26,7 +34,7 @@ public class TestInterfacesMatchVanillaClasses {
     }
 
     private static String stringifyMethod(Method method) {
-        return method.getName() + "(" + Arrays.stream(method.getGenericParameterTypes()).map(Type::getTypeName).collect(Collectors.joining(", ")) + ") -> " + method.getGenericReturnType().getTypeName();
+        return method.getName() + "(" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ") -> " + method.getReturnType().getName();
     }
 
     private static boolean isStatic(Method method) {
@@ -69,8 +77,46 @@ public class TestInterfacesMatchVanillaClasses {
         testParityIncludingAncestors(
             ChunkAccess.class,
             CloAccess.class,
-            ChunkAccess.class.getMethod("getWorldForge"), // TODO need to check existence; this would fail on Fabric
-            ChunkAccess.class.getMethod("getPos")
+            ChunkAccess.class.getMethod("getPos"),
+            ChunkAccess.class.getMethod("getWorldForge") // TODO need to check existence; this would fail on Fabric
+        );
+    }
+
+    @Test public void testLevelChunkLevelCloParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(
+            LevelChunk.class,
+            LevelClo.class,
+            ChunkAccess.class.getMethod("getPos"),
+            // TODO need to check existence; these would fail on Fabric
+            ChunkAccess.class.getMethod("getWorldForge"),
+            LevelChunk.class.getMethod("getWorldForge"),
+            LevelChunk.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
+            LevelChunk.class.getMethod("hasData", AttachmentType.class),
+            LevelChunk.class.getMethod("getData", AttachmentType.class),
+            LevelChunk.class.getMethod("writeAttachmentsToNBT"),
+            LevelChunk.class.getMethod("setData", AttachmentType.class, Object.class),
+            LevelChunk.class.getMethod("hasData", Supplier.class),
+            LevelChunk.class.getMethod("getData", Supplier.class),
+            LevelChunk.class.getMethod("setData", Supplier.class, Object.class)
+        );
+    }
+
+    @Test public void testProtoChunkProtoCloParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(
+            ProtoChunk.class,
+            ProtoClo.class,
+            ChunkAccess.class.getMethod("getPos"),
+            ChunkAccess.class.getMethod("getWorldForge") // TODO need to check existence; this would fail on Fabric
+        );
+    }
+
+    @Test public void testImposterProtoChunkImposterProtoCloParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(
+            ImposterProtoChunk.class,
+            ImposterProtoClo.class,
+            ChunkAccess.class.getMethod("getPos"),
+            ImposterProtoChunk.class.getMethod("getWrapped"),
+            ChunkAccess.class.getMethod("getWorldForge") // TODO need to check existence; this would fail on Fabric
         );
     }
 }

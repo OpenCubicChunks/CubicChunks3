@@ -299,7 +299,7 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getHeight()I")
     @Override public native int getHeight();
 
-    @Override public NoiseChunk getOrCreateNoiseChunk(Function<ChunkAccess, NoiseChunk> p_223013_) {
+    @Override public NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> p_223013_) {
         throw new UnsupportedOperationException(); // TODO P3
     }
 

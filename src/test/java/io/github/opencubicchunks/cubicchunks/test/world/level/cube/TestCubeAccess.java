@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.test.world.level.chunk;
+package io.github.opencubicchunks.cubicchunks.test.world.level.cube;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

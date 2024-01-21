@@ -128,7 +128,7 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     void setLightCorrect(boolean p_62100_);
 
-    NoiseChunk getOrCreateNoiseChunk(Function<ChunkAccess, NoiseChunk> p_223013_);
+    NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> p_223013_);
 
     @Deprecated BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> p_223015_);
 
@@ -148,4 +148,7 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 //    static ShortList getOrCreateOffsetList(ShortList[] p_62096_, int p_62097_);
 //
 //    static record TicksToSave(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids);
+
+    // TODO forge method
+//    @Nullable public net.minecraft.world.level.LevelAccessor getWorldForge() { return null; }
 }
