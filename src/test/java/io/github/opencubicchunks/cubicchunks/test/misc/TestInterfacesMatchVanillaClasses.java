@@ -15,6 +15,7 @@ import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -97,7 +98,8 @@ public class TestInterfacesMatchVanillaClasses {
             LevelChunk.class.getMethod("setData", AttachmentType.class, Object.class),
             LevelChunk.class.getMethod("hasData", Supplier.class),
             LevelChunk.class.getMethod("getData", Supplier.class),
-            LevelChunk.class.getMethod("setData", Supplier.class, Object.class)
+            LevelChunk.class.getMethod("setData", Supplier.class, Object.class),
+            LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class)
         );
     }
 
