@@ -104,19 +104,19 @@ public abstract class CubeAccess implements CloAccess {
         replaceMissingSections(biomeRegistry, this.sections);
     }
 
-    private static void replaceMissingSections(Registry<Biome> p_281389_, LevelChunkSection[] p_282796_) {
-        for(int i = 0; i < p_282796_.length; ++i) {
-            if (p_282796_[i] == null) {
-                p_282796_[i] = new LevelChunkSection(p_281389_);
+    private static void replaceMissingSections(Registry<Biome> biomeRegistry, LevelChunkSection[] sections) {
+        for(int i = 0; i < sections.length; ++i) {
+            if (sections[i] == null) {
+                sections[i] = new LevelChunkSection(biomeRegistry);
             }
         }
     }
 
-    @Override @Nullable public abstract BlockState setBlockState(BlockPos p_62087_, BlockState p_62088_, boolean p_62089_);
+    @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
 
-    @Override public abstract void setBlockEntity(BlockEntity p_156114_);
+    @Override public abstract void setBlockEntity(BlockEntity blockEntity);
 
-    @Override public abstract void addEntity(Entity p_62078_);
+    @Override public abstract void addEntity(Entity entity);
 
     // Next two methods are used for vanilla heightmaps/lighting/end gateways. We shouldn't need these
     @Override public int getHighestFilledSectionIndex() {
@@ -135,25 +135,25 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native LevelChunkSection[] getSections();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;")
-    @Override public native LevelChunkSection getSection(int p_187657_);
+    @Override public native LevelChunkSection getSection(int index);
 
     // TODO (P2) heightmap methods on cubes
     @Override public Collection<Map.Entry<Heightmap.Types, Heightmap>> getHeightmaps() {
         throw new UnsupportedOperationException();
     }
 
-    @Override public void setHeightmap(Heightmap.Types p_62083_, long[] p_62084_) {
+    @Override public void setHeightmap(Heightmap.Types type, long[] data) {
     }
 
-    @Override public Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types p_62079_) {
+    @Override public Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types type) {
         throw new UnsupportedOperationException();
     }
 
-    @Override public boolean hasPrimedHeightmap(Heightmap.Types p_187659_) {
+    @Override public boolean hasPrimedHeightmap(Heightmap.Types type) {
         return false;
     }
 
-    @Override public int getHeight(Heightmap.Types p_62080_, int p_62081_, int p_62082_) {
+    @Override public int getHeight(Heightmap.Types type, int x, int z) {
         return CubicChunks.SUPERFLAT_HEIGHT;
     }
     // end heightmaps
@@ -174,7 +174,7 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native Map<Structure, StructureStart> getAllStarts();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setAllStarts(Ljava/util/Map;)V")
-    @Override public native void setAllStarts(Map<Structure, StructureStart> p_62090_);
+    @Override public native void setAllStarts(Map<Structure, StructureStart> structureStarts);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
         + "Lit/unimi/dsi/fastutil/longs/LongSet;")
@@ -189,13 +189,13 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setAllReferences(Ljava/util/Map;)V")
     @Override public native void setAllReferences(Map<Structure, LongSet> p_187663_);
 
-    @Override public boolean isYSpaceEmpty(int p_62075_, int p_62076_) {
+    @Override public boolean isYSpaceEmpty(int startY, int endY) {
         // TODO
         return false;
     }
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setUnsaved(Z)V")
-    @Override public native void setUnsaved(boolean p_62094_);
+    @Override public native void setUnsaved(boolean unsaved);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "isUnsaved()Z")
     @Override public native boolean isUnsaved();
@@ -207,40 +207,40 @@ public abstract class CubeAccess implements CloAccess {
         return this.getStatus();
     }
 
-    @Override public abstract void removeBlockEntity(BlockPos p_62101_);
+    @Override public abstract void removeBlockEntity(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V")
-    @Override public native void markPosForPostprocessing(BlockPos p_62102_);
+    @Override public native void markPosForPostprocessing(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getPostProcessing()[Lit/unimi/dsi/fastutil/shorts/ShortList;")
     @Override public native ShortList[] getPostProcessing();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "addPackedPostProcess(SI)V")
-    @Override public native void addPackedPostProcess(short p_62092_, int p_62093_);
+    @Override public native void addPackedPostProcess(short packedPosition, int index);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V")
-    @Override public native void setBlockEntityNbt(CompoundTag p_62091_);
+    @Override public native void setBlockEntityNbt(CompoundTag tag);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
-    @Override @Nullable public native CompoundTag getBlockEntityNbt(BlockPos p_62103_);
+    @Override @Nullable public native CompoundTag getBlockEntityNbt(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
-    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos p_62104_);
+    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "findBlockLightSources(Ljava/util/function/BiConsumer;)V")
     @Override public native void findBlockLightSources(BiConsumer<BlockPos, BlockState> p_285269_);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "findBlocks(Ljava/util/function/Predicate;Ljava/util/function/BiConsumer;)V")
-    @Override public native void findBlocks(Predicate<BlockState> p_285343_, BiConsumer<BlockPos, BlockState> p_285030_);
+    @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
-    @Override public void findBlocks(BiPredicate<BlockState, BlockPos> p_285343_, BiConsumer<BlockPos, BlockState> p_285030_) {
+    @Override public void findBlocks(BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 
         for (int y = 0; y < CubicConstants.DIAMETER_IN_SECTIONS; y++) {
             for (int z = 0; z < CubicConstants.DIAMETER_IN_SECTIONS; z++) {
                 for (int x = 0; x < CubicConstants.DIAMETER_IN_SECTIONS; x++) {
                     LevelChunkSection levelchunksection = this.getSection(Coords.sectionToIndex(x, y, z));
-                    if (levelchunksection.maybeHas((state) -> p_285343_.test(state, BlockPos.ZERO))) {
+                    if (levelchunksection.maybeHas((state) -> predicate.test(state, BlockPos.ZERO))) {
                         BlockPos blockpos = this.cloPos.cubePos().asSectionPos().offset(x, y, z).origin();
 
                         for(int sectionLocalY = 0; sectionLocalY < SectionPos.SECTION_SIZE; ++sectionLocalY) {
@@ -248,8 +248,8 @@ public abstract class CubeAccess implements CloAccess {
                                 for(int sectionLocalX = 0; sectionLocalX < SectionPos.SECTION_SIZE; ++sectionLocalX) {
                                     BlockState blockstate = levelchunksection.getBlockState(sectionLocalX, sectionLocalY, sectionLocalZ);
                                     mutableBlockPos.setWithOffset(blockpos, sectionLocalX, sectionLocalY, sectionLocalZ);
-                                    if (p_285343_.test(blockstate, mutableBlockPos.immutable())) {
-                                        p_285030_.accept(mutableBlockPos, blockstate);
+                                    if (predicate.test(blockstate, mutableBlockPos.immutable())) {
+                                        output.accept(mutableBlockPos, blockstate);
                                     }
                                 }
                             }
@@ -276,22 +276,22 @@ public abstract class CubeAccess implements CloAccess {
     @Override @Nullable public native BlendingData getBlendingData();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setBlendingData(Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
-    @Override public native void setBlendingData(BlendingData p_187646_);
+    @Override public native void setBlendingData(BlendingData blendingData);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getInhabitedTime()J")
     @Override public native long getInhabitedTime();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "incrementInhabitedTime(J)V")
-    @Override public native void incrementInhabitedTime(long p_187633_);
+    @Override public native void incrementInhabitedTime(long amount);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setInhabitedTime(J)V")
-    @Override public native void setInhabitedTime(long p_62099_);
+    @Override public native void setInhabitedTime(long inhabitedTime);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "isLightCorrect()Z")
     @Override public native boolean isLightCorrect();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setLightCorrect(Z)V")
-    @Override public native void setLightCorrect(boolean p_62100_);
+    @Override public native void setLightCorrect(boolean lightCorrect);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getMinBuildHeight()I")
     @Override public native int getMinBuildHeight();
@@ -299,11 +299,11 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getHeight()I")
     @Override public native int getHeight();
 
-    @Override public NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> p_223013_) {
+    @Override public NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> noiseChunkCreator) {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
-    @Override public BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> p_223015_) {
+    @Override public BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> carverBiomeSettingsProvider) {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
@@ -311,7 +311,7 @@ public abstract class CubeAccess implements CloAccess {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
-    @Override public void fillBiomesFromNoise(BiomeResolver p_187638_, Climate.Sampler p_187639_) {
+    @Override public void fillBiomesFromNoise(BiomeResolver resolver, Climate.Sampler sampler) {
         throw new UnsupportedOperationException(); // TODO P3
     }
 

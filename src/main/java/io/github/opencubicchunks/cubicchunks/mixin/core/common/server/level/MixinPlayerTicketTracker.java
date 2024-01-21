@@ -30,20 +30,20 @@ public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceC
      */
     @WrapOperation(method = "onLevelChange(JIZZ)V", at = @At(value = "NEW",
         target = "(Lnet/minecraft/server/level/TicketType;ILjava/lang/Object;)Lnet/minecraft/server/level/Ticket;"))
-    private Ticket<?> cc_onTicketConstruct(TicketType<?> ttype, int a, Object pos, Operation<Ticket> original) {
+    private Ticket<?> cc_onTicketConstruct(TicketType<?> type, int ticketLevel, Object key, Operation<Ticket> original) {
         if (!cc_isCubic)
-            return original.call(ttype, a, pos);
-        return original.call(CubicTicketType.PLAYER, a, CloPos.fromLong(((ChunkPos) pos).toLong()));
+            return original.call(type, ticketLevel, key);
+        return original.call(CubicTicketType.PLAYER, ticketLevel, CloPos.fromLong(((ChunkPos) key).toLong()));
     }
 
     /**
      * This modifies the lambda inside Distance.this.ticketThrottler.onLevelChange to use a CloPos instead of a ChunkPos.
      */
     @WrapWithCondition(method = "runAllUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
-    private boolean cc_onRunAllUpdates(ChunkTaskPriorityQueueSorter instance, ChunkPos p_140616_, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_) {
+    private boolean cc_onRunAllUpdates(ChunkTaskPriorityQueueSorter instance, ChunkPos chunkPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_) {
         if(!cc_isCubic) return true;
         ((CubicTaskPriorityQueueSorter)((DistanceManagerAccess)this$0).ticketThrottler())
-            .onLevelChange(CloPos.fromLong(p_140616_.toLong()), p_140617_, p_140618_, p_140619_);
+            .onLevelChange(CloPos.fromLong(chunkPos.toLong()), p_140617_, p_140618_, p_140619_);
         return false;
     }
 }

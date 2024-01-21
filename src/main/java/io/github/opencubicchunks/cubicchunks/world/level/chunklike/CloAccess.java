@@ -42,11 +42,11 @@ import net.minecraft.world.ticks.TickContainerAccess;
 public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, LightChunk, StructureAccess {
     GameEventListenerRegistry getListenerRegistry(int p_251437_);
 
-    @Nullable BlockState setBlockState(BlockPos p_62087_, BlockState p_62088_, boolean p_62089_);
+    @Nullable BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
 
-    void setBlockEntity(BlockEntity p_156114_);
+    void setBlockEntity(BlockEntity blockEntity);
 
-    void addEntity(Entity p_62078_);
+    void addEntity(Entity entity);
 
     int getHighestFilledSectionIndex();
 
@@ -57,28 +57,28 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     LevelChunkSection[] getSections();
 
-    LevelChunkSection getSection(int p_187657_);
+    LevelChunkSection getSection(int index);
 
     Collection<Map.Entry<Heightmap.Types, Heightmap>> getHeightmaps();
 
-    void setHeightmap(Heightmap.Types p_62083_, long[] p_62084_);
+    void setHeightmap(Heightmap.Types type, long[] data);
 
-    Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types p_62079_);
+    Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types type);
 
-    boolean hasPrimedHeightmap(Heightmap.Types p_187659_);
+    boolean hasPrimedHeightmap(Heightmap.Types type);
 
-    int getHeight(Heightmap.Types p_62080_, int p_62081_, int p_62082_);
+    int getHeight(Heightmap.Types type, int x, int z);
 
     // replacement of ChunkPos getPos()
     CloPos cc_getCloPos();
 
     Map<Structure, StructureStart> getAllStarts();
 
-    void setAllStarts(Map<Structure, StructureStart> p_62090_);
+    void setAllStarts(Map<Structure, StructureStart> structureStarts);
 
-    boolean isYSpaceEmpty(int p_62075_, int p_62076_);
+    boolean isYSpaceEmpty(int startY, int endY);
 
-    void setUnsaved(boolean p_62094_);
+    void setUnsaved(boolean unsaved);
 
     boolean isUnsaved();
 
@@ -86,23 +86,23 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     ChunkStatus getHighestGeneratedStatus();
 
-    void removeBlockEntity(BlockPos p_62101_);
+    void removeBlockEntity(BlockPos pos);
 
-    void markPosForPostprocessing(BlockPos p_62102_);
+    void markPosForPostprocessing(BlockPos pos);
 
     ShortList[] getPostProcessing();
 
-    void addPackedPostProcess(short p_62092_, int p_62093_);
+    void addPackedPostProcess(short packedPosition, int index);
 
-    void setBlockEntityNbt(CompoundTag p_62091_);
+    void setBlockEntityNbt(CompoundTag tag);
 
-    @Nullable CompoundTag getBlockEntityNbt(BlockPos p_62103_);
+    @Nullable CompoundTag getBlockEntityNbt(BlockPos pos);
 
-    @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos p_62104_);
+    @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
-    void findBlocks(Predicate<BlockState> p_285343_, BiConsumer<BlockPos, BlockState> p_285030_);
+    void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
-    void findBlocks(java.util.function.BiPredicate<BlockState, BlockPos> p_285343_, BiConsumer<BlockPos, BlockState> p_285030_);
+    void findBlocks(java.util.function.BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output);
 
     TickContainerAccess<Block> getBlockTicks();
 
@@ -116,23 +116,23 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     @Nullable BlendingData getBlendingData();
 
-    void setBlendingData(BlendingData p_187646_);
+    void setBlendingData(BlendingData blendingData);
 
     long getInhabitedTime();
 
-    void incrementInhabitedTime(long p_187633_);
+    void incrementInhabitedTime(long amount);
 
-    void setInhabitedTime(long p_62099_);
+    void setInhabitedTime(long inhabitedTime);
 
     boolean isLightCorrect();
 
-    void setLightCorrect(boolean p_62100_);
+    void setLightCorrect(boolean lightCorrect);
 
-    NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> p_223013_);
+    NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> noiseChunkCreator);
 
-    @Deprecated BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> p_223015_);
+    @Deprecated BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> carverBiomeSettingsProvider);
 
-    void fillBiomesFromNoise(BiomeResolver p_187638_, Climate.Sampler p_187639_);
+    void fillBiomesFromNoise(BiomeResolver resolver, Climate.Sampler sampler);
 
     boolean hasAnyStructureReferences();
 

@@ -18,26 +18,26 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.FluidState;
 
 public interface LevelClo extends CloAccess {
-    FluidState getFluidState(int p_62815_, int p_62816_, int p_62817_);
+    FluidState getFluidState(int x, int y, int z);
 
     @Nullable
-    BlockEntity getBlockEntity(BlockPos p_62868_, LevelChunk.EntityCreationType p_62869_);
+    BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
 
-    void addAndRegisterBlockEntity(BlockEntity p_156391_);
+    void addAndRegisterBlockEntity(BlockEntity blockEntity);
 
-    boolean isTicking(BlockPos p_156411_);
+    boolean isTicking(BlockPos pos);
 
     void runPostLoad();
 
     boolean isEmpty();
 
     void replaceWithPacketData(
-        FriendlyByteBuf p_187972_, CompoundTag p_187973_, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> p_187974_
+        FriendlyByteBuf buffer, CompoundTag tag, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
     );
 
-    void replaceBiomes(FriendlyByteBuf p_275574_);
+    void replaceBiomes(FriendlyByteBuf buffer);
 
-    void setLoaded(boolean p_62914_);
+    void setLoaded(boolean loaded);
 
     Level getLevel();
 
@@ -45,15 +45,15 @@ public interface LevelClo extends CloAccess {
 
     void postProcessGeneration();
 
-    void unpackTicks(long p_187986_);
+    void unpackTicks(long pos);
 
-    void registerTickContainerInLevel(ServerLevel p_187959_);
+    void registerTickContainerInLevel(ServerLevel level);
 
-    void unregisterTickContainerFromLevel(ServerLevel p_187980_);
+    void unregisterTickContainerFromLevel(ServerLevel level);
 
     FullChunkStatus getFullStatus();
 
-    void setFullStatus(Supplier<FullChunkStatus> p_62880_);
+    void setFullStatus(Supplier<FullChunkStatus> fullStatus);
 
     void clearAllBlockEntities();
 

@@ -20,24 +20,24 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 public interface ProtoClo extends CloAccess {
     Map<BlockPos, BlockEntity> getBlockEntities();
 
-    void addEntity(CompoundTag p_63243_);
+    void addEntity(CompoundTag tag);
 
     List<CompoundTag> getEntities();
 
-    void setStatus(ChunkStatus p_63187_);
+    void setStatus(ChunkStatus status);
 
     Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
     @Nullable
-    CarvingMask getCarvingMask(GenerationStep.Carving p_188185_);
+    CarvingMask getCarvingMask(GenerationStep.Carving step);
 
-    CarvingMask getOrCreateCarvingMask(GenerationStep.Carving p_188191_);
+    CarvingMask getOrCreateCarvingMask(GenerationStep.Carving step);
 
-    void setCarvingMask(GenerationStep.Carving p_188187_, CarvingMask p_188188_);
+    void setCarvingMask(GenerationStep.Carving step, CarvingMask carvingMask);
 
-    void setLightEngine(LevelLightEngine p_63210_);
+    void setLightEngine(LevelLightEngine lightEngine);
 
-    void setBelowZeroRetrogen(@Nullable BelowZeroRetrogen p_188184_);
+    void setBelowZeroRetrogen(@Nullable BelowZeroRetrogen belowZeroRetrogen);
 
     LevelChunkTicks<Block> unpackBlockTicks();
 
