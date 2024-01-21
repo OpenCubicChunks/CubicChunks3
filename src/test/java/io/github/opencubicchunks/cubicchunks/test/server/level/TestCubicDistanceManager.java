@@ -47,16 +47,16 @@ public class TestCubicDistanceManager {
         }
 
         @Override
-        protected boolean isChunkToRemove(long p_140462_) {
+        protected boolean isChunkToRemove(long chunkPos) {
             return false;
         }
 
         @Nullable
         @Override
-        protected ChunkHolder getChunk(long p_140469_) { return null; }
+        protected ChunkHolder getChunk(long chunkPos) { return null; }
         @Nullable
         @Override
-        protected ChunkHolder updateChunkScheduling(long p_140464_, int p_140465_, @Nullable ChunkHolder p_140466_, int p_140467_) { return null; }
+        protected ChunkHolder updateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel) { return null; }
     }
 
     static class ServerPlayerAndPosition {
@@ -75,12 +75,12 @@ public class TestCubicDistanceManager {
         var mainThreadExecutor = // Based on ServerChunkCache.MainThreadExecutor
             new BlockableEventLoop<>("test_event_loop") {
                 @Override
-                protected Runnable wrapRunnable(Runnable p_8506_) {
-                    return p_8506_;
+                protected Runnable wrapRunnable(Runnable runnable) {
+                    return runnable;
                 }
 
                 @Override
-                protected boolean shouldRun(Runnable p_8504_) {
+                protected boolean shouldRun(Runnable runnable) {
                     return true;
                 }
 

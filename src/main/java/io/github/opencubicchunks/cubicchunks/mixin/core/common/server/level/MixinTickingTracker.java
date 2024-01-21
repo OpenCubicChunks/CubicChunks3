@@ -71,7 +71,7 @@ public abstract class MixinTickingTracker extends MixinChunkTracker implements C
     public abstract <T> void addTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
     @TransformFrom("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V")
-    public abstract <T> void removeTicket(TicketType<T> type, CloPos p_184170_, int ticketLevel, T key);
+    public abstract <T> void removeTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
     @TransformFrom("getLevel(Lnet/minecraft/world/level/ChunkPos;)I")
     public abstract int getLevel(CloPos cloPos);

@@ -158,14 +158,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
     // TODO should this actually be dasm'd?
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;")
-    @Override public native GameEventListenerRegistry getListenerRegistry(int p_251193_);
+    @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     // dasm + mixin
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;")
-    @Override public native @NotNull BlockState getBlockState(BlockPos p_62923_);
+    @Override public native @NotNull BlockState getBlockState(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;")
-    @Override public native @NotNull FluidState getFluidState(BlockPos p_62895_);
+    @Override public native @NotNull FluidState getFluidState(BlockPos pos);
 
     // dasm + mixin
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "getFluidState(III)Lnet/minecraft/world/level/material/FluidState;")
@@ -321,7 +321,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "promotePendingBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)"
         + "Lnet/minecraft/world/level/block/entity/BlockEntity;")
-    @Nullable private native BlockEntity promotePendingBlockEntity(BlockPos p_62871_, CompoundTag p_62872_);
+    @Nullable private native BlockEntity promotePendingBlockEntity(BlockPos pos, CompoundTag tag);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "unpackTicks(J)V")
     public native void unpackTicks(long pos);
@@ -419,7 +419,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
             throw new IllegalStateException("DASM failed to apply");
         }
 
-        native void rebind(TickingBlockEntity p_156450_);
+        native void rebind(TickingBlockEntity ticker);
 
         @Override public native void tick();
 

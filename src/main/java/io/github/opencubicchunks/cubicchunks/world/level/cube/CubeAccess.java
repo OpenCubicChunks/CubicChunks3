@@ -164,11 +164,11 @@ public abstract class CubeAccess implements CloAccess {
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
         + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;")
-    @Override @Nullable public native StructureStart getStartForStructure(Structure p_223005_);
+    @Override @Nullable public native StructureStart getStartForStructure(Structure structure);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;"
         + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V")
-    @Override public native void setStartForStructure(Structure p_223010_, StructureStart p_223011_);
+    @Override public native void setStartForStructure(Structure structure, StructureStart structureStart);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getAllStarts()Ljava/util/Map;")
     @Override public native Map<Structure, StructureStart> getAllStarts();
@@ -178,16 +178,16 @@ public abstract class CubeAccess implements CloAccess {
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
         + "Lit/unimi/dsi/fastutil/longs/LongSet;")
-    @Override public native LongSet getReferencesForStructure(Structure p_223017_);
+    @Override public native LongSet getReferencesForStructure(Structure structure);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V")
-    @Override public native void addReferenceForStructure(Structure p_223007_, long p_223008_);
+    @Override public native void addReferenceForStructure(Structure structure, long reference);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getAllReferences()Ljava/util/Map;")
     @Override public native Map<Structure, LongSet> getAllReferences();
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setAllReferences(Ljava/util/Map;)V")
-    @Override public native void setAllReferences(Map<Structure, LongSet> p_187663_);
+    @Override public native void setAllReferences(Map<Structure, LongSet> structureReferencesMap);
 
     @Override public boolean isYSpaceEmpty(int startY, int endY) {
         // TODO
@@ -228,7 +228,7 @@ public abstract class CubeAccess implements CloAccess {
     @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "findBlockLightSources(Ljava/util/function/BiConsumer;)V")
-    @Override public native void findBlockLightSources(BiConsumer<BlockPos, BlockState> p_285269_);
+    @Override public native void findBlockLightSources(BiConsumer<BlockPos, BlockState> output);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "findBlocks(Ljava/util/function/Predicate;Ljava/util/function/BiConsumer;)V")
     @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
@@ -307,7 +307,7 @@ public abstract class CubeAccess implements CloAccess {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
-    @Override public Holder<Biome> getNoiseBiome(int p_204347_, int p_204348_, int p_204349_) {
+    @Override public Holder<Biome> getNoiseBiome(int x, int y, int z) {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
