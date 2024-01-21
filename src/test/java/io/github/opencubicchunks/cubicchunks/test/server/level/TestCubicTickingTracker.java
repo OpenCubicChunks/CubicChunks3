@@ -1,13 +1,12 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
+import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import net.minecraft.SharedConstants;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.server.level.TickingTracker;
 import net.minecraft.world.level.ChunkPos;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,9 +22,7 @@ import org.junit.jupiter.api.TestInstance;
 public class TestCubicTickingTracker {
     @BeforeAll
     public static void setup() {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
-        SharedConstants.IS_RUNNING_IN_IDE = true;
+        setupTests();
     }
 
     private TickingTracker setupTracker() {

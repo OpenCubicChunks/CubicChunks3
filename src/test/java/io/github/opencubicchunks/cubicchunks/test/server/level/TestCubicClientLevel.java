@@ -1,7 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
-import net.minecraft.SharedConstants;
-import net.minecraft.server.Bootstrap;
+import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 
@@ -13,8 +13,6 @@ import org.junit.jupiter.api.TestInstance;
 public class TestCubicClientLevel {
     @BeforeAll
     public static void setup() {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
-        SharedConstants.IS_RUNNING_IN_IDE = true;
+        setupTests();
     }
 }

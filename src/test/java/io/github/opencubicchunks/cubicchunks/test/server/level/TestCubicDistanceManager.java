@@ -1,5 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
+import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -16,10 +17,8 @@ import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.Cubi
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.DistanceManager;
@@ -39,9 +38,7 @@ import org.junit.jupiter.api.TestInstance;
 public class TestCubicDistanceManager {
     @BeforeAll
     public static void setup() {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
-        SharedConstants.IS_RUNNING_IN_IDE = true;
+        setupTests();
     }
 
     static class TestDistanceManager extends DistanceManager {
