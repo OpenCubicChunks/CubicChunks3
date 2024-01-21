@@ -2,13 +2,12 @@ package io.github.opencubicchunks.cubicchunks.test.server.level;
 
 
 import static io.github.opencubicchunks.cubicchunks.testutils.Misc.setupServerLevel;
+import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.withSettings;
 
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -27,9 +26,7 @@ import org.mockito.Mockito;
 public class TestCubicServerLevel {
     @BeforeAll
     public static void setup() {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
-        SharedConstants.IS_RUNNING_IN_IDE = true;
+        setupTests();
     }
 
     private void unregisterMocks() {

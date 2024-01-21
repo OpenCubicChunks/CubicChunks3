@@ -1,5 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.test.world.level.cube;
 
+import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,9 +19,7 @@ import java.util.Set;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -34,9 +33,7 @@ import org.mockito.Answers;
 public class TestLevelCube {
     @BeforeAll
     public static void setup() {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
-        SharedConstants.IS_RUNNING_IN_IDE = true;
+        setupTests();
     }
 
     // TODO replaceWithPacketData - probably needs to be an integration test
