@@ -15,9 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinChunkTaskPriorityQueue implements MarkableAsCubic {
     protected boolean cc_isCubic;
 
-    @Override
-    public void cc_setCubic() {
+    @Override public void cc_setCubic() {
         cc_isCubic = true;
+    }
+
+    @Override public boolean cc_isCubic() {
+        return cc_isCubic;
     }
 
     @Inject(method = "resortChunkTasks", at = @At("HEAD"))
