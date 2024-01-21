@@ -4,15 +4,24 @@
         "io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos",
         "net.minecraft.world.level.ChunkPos",
         "net.minecraft.world.level.chunk.LevelChunk",
+        "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity",
+        "net.minecraft.world.level.chunk.LevelChunk$PostLoadProcessor",
+        "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper",
         "net.minecraft.world.level.chunk.ChunkAccess",
         "io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess",
-        "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess"
+        "io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$BoundTickingBlockEntity",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$PostLoadProcessor",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$RebindableTickingBlockEntityWrapper"
     ],
     "sets": {
         "general": {
             "typeRedirects": {
                 "ChunkPos": "CloPos",
-                "ChunkAccess": "CloAccess"
+                "ChunkAccess": "CloAccess",
+                "LevelChunk": "LevelClo"
             },
             "fieldRedirects": {
             },
@@ -23,11 +32,14 @@
         "cubeAccessAndDescendants": {
             "typeRedirects": {
                 "ChunkPos": "CloPos",
-                "ChunkAccess": "CubeAccess"
+                "ChunkAccess": "CubeAccess",
+                "LevelChunk": "LevelCube",
+                "LevelChunk$BoundTickingBlockEntity": "LevelCube$BoundTickingBlockEntity",
+                "LevelChunk$PostLoadProcessor": "LevelCube$PostLoadProcessor",
+                "LevelChunk$RebindableTickingBlockEntityWrapper": "LevelCube$RebindableTickingBlockEntityWrapper"
             },
             "fieldRedirects": {
-                // TODO field redirects seem to break things currently?
-//                "ChunkAccess | ChunkPos chunkPos": "cloPos"
+                "ChunkAccess | ChunkPos chunkPos": "cloPos"
             },
             "methodRedirects": {
                 "ChunkAccess | ChunkPos getPos()": "cc_getCloPos"

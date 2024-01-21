@@ -383,6 +383,9 @@ public class DasmPlugin implements Plugin<Project> {
 
     private static String remapFieldName(Mappings mappings, String fieldOwner, Type type, String name) {
         Mappings.ClassMapping mapEntry = mappings.getClass(fieldOwner.replace('.', '/'));
+        if (mapEntry == null) {
+            return name;
+        }
         Mappings.FieldMapping field = mapEntry.getField(name, type.getDescriptor());
         if (field == null) {
             return name;
