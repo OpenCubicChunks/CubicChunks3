@@ -40,7 +40,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.TickContainerAccess;
 
 public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, LightChunk, StructureAccess {
-    GameEventListenerRegistry getListenerRegistry(int p_251437_);
+    GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     @Nullable BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
 

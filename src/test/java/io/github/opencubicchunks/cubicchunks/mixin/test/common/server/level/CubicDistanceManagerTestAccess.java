@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(DistanceManager.class)
 public interface CubicDistanceManagerTestAccess {
     @Invoker(value = "updateChunkForced")
-    void invoke_updateChunkForced(ChunkPos p_140800_, boolean p_140801_);
+    void invoke_updateChunkForced(ChunkPos pos, boolean add);
 
     @Dynamic
     @Invoker(value = "updateCubeForced", remap = false)
-    void invoke_updateCubeForced(CloPos p_140800_, boolean p_140801_);
+    void invoke_updateCubeForced(CloPos pos, boolean add);
 
     @Accessor(value = "playerTicketManager")
     DistanceManager.PlayerTicketTracker get_playerTicketManager();

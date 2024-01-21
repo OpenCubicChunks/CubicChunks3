@@ -50,7 +50,7 @@ public class TestCubeAccess {
             super(cloPos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, chunkSections, blendingData);
         }
 
-        @Override public GameEventListenerRegistry getListenerRegistry(int p_251437_) {
+        @Override public GameEventListenerRegistry getListenerRegistry(int sectionY) {
             return null;
         }
 

@@ -13,7 +13,7 @@ import net.minecraft.util.thread.ProcessorHandle;
 
 public class CubeTaskPriorityQueueSorter implements AutoCloseable, CubeHolderLevelChangeListener {
 
-    public CubeTaskPriorityQueueSorter(List<ProcessorHandle<?>> taskExecutors, Executor executor, int p_i50713_3_) {
+    public CubeTaskPriorityQueueSorter(List<ProcessorHandle<?>> taskExecutors, Executor executor, int maxTasks) {
         throw new Error("ASM didn't apply");
     }
 
