@@ -222,9 +222,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
         }
     }
 
-    // Unused in vanilla as well
-    @Deprecated
-    @Override public void addEntity(Entity p_62826_) {}
+    @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "addEntity(Lnet/minecraft/world/entity/Entity;)V")
+    @Deprecated @Override public native void addEntity(Entity p_62826_);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "createBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;")
     @Nullable private native BlockEntity createBlockEntity(BlockPos p_62935_);
@@ -269,10 +268,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "runPostLoad()V")
     public native void runPostLoad();
 
-    // Mojang why
-    public boolean isEmpty() {
-        return false;
-    }
+    @TransformFrom(copyFrom = @CopyFrom(clazz = LevelChunk.class), value = "isEmpty()Z")
+    public native boolean isEmpty();
 
     public void replaceWithPacketData(
         FriendlyByteBuf p_187972_, CompoundTag p_187973_, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> p_187974_
