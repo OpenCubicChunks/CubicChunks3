@@ -21,7 +21,7 @@ public class MixinPlayerRespawnLogic {
             return;
         }
         cir.setReturnValue(SpawnPlaceFinder.getTopBlockBisect(level, new BlockPos(posX, 0, posZ), false,
-            pos -> level.getBlockState((BlockPos) pos).is(BlockTags.VALID_SPAWN),
-            pos -> level.getBlockState((BlockPos) pos).getCollisionShape(level, (BlockPos) pos).isEmpty()));
+            pos -> level.getBlockState(pos).is(BlockTags.VALID_SPAWN),
+            pos -> level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()));
     }
 }

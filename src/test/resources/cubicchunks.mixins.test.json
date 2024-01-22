@@ -13,7 +13,8 @@
     },
     "mixins": [
         "common.server.level.ChunkTrackerTestAccess",
-        "common.server.level.CubicDistanceManagerTestAccess"
+        "common.server.level.CubicDistanceManagerTestAccess",
+        "common.server.level.MinecraftServerTestAccess"
     ],
     "client": [],
     "server": []
