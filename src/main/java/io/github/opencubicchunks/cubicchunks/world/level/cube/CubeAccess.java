@@ -38,6 +38,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseChunk;
@@ -111,6 +112,9 @@ public abstract class CubeAccess implements CloAccess {
             }
         }
     }
+
+    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;")
+   @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
 
@@ -286,6 +290,9 @@ public abstract class CubeAccess implements CloAccess {
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setInhabitedTime(J)V")
     @Override public native void setInhabitedTime(long inhabitedTime);
+
+    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;")
+    public static native ShortList getOrCreateOffsetList(ShortList[] packedPositions, int index);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "isLightCorrect()Z")
     @Override public native boolean isLightCorrect();

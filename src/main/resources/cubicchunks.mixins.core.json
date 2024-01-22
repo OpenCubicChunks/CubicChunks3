@@ -29,9 +29,11 @@
         "common.world.level.chunk.MixinImposterProtoChunk",
         "common.world.level.chunk.MixinLevelChunk",
         "common.world.level.cube.MixinCubeAccess",
+        "common.world.level.cube.MixinImposterProtoCube",
         "common.world.level.cube.MixinLevelCube",
         "common.world.level.cube.MixinLevelCube$BoundTickingBlockEntity",
         "common.world.level.cube.MixinLevelCube$RebindableTickingBlockEntityWrapper",
+        "common.world.level.cube.MixinProtoCube",
         "common.world.level.MixinLevel"
     ],
     "client": [],
