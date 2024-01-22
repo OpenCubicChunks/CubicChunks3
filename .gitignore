@@ -33,3 +33,4 @@ forge*changelog.txt
 
 # Fabric
 .fabric
+.mixin.out
