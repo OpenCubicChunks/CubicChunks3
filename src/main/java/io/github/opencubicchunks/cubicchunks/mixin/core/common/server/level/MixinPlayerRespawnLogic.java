@@ -15,6 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = PlayerRespawnLogic.class, priority = 999)
 public class MixinPlayerRespawnLogic {
 
+    /**
+     * This mixin uses SpawnPlaceFinder (core CC2 code) in a similar fashion to the CC2 implementation.
+     */
     @Inject(method = "getOverworldRespawnPos", at = @At("HEAD"), cancellable = true)
     private static void getOverworldRespawnPos(ServerLevel level, int posX, int posZ, CallbackInfoReturnable<BlockPos> cir) {
         if (!((CubicLevelHeightAccessor) level).isCubic()) {

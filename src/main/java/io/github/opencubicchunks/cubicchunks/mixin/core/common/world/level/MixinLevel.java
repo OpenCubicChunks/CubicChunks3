@@ -11,7 +11,6 @@ import com.llamalad7.mixinextras.sugar.Share;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.TransformFrom;
-import io.github.opencubicchunks.cubicchunks.world.level.CubicLevelReader;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
@@ -54,7 +53,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     public LevelCube cc_getCubeAt(BlockPos blockPos) {
-        return (LevelCube)((CubicLevelReader)this).cc_getCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()),
+        return this.cc_getCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()),
             Coords.blockToCube(blockPos.getZ()));
     }
 
@@ -74,6 +73,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // setBlock
+    // Uses LevelChunk to call setBlockState and markAndNotifyBlock, so we replace it with a LevelCube and call the Cubic variants of those functions.
     @WrapOperation(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level"
         + "/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private LevelChunk cc_replaceLevelChunkInGetChunkAt(Level level, BlockPos blockPos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
@@ -88,8 +88,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     private BlockState cc_replaceLevelChunkInSetBlockState(LevelChunk levelChunk, BlockPos blockPos, BlockState blockState, boolean flag1, Operation<BlockState> original,
                                                            @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
         if(cc_isCubic) {
-            levelCubeLocalRef.get().setBlockState(blockPos, blockState, flag1);
-            return null;
+            return levelCubeLocalRef.get().setBlockState(blockPos, blockState, flag1);
         }
         return original.call(levelChunk, blockPos, blockState, flag1);
     }
@@ -108,6 +107,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     public native void markAndNotifyBlock(BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46608_);
 
     // getBlockState
+    // Replaces LevelChunk with a LevelCube to call getBlockState
     @Inject(method = "getBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private void cc_replaceLevelChunkInGetBlockState(BlockPos blockPos, CallbackInfoReturnable<BlockState> cir, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
         if(cc_isCubic) {
@@ -126,6 +126,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // getBlockEntity
+    // Replaces LevelChunk with a LevelCube to call getBlockEntity
     @Inject(method = "getBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)"
         + "Lnet/minecraft/world/level/chunk/LevelChunk;"), cancellable = true)
     private void cc_replaceGetChunkAtInSetBlockEntity(BlockPos blockPos, CallbackInfoReturnable<BlockEntity> cir) {
@@ -135,6 +136,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // getFluidState
+    // Replaces LevelChunk with a LevelCube to call getFluidState
     @WrapOperation(method = "getFluidState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
     private FluidState cc_replaceGetChunkAtInGetFluidState(LevelChunk levelChunk, BlockPos blockPos, Operation<FluidState> original) {
         if(cc_isCubic) {
@@ -144,6 +146,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // setBlockEntity
+    // Replaces LevelChunk with a LevelCube to call addAndRegisterBlockEntity
     @Inject(method = "setBlockEntity", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)"
         + "Lnet/minecraft/world/level/chunk/LevelChunk;"), cancellable=true)
     private void cc_replaceLevelChunkInSetBlockEntity(BlockEntity blockEntity, CallbackInfo ci, @Local(ordinal = 0) BlockPos blockPos) {
@@ -154,24 +157,37 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // removeBlockEntity
-    @Inject(method = "removeBlockEntity", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"), cancellable=true)
-    private void cc_replaceGetChunkAtInRemoveBlockEntity(BlockPos blockPos, CallbackInfo ci) {
+    // Replaces LevelChunk with a LevelCube to call removeBlockEntity, needs a local ref to do so
+    @WrapOperation(method = "removeBlockEntity", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    private LevelChunk cc_replaceGetChunkAtInRemoveBlockEntity(Level level, BlockPos pPos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
         if(cc_isCubic) {
-            this.cc_getCubeAt(blockPos).removeBlockEntity(blockPos);
-            ci.cancel();
+            levelCubeLocalRef.set(cc_getCubeAt(pPos));
+            return null;
+        }
+        return original.call(level, pPos);
+    }
+
+    @WrapOperation(method = "removeBlockEntity", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/chunk/LevelChunk;removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"))
+    private void cc_replaceLevelChunkInRemoveBlockEntity(LevelChunk levelChunk, BlockPos pPos, Operation<Void> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
+        if(cc_isCubic) {
+            levelCubeLocalRef.get().removeBlockEntity(pPos);
+        } else {
+            original.call(levelChunk, pPos);
         }
     }
 
     // isLoaded
+    // Replaces ChunkSource with a CubicChunkSource to call hasCube
     @WrapOperation(method = "isLoaded", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/chunk/ChunkSource;hasChunk(II)Z"))
     private boolean cc_replaceHasChunkInIsLoaded(ChunkSource chunkSource, int x, int z, Operation<Boolean> original, BlockPos blockPos) {
         if(cc_isCubic) {
-            return ((CubicChunkSource)this.getChunkSource()).cc_hasCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()), Coords.blockToCube(blockPos.getZ()));
+            return ((CubicChunkSource)chunkSource).cc_hasCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()), Coords.blockToCube(blockPos.getZ()));
         }
         return false;
     }
 
     // loadedAndEntityCanStandOnFace
+    // Uses an inject here since the entire second half of the method needs to be replaced anyways
     @Inject(method = "loadedAndEntityCanStandOnFace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(IILnet/minecraft/world/level/chunk/ChunkStatus;Z)"
         + "Lnet/minecraft/world/level/chunk/ChunkAccess;"), cancellable = true)
     private void cc_replaceGetChunkAtInLoadedAndEntityCanStandOnFace(BlockPos blockPos, Entity entity, Direction direction, CallbackInfoReturnable<Boolean> cir) {
@@ -182,6 +198,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // blockEntityChanged
+    // This function is small enough that we can just replace it entirely
     @Inject(method = "blockEntityChanged", at = @At(value = "HEAD"), cancellable = true)
     private void cc_replaceBlockEntityChanged(BlockPos blockPos, CallbackInfo ci) {
         if(cc_isCubic) {
@@ -193,6 +210,8 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // getCurrentDifficultyAt
+    // This function isn't worth trying to wrap due to its complexity, so we just replace it entirely
+    // Local difficulty is not something people mod so this is fine
     @Inject(method = "getCurrentDifficultyAt", at = @At(value = "HEAD"), cancellable = true)
     private void cc_replaceGetCurrentDifficultyAt(BlockPos blockPos, CallbackInfoReturnable<DifficultyInstance> cir) {
         if(cc_isCubic) {

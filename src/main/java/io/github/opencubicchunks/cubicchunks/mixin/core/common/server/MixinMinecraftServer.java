@@ -34,6 +34,8 @@ public abstract class MixinMinecraftServer {
 
     @Shadow protected abstract void waitUntilNextTick();
 
+    // setInitialSpawn
+    // We replace the ChunkPos spawn position with a CubePos spawn position and reuse it later to get the world position.
     @Inject(method = "setInitialSpawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;<init>(Lnet/minecraft/core/BlockPos;)V"))
     private static void cc_replaceChunkPosInSetInitialSpawn(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean generateBonusChest, boolean debug, CallbackInfo ci, @Share(
         "cubePos") LocalRef<CubePos> cubePosLocalRef) {
@@ -49,9 +51,12 @@ public abstract class MixinMinecraftServer {
         if (((CanBeCubic) serverLevel).cc_isCubic()) {
             return cubePosLocalRef.get().asChunkPos().getWorldPosition();
         }
-        return null;
+        return original.call(chunkPos);
     }
 
+    /**
+     * This mixin uses SpawnPlaceFinder (core CC2 code) in a similar fashion to the CC2 implementation.
+     */
     @WrapOperation(method = "setInitialSpawn",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I"))
     private static int cc_replaceGetHeightWithSpawnPlaceFinder(ServerLevel serverLevel, Heightmap.Types heightmapType, int x, int z, Operation<Integer> original,
@@ -63,13 +68,14 @@ public abstract class MixinMinecraftServer {
             if (topBlockBisect != null) {
                 return topBlockBisect.getY();
             } else {
-                return serverLevel.getSeaLevel() + 1;
+                return serverLevel.getSeaLevel() + 1; // This is the default value in vanilla
             }
         }
         return original.call(serverLevel, heightmapType, x, z);
     }
 
-    // TODO: Fix this when ServerChunkCache exists
+    // prepareLevels
+    // This mixin is copied from CC2. It fills in a spawnRadiusRef that is used to determine how many cubes we need to generate for spawn to be ready.
     @WrapWithCondition(method = "prepareLevels", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/server/level/ServerChunkCache;addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     private <T> boolean cc_replaceAddRegionTicketInPrepareLevels(ServerChunkCache serverChunkCache, TicketType<T> ticketType, ChunkPos chunkPos, int originalSpawnRadius, T unit,
@@ -77,6 +83,7 @@ public abstract class MixinMinecraftServer {
         if (((CanBeCubic) serverChunkCache).cc_isCubic()) {
             int spawnRadius = (int) Math.ceil(10 * (16 / (float) CubicConstants.DIAMETER_IN_BLOCKS)); //vanilla is 10, 32: 5, 64: 3
             spawnRadiusRef.set(spawnRadius);
+            // TODO: Fix this when ServerChunkCache exists
             //(CubicServerChunkCache)serverChunkCache.addRegionTicket(CubicTicketType.START, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius + 1, unit);
             return false;
         }
@@ -87,6 +94,7 @@ public abstract class MixinMinecraftServer {
     private void cc_waitUntilCubicGenerationComplete(CallbackInfo ci, @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
         if (((CanBeCubic) overworld().getChunkSource()).cc_isCubic()) {
             int d = spawnRadiusRef.get() * 2 + 1;
+            // TODO: Fix this when ServerChunkCache exists
             //while (this.isRunning() && ((CubicServerChunkCache) overworld().getChunkSource()).getTickingGeneratedCubes() < d * d * d) {
             //    this.nextTickTimeNanos = Util.getMillis() + 10L;
             //    this.waitUntilNextTick();
