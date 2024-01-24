@@ -2,6 +2,7 @@ package io.github.opencubicchunks.cubicchunks.mixin;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,9 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
     private final Map<String, Boolean> dasmTransformedInPreApply = new ConcurrentHashMap<>();
     private final Transformer transformer;
     private final AnnotationParser annotationParser;
+
+    private final Map<String, TargetClass> preApplyTargets = new HashMap<>();
+    private final Map<String, TargetClass> postApplyTargets = new HashMap<>();
 
     public ASMConfigPlugin() {
         boolean developmentEnvironment = false;
@@ -72,6 +76,32 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
     }
 
     @Override public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        try {
+            ClassNode targetClass = MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
+            ClassNode mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
+
+            // PRE_APPLY
+            var targetPreApply = new TargetClass(targetClassName);
+            Set<RedirectSet> redirectSetsPreApply = new HashSet<>();
+            this.annotationParser.findRedirectSets(targetClassName, mixinClass, redirectSetsPreApply);
+            this.annotationParser.buildClassTarget(mixinClass, targetPreApply, TransformFrom.ApplicationStage.PRE_APPLY, "cc_dasm$");
+            this.annotationParser.findRedirectSets(targetClassName, targetClass, redirectSetsPreApply);
+            this.annotationParser.buildClassTarget(targetClass, targetPreApply, TransformFrom.ApplicationStage.PRE_APPLY, "cc_dasm$");
+            redirectSetsPreApply.forEach(targetPreApply::addRedirectSet);
+            this.preApplyTargets.put(mixinClassName + "|" + targetClassName, targetPreApply);
+
+            // POST_APPLY
+            var targetPostApply = new TargetClass(targetClassName);
+            Set<RedirectSet> redirectSetsPostApply = new HashSet<>();
+            this.annotationParser.findRedirectSets(targetClassName, mixinClass, redirectSetsPostApply);
+            this.annotationParser.buildClassTarget(mixinClass, targetPostApply, TransformFrom.ApplicationStage.POST_APPLY, "cc_dasm$");
+            this.annotationParser.findRedirectSets(targetClassName, targetClass, redirectSetsPostApply);
+            this.annotationParser.buildClassTarget(targetClass, targetPostApply, TransformFrom.ApplicationStage.POST_APPLY, "cc_dasm$");
+            redirectSetsPostApply.forEach(targetPostApply::addRedirectSet);
+            this.postApplyTargets.put(mixinClassName + "|" + targetClassName, targetPostApply);
+        } catch (ClassNotFoundException | IOException e) {
+            throw new RuntimeException(e);
+        }
         return true;
     }
 
@@ -127,21 +157,11 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
      * @return Whether any transformation was done to the targetClass
      */
     private boolean transformClass(String targetClassName, ClassNode targetClass, String mixinClassName, TransformFrom.ApplicationStage stage) {
-        ClassNode mixinClass;
-        try {
-            mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        TargetClass target = null;
+        switch (stage) {
+            case PRE_APPLY -> target = preApplyTargets.get(mixinClassName + "|" + targetClassName);
+            case POST_APPLY -> target = postApplyTargets.get(mixinClassName + "|" + targetClassName);
         }
-
-        var target = new TargetClass(targetClassName);
-        Set<RedirectSet> redirectSets = new HashSet<>();
-
-        this.annotationParser.findRedirectSets(targetClassName, mixinClass, redirectSets);
-        this.annotationParser.buildClassTarget(mixinClass, target, stage, "cc_dasm$");
-        this.annotationParser.findRedirectSets(targetClassName, targetClass, redirectSets);
-        this.annotationParser.buildClassTarget(targetClass, target, stage, "cc_dasm$");
-        redirectSets.forEach(target::addRedirectSet);
 
         if (target.targetMethods().isEmpty() && target.wholeClass() == null) {
             return false;
