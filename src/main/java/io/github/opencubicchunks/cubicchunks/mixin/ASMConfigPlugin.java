@@ -1,13 +1,8 @@
 package io.github.opencubicchunks.cubicchunks.mixin;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,17 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
-import io.github.opencubicchunks.dasm.MappingsProvider;
-import io.github.opencubicchunks.dasm.RedirectsParseException;
-import io.github.opencubicchunks.dasm.RedirectsParser;
+import io.github.opencubicchunks.dasm.AnnotationParser;
 import io.github.opencubicchunks.dasm.Transformer;
+import io.github.opencubicchunks.dasm.api.provider.CachingClassProvider;
+import io.github.opencubicchunks.dasm.api.provider.ClassProvider;
+import io.github.opencubicchunks.dasm.api.provider.MappingsProvider;
+import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
+import io.github.opencubicchunks.dasm.transformer.redirect.RedirectSet;
+import io.github.opencubicchunks.dasm.transformer.target.TargetClass;
 import net.neoforged.fml.loading.FMLEnvironment;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -34,10 +28,8 @@ import org.spongepowered.asm.service.MixinService;
 
 public class ASMConfigPlugin implements IMixinConfigPlugin {
     private final Map<String, Boolean> dasmTransformedInPreApply = new ConcurrentHashMap<>();
-    private final Map<String, RedirectsParser.RedirectSet> redirectSetByName = new HashMap<>();
-    private final Throwable constructException;
-
     private final Transformer transformer;
+    private final AnnotationParser annotationParser;
 
     public ASMConfigPlugin() {
         boolean developmentEnvironment = false;
@@ -61,33 +53,18 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         };
 
         // TODO: breaks on fabric (remapped at runtime)
-        this.transformer = new Transformer(mappings, s -> {
-            try (var classStream = ASMConfigPlugin.class.getClassLoader().getResourceAsStream(s.replace(".", "/") + ".class")){
+        ClassProvider classProvider = new CachingClassProvider(s -> {
+            try (var classStream = ASMConfigPlugin.class.getClassLoader().getResourceAsStream(s.replace(".", "/") + ".class")) {
                 return classStream.readAllBytes();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }, developmentEnvironment);
-
-        List<RedirectsParser.RedirectSet> redirectSets;
-        try {
-            //TODO: add easy use of multiple set and target json files
-            redirectSets = loadSetsFile("dasm/sets/sets.dasm");
-
-            for (RedirectsParser.RedirectSet redirectSet : redirectSets) {
-                redirectSetByName.put(redirectSet.getName(), redirectSet);
-            }
-        } catch (Throwable e) {
-            constructException = e; // Annoying because mixin catches Throwable for creating a config plugin >:(
-            return;
-        }
-        constructException = null;
+        });
+        this.transformer = new Transformer(mappings, classProvider, developmentEnvironment);
+        this.annotationParser = new AnnotationParser(classProvider, GeneralSet.class);
     }
 
     @Override public void onLoad(String mixinPackage) {
-        if (this.constructException != null) {
-            throw new Error(this.constructException); // throw error because Mixin catches Exception for onLoad
-        }
     }
 
     @Override public String getRefMapperConfig() {
@@ -157,226 +134,24 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             throw new RuntimeException(e);
         }
 
-        var target = new RedirectsParser.ClassTarget(targetClassName);
-        Set<RedirectsParser.RedirectSet> redirectSets = new HashSet<>();
+        var target = new TargetClass(targetClassName);
+        Set<RedirectSet> redirectSets = new HashSet<>();
 
-        findRedirectSets(targetClassName, mixinClass, redirectSets);
-        buildClassTarget(mixinClass, target, stage, "cc_dasm$");
-        findRedirectSets(targetClassName, targetClass, redirectSets);
-        buildClassTarget(targetClass, target, stage, "cc_dasm$");
+        this.annotationParser.findRedirectSets(targetClassName, mixinClass, redirectSets);
+        this.annotationParser.buildClassTarget(mixinClass, target, stage, "cc_dasm$");
+        this.annotationParser.findRedirectSets(targetClassName, targetClass, redirectSets);
+        this.annotationParser.buildClassTarget(targetClass, target, stage, "cc_dasm$");
+        redirectSets.forEach(target::addRedirectSet);
 
-        if (target.getTargetMethods().isEmpty() && target.wholeClass() == null) {
+        if (target.targetMethods().isEmpty() && target.wholeClass() == null) {
             return false;
         }
 
         if (target.wholeClass() != null) {
-            this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
+            this.transformer.transformClass(targetClass, target);
         } else {
-            this.transformer.transformClass(targetClass, target, redirectSets.stream().toList());
+            this.transformer.transformClass(targetClass, target);
         }
         return true;
-    }
-
-    private void findRedirectSets(String targetClassName, ClassNode targetClass, Set<RedirectsParser.RedirectSet> redirectSets) {
-        if (targetClass.invisibleAnnotations == null) {
-            return;
-        }
-        for (AnnotationNode ann : targetClass.invisibleAnnotations) {
-            if (!ann.desc.equals("Lio/github/opencubicchunks/cubicchunks/mixin/DasmRedirect;")) {
-                continue;
-            }
-            // The name value pairs of this annotation. Each name value pair is stored as two consecutive
-            // elements in the list. The name is a String, and the value may be a
-            // Byte, Boolean, Character, Short, Integer, Long, Float, Double, String or org.objectweb.asm.Type,
-            // or a two elements String array (for enumeration values), an AnnotationNode,
-            // or a List of values of one of the preceding types. The list may be null if there is no name value pair.
-            List<Object> values = ann.values;
-            if (values == null) {
-                redirectSets.add(redirectSetByName.get("general"));
-                continue;
-            }
-            List<String> useSets = null;
-            for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
-                String name = (String) values.get(i);
-                Object value = values.get(i + 1);
-                if (name.equals("value")) {
-                    useSets = (List<String>) value;
-                }
-            }
-            if (useSets == null) {
-                redirectSets.add(redirectSetByName.get("general"));
-                continue;
-            }
-            for (String useSet : useSets) {
-                RedirectsParser.RedirectSet redirectSet = redirectSetByName.get(useSet);
-                if (redirectSet == null) {
-                    throw new IllegalArgumentException("No redirect set " + useSet + ", targetClass=" + targetClassName);
-                }
-                redirectSets.add(redirectSet);
-            }
-        }
-    }
-
-    private static void buildClassTarget(ClassNode targetClass, RedirectsParser.ClassTarget classTarget, TransformFrom.ApplicationStage stage, String methodPrefix) {
-        if (targetClass.invisibleAnnotations == null) {
-            return;
-        }
-        for (AnnotationNode ann : targetClass.invisibleAnnotations) {
-            if (!ann.desc.equals("Lio/github/opencubicchunks/cubicchunks/mixin/TransformFromClass;") || ann.values == null) {
-                continue;
-            }
-
-            List<Object> values = ann.values;
-            Type srcClass = null;
-            TransformFrom.ApplicationStage requestedStage = TransformFrom.ApplicationStage.PRE_APPLY;
-            for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
-                String name = (String) values.get(i);
-                Object value = values.get(i + 1);
-                if (name.equals("value")) {
-                    srcClass = parseCopyFromAnnotation((AnnotationNode) value);
-                } else if (name.equals("stage")) {
-                    var parts = ((String[]) value);
-                    requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
-                }
-            }
-            if (stage != requestedStage) {
-                continue;
-            }
-            classTarget.targetWholeClass(srcClass);
-        }
-
-        for (Iterator<MethodNode> iterator = targetClass.methods.iterator(); iterator.hasNext(); ) {
-            MethodNode method = iterator.next();
-            if (method.invisibleAnnotations == null) {
-                continue;
-            }
-
-            for (AnnotationNode ann : method.invisibleAnnotations) {
-                if (!ann.desc.equals("Lio/github/opencubicchunks/cubicchunks/mixin/TransformFrom;")) {
-                    continue;
-                }
-                iterator.remove();
-
-                // The name value pairs of this annotation. Each name value pair is stored as two consecutive
-                // elements in the list. The name is a String, and the value may be a
-                // Byte, Boolean, Character, Short, Integer, Long, Float, Double, String or org.objectweb.asm.Type,
-                // or a two elements String array (for enumeration values), an AnnotationNode,
-                // or a List of values of one of the preceding types. The list may be null if there is no name value pair.
-                List<Object> values = ann.values;
-                String targetName = null;
-                boolean makeSyntheticAccessor = false;
-                String desc = null;
-                TransformFrom.ApplicationStage requestedStage = TransformFrom.ApplicationStage.PRE_APPLY;
-                Type srcOwner = null;
-                for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
-                    String name = (String) values.get(i);
-                    Object value = values.get(i + 1);
-                    switch (name) {
-                        case "value" -> targetName = (String) value;
-                        case "makeSyntheticAccessor" -> makeSyntheticAccessor = (Boolean) value;
-                        case "signature" -> desc = parseMethodDescriptor((AnnotationNode) value);
-                        case "stage" -> {
-                            var parts = ((String[]) value);
-                            requestedStage = TransformFrom.ApplicationStage.valueOf(parts[1]);
-                        }
-                        case "copyFrom" -> srcOwner = parseCopyFromAnnotation((AnnotationNode) value);
-                    }
-                }
-                if (stage != requestedStage) {
-                    continue;
-                }
-
-                if (desc == null) {
-                    int split = targetName.indexOf('(');
-                    desc = targetName.substring(split);
-                    targetName = targetName.substring(0, split);
-                }
-                RedirectsParser.ClassTarget.TargetMethod targetMethod;
-                if (srcOwner == null) {
-                     targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
-                        new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
-                         methodPrefix + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
-                        true, makeSyntheticAccessor
-                    );
-                } else {
-                    targetMethod = new RedirectsParser.ClassTarget.TargetMethod(
-                        srcOwner,
-                        new Transformer.ClassMethod(Type.getObjectType(targetClass.name), new org.objectweb.asm.commons.Method(targetName, desc)),
-                        methodPrefix + method.name, // Name is modified here to prevent mixin from overwriting it. We remove this prefix in postApply.
-                        true, makeSyntheticAccessor
-                    );
-                }
-                if (classTarget.getTargetMethods().stream().anyMatch(t -> t.method().method.equals(targetMethod.method().method))) {
-                    throw new RuntimeException(String.format("Trying to add duplicate TargetMethod to %s:\n\t\t\t\t%s | %s", classTarget.getClassName(), targetMethod.method().owner,
-                        targetMethod.method().method));
-                }
-                classTarget.addTarget(targetMethod);
-            }
-        }
-    }
-
-    private static Type parseCopyFromAnnotation(AnnotationNode copyFromAnnotation) {
-        assert copyFromAnnotation.values.size() == 2 : "CopyFrom annotation has multiple targeting fields";
-
-        if ((copyFromAnnotation.values.get(0)).equals("clazz")) {
-            return (Type) copyFromAnnotation.values.get(1);
-        } else if ((copyFromAnnotation.values.get(0)).equals("string")) {
-            return Type.getObjectType((String) copyFromAnnotation.values.get(1));
-        }
-        return Type.getType(Object.class);
-    }
-
-    private static String parseMethodDescriptor(AnnotationNode ann) {
-        if (ann == null) {
-            return null;
-        }
-        List<Object> values = ann.values;
-
-        Type ret = null;
-        List<Type> args = null;
-        boolean useFromString = false;
-        for (int i = 0, valuesSize = values.size(); i < valuesSize; i += 2) {
-            String name = (String) values.get(i);
-            Object value = values.get(i + 1);
-            switch (name) {
-                case "ret" -> ret = (Type) value;
-                case "args" -> args = (List<Type>) value;
-                case "useFromString" -> useFromString = (Boolean) value;
-            }
-        }
-        if (useFromString) {
-            return null;
-        }
-        return Type.getMethodDescriptor(ret, args.toArray(new Type[0]));
-    }
-
-    private JsonElement parseFileAsJson(String fileName) {
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        try (InputStream is = classloader.getResourceAsStream(fileName)) {
-            return new JsonParser().parse(new InputStreamReader(is, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<RedirectsParser.ClassTarget> loadTargetsFile(String fileName) throws RedirectsParseException {
-        RedirectsParser redirectsParser = new RedirectsParser();
-
-        JsonElement targetsJson = parseFileAsJson(fileName);
-        return redirectsParser.parseClassTargets(targetsJson.getAsJsonObject());
-    }
-
-    private List<RedirectsParser.RedirectSet> loadSetsFile(String fileName) throws RedirectsParseException {
-        RedirectsParser redirectsParser = new RedirectsParser();
-
-        JsonObject setsJson = parseFileAsJson(fileName).getAsJsonObject();
-        JsonElement sets = setsJson.get("sets");
-        JsonElement globalImports = setsJson.get("imports");
-
-        if (globalImports == null) {
-            return redirectsParser.parseRedirectSet(sets.getAsJsonObject());
-        } else {
-            return redirectsParser.parseRedirectSet(sets.getAsJsonObject(), globalImports);
-        }
     }
 }
