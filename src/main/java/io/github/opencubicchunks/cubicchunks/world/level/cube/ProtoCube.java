@@ -171,13 +171,11 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native void setLightEngine(LevelLightEngine pLightEngine);
 
     @Override public void setBelowZeroRetrogen(@Nullable BelowZeroRetrogen pBelowZeroRetrogen) {
-        // Unused
+        // Below-zero retrogen is unused in CC, hence empty method body
     }
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ProtoChunk.class), value = "unpackTicks(Lnet/minecraft/world/ticks/ProtoChunkTicks;)Lnet/minecraft/world/ticks/LevelChunkTicks;")
-    private static <T> LevelChunkTicks<T> unpackTicks(ProtoChunkTicks<T> pTicks) {
-        return new LevelChunkTicks(pTicks.scheduledTicks());
-    }
+    private static native <T> LevelChunkTicks<T> unpackTicks(ProtoChunkTicks<T> pTicks);
 
     @TransformFrom(copyFrom = @CopyFrom(clazz = ProtoChunk.class), value = "unpackBlockTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;")
     @Override public native LevelChunkTicks<Block> unpackBlockTicks();
