@@ -67,11 +67,22 @@ mixinGen {
     defaultCompatibilityLevel = "JAVA_17"
     defaultMinVersion = "0.8"
 
-    config("core") {
+    config(sourceSets.main, "core") {
         it.required = true
         it.conformVisibility = true
         it.injectorsDefaultRequire = 1
         it.configurationPlugin = "io.github.opencubicchunks.cubicchunks.mixin.ASMConfigPlugin"
+    }
+    config(sourceSets.main, "access") {
+        it.required = true
+        it.conformVisibility = true
+        it.injectorsDefaultRequire = 1
+    }
+
+    config(sourceSets.test, "test") {
+        it.required = true
+        it.conformVisibility = true
+        it.injectorsDefaultRequire = 1
     }
 /*
     config("levelgen") {

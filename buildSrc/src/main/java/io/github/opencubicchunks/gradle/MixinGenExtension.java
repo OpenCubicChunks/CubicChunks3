@@ -28,7 +28,7 @@ import org.gradle.api.tasks.SourceSet;
 // Note: this intentionally only contains the parts that I actually use
 @SuppressWarnings("unused") public class MixinGenExtension {
 
-    private final Map<String, Action<MixinConfig>> configs = new HashMap<>();
+    private final Map<SourceSet, Map<String, Action<MixinConfig>>> configsBySourceSet = new HashMap<>();
 
     private String filePattern = "mixin.%s.json";
     private String defaultRefmap = "mixin.refmap.json";
@@ -80,8 +80,8 @@ import org.gradle.api.tasks.SourceSet;
         this.defaultMinVersion = defaultMinVersion;
     }
 
-    public void config(String name, Action<MixinConfig> configure) {
-        configs.put(name, configure);
+    public void config(SourceSet sourceSet, String name, Action<MixinConfig> configure) {
+        configsBySourceSet.computeIfAbsent(sourceSet, s -> new HashMap<>()).put(name, configure);
     }
 
     public static class MixinConfig {
@@ -171,72 +171,84 @@ import org.gradle.api.tasks.SourceSet;
     }
 
     void generateFiles(JavaPluginConvention convention) throws IOException {
-        SourceSet main = convention.getSourceSets().getByName("main");
-        Set<File> resourcesSet = main.getResources().getSrcDirs();
-        Path resources = resourcesSet.iterator().next().getCanonicalFile().toPath();
-        for (String name : configs.keySet()) {
-            MixinConfig config = new MixinConfig();
-            Action<MixinConfig> configure = configs.get(name);
-            if (defaultPackagePrefix != null) {
-                config.packageName = defaultPackagePrefix + "." + name;
+        convention.getSourceSets().forEach(sourceSet -> {
+            Map<String, Action<MixinConfig>> configs = configsBySourceSet.get(sourceSet);
+            if (configs == null) {
+                throw new RuntimeException("No mixin config was registered for source set " + sourceSet);
             }
-            if (defaultRefmap != null) {
-                config.refmap = defaultRefmap;
-            }
-            if (defaultCompatibilityLevel != null) {
-                config.compatibilityLevel = defaultCompatibilityLevel;
-            }
-            if (defaultMinVersion != null) {
-                config.minVersion = defaultMinVersion;
-            }
-            configure.execute(config);
 
-            String fileName = String.format(filePattern, name);
+            Set<File> resourcesSet = sourceSet.getResources().getSrcDirs();
+            Path resources;
+            try {
+                resources = resourcesSet.iterator().next().getCanonicalFile().toPath();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            for (String name : configs.keySet()) {
+                MixinConfig config = new MixinConfig();
+                Action<MixinConfig> configure = configs.get(name);
+                if (defaultPackagePrefix != null) {
+                    config.packageName = defaultPackagePrefix + "." + name;
+                }
+                if (defaultRefmap != null) {
+                    config.refmap = defaultRefmap;
+                }
+                if (defaultCompatibilityLevel != null) {
+                    config.compatibilityLevel = defaultCompatibilityLevel;
+                }
+                if (defaultMinVersion != null) {
+                    config.minVersion = defaultMinVersion;
+                }
+                configure.execute(config);
 
-            try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(resources.resolve(fileName)))) {
-                writer.setIndent("    ");
-                writer.beginObject();
-                if (config.required != null) {
-                    writer.name("required").value(config.required);
-                }
-                if (config.packageName != null) {
-                    writer.name("package").value(config.packageName);
-                }
-                if (config.refmap != null) {
-                    writer.name("refmap").value(config.refmap);
-                }
-                if (config.configurationPlugin != null) {
-                    writer.name("plugin").value(config.configurationPlugin);
-                }
-                if (config.compatibilityLevel != null) {
-                    writer.name("compatibilityLevel").value(config.compatibilityLevel);
-                }
-                if (config.minVersion != null) {
-                    writer.name("minVersion").value(config.minVersion);
-                }
-                if (config.mixinPriority != null) {
-                    writer.name("mixinPriority").value(config.mixinPriority);
-                }
-                if (config.injectorsDefaultRequire != null) {
-                    writer.name("injectors").beginObject();
-                    writer.name("defaultRequire").value(config.injectorsDefaultRequire);
+                String fileName = String.format(filePattern, name);
+
+                try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(resources.resolve(fileName)))) {
+                    writer.setIndent("    ");
+                    writer.beginObject();
+                    if (config.required != null) {
+                        writer.name("required").value(config.required);
+                    }
+                    if (config.packageName != null) {
+                        writer.name("package").value(config.packageName);
+                    }
+                    if (config.refmap != null) {
+                        writer.name("refmap").value(config.refmap);
+                    }
+                    if (config.configurationPlugin != null) {
+                        writer.name("plugin").value(config.configurationPlugin);
+                    }
+                    if (config.compatibilityLevel != null) {
+                        writer.name("compatibilityLevel").value(config.compatibilityLevel);
+                    }
+                    if (config.minVersion != null) {
+                        writer.name("minVersion").value(config.minVersion);
+                    }
+                    if (config.mixinPriority != null) {
+                        writer.name("mixinPriority").value(config.mixinPriority);
+                    }
+                    if (config.injectorsDefaultRequire != null) {
+                        writer.name("injectors").beginObject();
+                        writer.name("defaultRequire").value(config.injectorsDefaultRequire);
+                        writer.endObject();
+                    }
+                    if (config.conformVisibility != null) {
+                        writer.name("overwrites").beginObject();
+                        writer.name("conformVisibility").value(config.conformVisibility);
+                        writer.endObject();
+                    }
+                    writeMixins(convention, sourceSet, name, config, writer);
+
                     writer.endObject();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                if (config.conformVisibility != null) {
-                    writer.name("overwrites").beginObject();
-                    writer.name("conformVisibility").value(config.conformVisibility);
-                    writer.endObject();
-                }
-                writeMixins(convention, name, config, writer);
-
-                writer.endObject();
             }
-        }
-
+        });
     }
 
-    private void writeMixins(JavaPluginConvention convention, String name, MixinConfig config, JsonWriter writer) throws IOException {
-        Set<Path> classes = getMixinClasses(config, convention.getSourceSets().getByName("main").getAllJava());
+    private void writeMixins(JavaPluginConvention convention, SourceSet sourceSet, String name, MixinConfig config, JsonWriter writer) throws IOException {
+        Set<Path> classes = getMixinClasses(config, sourceSet.getAllJava());
 
         Set<Path> commonSet = new HashSet<>();
         Set<Path> clientSet = new HashSet<>();
