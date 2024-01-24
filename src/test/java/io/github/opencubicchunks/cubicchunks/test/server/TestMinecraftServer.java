@@ -3,6 +3,7 @@ package io.github.opencubicchunks.cubicchunks.test.server;
 import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 
 import static io.github.opencubicchunks.cubicchunks.testutils.Misc.setupServerLevel;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,6 +15,7 @@ import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -22,6 +24,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Answers;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestMinecraftServer {
@@ -30,24 +34,31 @@ public class TestMinecraftServer {
         setupTests();
     }
 
-    private MinecraftServer setupServer() {
+    private CloseableReference<IntegratedServer> setupServer() {
         WorldStem worldStemMock = mock(WorldStem.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         when(worldStemMock.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)).thenReturn(true);
-        return new IntegratedServer(mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), worldStemMock, mock(RETURNS_DEEP_STUBS),
-            mock(RETURNS_DEEP_STUBS));
+        MockedConstruction<ServerFunctionManager> serverFunctionManagerMockedConstruction = Mockito.mockConstruction(ServerFunctionManager.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
+        return new CloseableReference<>(
+           new IntegratedServer(mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), worldStemMock, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS)),
+            serverFunctionManagerMockedConstruction
+        );
     }
 
-    //TODO: These tests are disabled for now since MinecraftServer creates a ServerFunctionManager which eventually tries to copy a null array. Not sure how to mock that right now.
+    //TODO: This test hangs for some reason
     @Test @Disabled public void testSetInitialSpawnVanilla() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             ((MarkableAsCubic)serverLevelReference.value()).cc_setCubic();
-            ((MinecraftServerTestAccess)setupServer()).invoke_setInitialSpawn(serverLevelReference.value(), mock(RETURNS_DEEP_STUBS), false, false);
+            try (CloseableReference<IntegratedServer> server = setupServer()) {
+                ((MinecraftServerTestAccess)server.value()).invoke_setInitialSpawn(serverLevelReference.value(), mock(RETURNS_DEEP_STUBS), false, false);
+            }
         }
     }
 
+    // TODO: Need to mock overworld() in some way
     @Test @Disabled public void testPrepareLevelsVanilla() throws Exception {
-        MinecraftServer server = setupServer();
-        ((MarkableAsCubic)server.overworld()).cc_setCubic();
-        ((MinecraftServerTestAccess)setupServer()).invoke_prepareLevels(mock());
+        try (CloseableReference<IntegratedServer> server = setupServer()) {
+            ((MarkableAsCubic)server.value().overworld()).cc_setCubic();
+            ((MinecraftServerTestAccess)server.value()).invoke_prepareLevels(mock(RETURNS_DEEP_STUBS));
+        }
     }
 }

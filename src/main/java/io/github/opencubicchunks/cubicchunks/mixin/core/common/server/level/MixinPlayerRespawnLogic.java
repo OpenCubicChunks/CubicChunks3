@@ -1,7 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
-import io.github.opencubicchunks.cc_core.world.CubicLevelHeightAccessor;
 import io.github.opencubicchunks.cc_core.world.SpawnPlaceFinder;
+import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +20,7 @@ public class MixinPlayerRespawnLogic {
      */
     @Inject(method = "getOverworldRespawnPos", at = @At("HEAD"), cancellable = true)
     private static void getOverworldRespawnPos(ServerLevel level, int posX, int posZ, CallbackInfoReturnable<BlockPos> cir) {
-        if (!((CubicLevelHeightAccessor) level).isCubic()) {
+        if (!((CanBeCubic) level).cc_isCubic()) {
             return;
         }
         cir.setReturnValue(SpawnPlaceFinder.getTopBlockBisect(level, new BlockPos(posX, 0, posZ), false,
