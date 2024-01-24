@@ -11,6 +11,7 @@
         "conformVisibility": true
     },
     "mixins": [
+        "common.DistanceManagerAccess",
         "common.TicketTypeAccess"
     ],
     "client": [],
