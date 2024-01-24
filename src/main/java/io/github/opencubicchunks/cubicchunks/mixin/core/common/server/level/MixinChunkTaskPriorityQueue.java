@@ -2,9 +2,8 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.mixin.TransformFrom;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
 import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Mixin;

@@ -13,11 +13,12 @@ import com.google.common.collect.Maps;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
-import io.github.opencubicchunks.cubicchunks.mixin.CopyFrom;
-import io.github.opencubicchunks.cubicchunks.mixin.DasmRedirect;
-import io.github.opencubicchunks.cubicchunks.mixin.TransformFrom;
+import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
+import io.github.opencubicchunks.dasm.api.Ref;
+import io.github.opencubicchunks.dasm.api.transform.DasmRedirect;
+import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
@@ -50,7 +51,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.Nullable;
 
-@DasmRedirect({ "cubeAccessAndDescendants" })
+@DasmRedirect(CubeAccessAndDescendantsSet.class)
 public abstract class CubeAccess implements CloAccess {
     // Fields copied from ChunkAccess, except ChunkPos -> CloPos
     protected final ShortList[] postProcessing;
@@ -113,8 +114,8 @@ public abstract class CubeAccess implements CloAccess {
         }
     }
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;")
-   @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;")
+    @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
 
@@ -132,13 +133,13 @@ public abstract class CubeAccess implements CloAccess {
         return this.getMinBuildHeight();
     }
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getBlockEntitiesPos()Ljava/util/Set;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlockEntitiesPos()Ljava/util/Set;")
     @Override public native Set<BlockPos> getBlockEntitiesPos();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getSections()[Lnet/minecraft/world/level/chunk/LevelChunkSection;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getSections()[Lnet/minecraft/world/level/chunk/LevelChunkSection;")
     @Override public native LevelChunkSection[] getSections();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;")
     @Override public native LevelChunkSection getSection(int index);
 
     // TODO (P2) heightmap methods on cubes
@@ -166,31 +167,31 @@ public abstract class CubeAccess implements CloAccess {
         return cloPos;
     }
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
         + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;")
     @Override @Nullable public native StructureStart getStartForStructure(Structure structure);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;"
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;"
         + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V")
     @Override public native void setStartForStructure(Structure structure, StructureStart structureStart);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getAllStarts()Ljava/util/Map;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getAllStarts()Ljava/util/Map;")
     @Override public native Map<Structure, StructureStart> getAllStarts();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setAllStarts(Ljava/util/Map;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setAllStarts(Ljava/util/Map;)V")
     @Override public native void setAllStarts(Map<Structure, StructureStart> structureStarts);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
         + "Lit/unimi/dsi/fastutil/longs/LongSet;")
     @Override public native LongSet getReferencesForStructure(Structure structure);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V")
     @Override public native void addReferenceForStructure(Structure structure, long reference);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getAllReferences()Ljava/util/Map;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getAllReferences()Ljava/util/Map;")
     @Override public native Map<Structure, LongSet> getAllReferences();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setAllReferences(Ljava/util/Map;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setAllReferences(Ljava/util/Map;)V")
     @Override public native void setAllReferences(Map<Structure, LongSet> structureReferencesMap);
 
     @Override public boolean isYSpaceEmpty(int startY, int endY) {
@@ -198,10 +199,10 @@ public abstract class CubeAccess implements CloAccess {
         return false;
     }
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setUnsaved(Z)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setUnsaved(Z)V")
     @Override public native void setUnsaved(boolean unsaved);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "isUnsaved()Z")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "isUnsaved()Z")
     @Override public native boolean isUnsaved();
 
     @Override public abstract ChunkStatus getStatus();
@@ -213,28 +214,28 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public abstract void removeBlockEntity(BlockPos pos);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V")
     @Override public native void markPosForPostprocessing(BlockPos pos);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getPostProcessing()[Lit/unimi/dsi/fastutil/shorts/ShortList;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getPostProcessing()[Lit/unimi/dsi/fastutil/shorts/ShortList;")
     @Override public native ShortList[] getPostProcessing();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "addPackedPostProcess(SI)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "addPackedPostProcess(SI)V")
     @Override public native void addPackedPostProcess(short packedPosition, int index);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V")
     @Override public native void setBlockEntityNbt(CompoundTag tag);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
     @Override @Nullable public native CompoundTag getBlockEntityNbt(BlockPos pos);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
     @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "findBlockLightSources(Ljava/util/function/BiConsumer;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "findBlockLightSources(Ljava/util/function/BiConsumer;)V")
     @Override public native void findBlockLightSources(BiConsumer<BlockPos, BlockState> output);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "findBlocks(Ljava/util/function/Predicate;Ljava/util/function/BiConsumer;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "findBlocks(Ljava/util/function/Predicate;Ljava/util/function/BiConsumer;)V")
     @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
     @Override public void findBlocks(BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output) {
@@ -270,40 +271,40 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public abstract ChunkAccess.TicksToSave getTicksForSerialization();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getUpgradeData()Lnet/minecraft/world/level/chunk/UpgradeData;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getUpgradeData()Lnet/minecraft/world/level/chunk/UpgradeData;")
     @Override public native UpgradeData getUpgradeData();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "isOldNoiseGeneration()Z")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "isOldNoiseGeneration()Z")
     @Override public native boolean isOldNoiseGeneration();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getBlendingData()Lnet/minecraft/world/level/levelgen/blending/BlendingData;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlendingData()Lnet/minecraft/world/level/levelgen/blending/BlendingData;")
     @Override @Nullable public native BlendingData getBlendingData();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setBlendingData(Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setBlendingData(Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
     @Override public native void setBlendingData(BlendingData blendingData);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getInhabitedTime()J")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getInhabitedTime()J")
     @Override public native long getInhabitedTime();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "incrementInhabitedTime(J)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "incrementInhabitedTime(J)V")
     @Override public native void incrementInhabitedTime(long amount);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setInhabitedTime(J)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setInhabitedTime(J)V")
     @Override public native void setInhabitedTime(long inhabitedTime);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;")
     public static native ShortList getOrCreateOffsetList(ShortList[] packedPositions, int index);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "isLightCorrect()Z")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "isLightCorrect()Z")
     @Override public native boolean isLightCorrect();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "setLightCorrect(Z)V")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setLightCorrect(Z)V")
     @Override public native void setLightCorrect(boolean lightCorrect);
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getMinBuildHeight()I")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getMinBuildHeight()I")
     @Override public native int getMinBuildHeight();
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getHeight()I")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getHeight()I")
     @Override public native int getHeight();
 
     @Override public NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> noiseChunkCreator) {
@@ -322,7 +323,7 @@ public abstract class CubeAccess implements CloAccess {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "hasAnyStructureReferences()Z")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "hasAnyStructureReferences()Z")
     @Override public native boolean hasAnyStructureReferences();
 
     @Override @Nullable public BelowZeroRetrogen getBelowZeroRetrogen() {
@@ -333,7 +334,7 @@ public abstract class CubeAccess implements CloAccess {
         return false; // Used for below-zero retrogen; not applicable to cubes
     }
 
-    @TransformFrom(copyFrom = @CopyFrom(clazz = ChunkAccess.class), value = "getHeightAccessorForGeneration()Lnet/minecraft/world/level/LevelHeightAccessor;")
+    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getHeightAccessorForGeneration()Lnet/minecraft/world/level/LevelHeightAccessor;")
     @Override public native LevelHeightAccessor getHeightAccessorForGeneration();
 
     @Override public void initializeLightSources() {
