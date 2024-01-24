@@ -8,13 +8,17 @@
         "net.minecraft.world.level.chunk.LevelChunk$PostLoadProcessor",
         "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper",
         "net.minecraft.world.level.chunk.ChunkAccess",
+        "net.minecraft.world.level.chunk.ProtoChunk",
+        "net.minecraft.world.level.chunk.ImposterProtoChunk",
         "io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess",
         "io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$BoundTickingBlockEntity",
         "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$PostLoadProcessor",
-        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$RebindableTickingBlockEntityWrapper"
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$RebindableTickingBlockEntityWrapper",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube",
+        "io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube"
     ],
     "sets": {
         "general": {
@@ -36,7 +40,9 @@
                 "LevelChunk": "LevelCube",
                 "LevelChunk$BoundTickingBlockEntity": "LevelCube$BoundTickingBlockEntity",
                 "LevelChunk$PostLoadProcessor": "LevelCube$PostLoadProcessor",
-                "LevelChunk$RebindableTickingBlockEntityWrapper": "LevelCube$RebindableTickingBlockEntityWrapper"
+                "LevelChunk$RebindableTickingBlockEntityWrapper": "LevelCube$RebindableTickingBlockEntityWrapper",
+                "ProtoChunk": "ProtoCube",
+                "ImposterProtoChunk": "ImposterProtoCube"
             },
             "fieldRedirects": {
                 "ChunkAccess | ChunkPos chunkPos": "cloPos"
