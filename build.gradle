@@ -34,7 +34,11 @@ mcGitVersion {
     setCommitVersion("570c0cbf0cdc15b8348a862a519d3399a943af9", "0.0")
 }
 
-//sourceSets {
+sourceSets {
+    forge {
+        compileClasspath = sourceSets.main.compileClasspath
+        runtimeClasspath = sourceSets.main.runtimeClasspath
+    }
 //    create("gametest") {
 //        compileClasspath += configurations.compileClasspath
 //        compileClasspath += configurations.testCompileClasspath
@@ -43,7 +47,7 @@ mcGitVersion {
 //        runtimeClasspath += configurations.testRuntimeClasspath
 //        runtimeClasspath += sourceSets.main.output
 //    }
-//}
+}
 
 tasks.register("generatePackageInfo") {
     group = "filegen"
@@ -77,6 +81,13 @@ mixinGen {
         it.required = true
         it.conformVisibility = true
         it.injectorsDefaultRequire = 1
+    }
+
+    config(sourceSets.forge, "forge") {
+        it.required = true
+        it.conformVisibility = true
+        it.injectorsDefaultRequire = 1
+        it.configurationPlugin = "io.github.opencubicchunks.cubicchunks.mixin.ASMConfigPlugin"
     }
 
     config(sourceSets.test, "test") {
@@ -174,7 +185,7 @@ runs {
         jvmArguments args
         // systemProperty 'forge.logging.markers', 'REGISTRIES'
         systemProperty 'forge.logging.console.level', 'debug'
-        modSource project.sourceSets.main
+        modSource project.sourceSets.forge
         dependencies {
             runtime project.configurations.libraries
         }
