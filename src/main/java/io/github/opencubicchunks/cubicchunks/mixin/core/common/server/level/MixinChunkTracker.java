@@ -50,6 +50,10 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
         cc_noChunkLevel = levelCount-1;
     }
 
+    @Override public boolean cc_isCubic() {
+        return cc_isCubic;
+    }
+
     @Redirect(method="*", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/ChunkPos;INVALID_CHUNK_POS:J"))
     private long cc_sentinelValue() {
         if (cc_isCubic)

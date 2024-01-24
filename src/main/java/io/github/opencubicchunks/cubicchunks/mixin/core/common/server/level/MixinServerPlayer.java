@@ -24,6 +24,10 @@ public abstract class MixinServerPlayer extends Player implements MarkableAsCubi
         cc_isCubic = true;
     }
 
+    @Override public boolean cc_isCubic() {
+        return cc_isCubic;
+    }
+
     /**
      * This mixin steals the x/y/z coordinates from a call to ChunkPos and replaces the ChunkPos in the addRegionTicketCall with a CloPos instead.
      */

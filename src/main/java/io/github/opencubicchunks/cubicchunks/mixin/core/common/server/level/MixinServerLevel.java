@@ -20,16 +20,21 @@ public abstract class MixinServerLevel extends Level implements CubicServerLevel
         cc_isCubic = true;
     }
 
-    // isNaturalSpawningAllowed - mixin? new function?
+    @Override
+    public boolean cc_isCubic() {
+        return cc_isCubic;
+    }
 
-    // invalidateCapabilites - phase 3, neoforge api
+    // TODO: phase 3 - isNaturalSpawningAllowed
 
-    // tickCube - new function
+    // TODO: phase 3 - invalidateCapabilites, neoforge api
 
-    // setCubeForced - new function
+    // TODO: phase 2 - tickCube - new function
 
-    // saveDebugReport - mixins, debug only, low priority
+    // TODO: phase 4 - setCubeForced - new function
 
-    // isPositionEntityTicking - mixin
+    // TODO: saveDebugReport - mixins, debug only, low priority, if we really really really really need it
+
+    // TODO: phase 2 - isPositionEntityTicking - mixin
 
 }

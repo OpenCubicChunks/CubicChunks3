@@ -40,6 +40,10 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
         cc_isCubic = true;
     }
 
+    @Override public boolean cc_isCubic() {
+        return cc_isCubic;
+    }
+
     @Inject(method = {"addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",
         "removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",
     "addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",

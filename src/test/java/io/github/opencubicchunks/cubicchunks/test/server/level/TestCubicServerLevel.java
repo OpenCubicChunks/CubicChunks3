@@ -29,10 +29,6 @@ public class TestCubicServerLevel {
         setupTests();
     }
 
-    private void unregisterMocks() {
-        Mockito.mockStatic(RandomState.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-    }
-
     // TODO: Phase 3 - This needs a more rigorous test down the line when we actually care about entities
     @Test public void testVanillaSpawningAllowed() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
@@ -41,28 +37,28 @@ public class TestCubicServerLevel {
     }
 
     // TODO: Phase 3 - This is part of the neoforge API and will need a more rigorous test when we need to support their API
-    @Test public void testInvalidateCapabilities() throws Exception {
+    @Test public void testVanillaInvalidateCapabilities() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             serverLevelReference.value().invalidateCapabilities(new ChunkPos(0, 0));
         }
     }
 
     // TODO: Stub.
-    @Test public void testTickChunk() throws Exception {
+    @Test public void testVanillaTickChunk() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             serverLevelReference.value().tickChunk(new LevelChunk(serverLevelReference.value(), new ChunkPos(0, 0)), 10);
         }
     }
 
     // TODO: Stub. This test hangs. Maybe due to ForcedChunksSavedData?
-    @Test @Disabled public void testSetChunkForced() throws Exception{
+    @Test @Disabled public void testVanillaSetChunkForced() throws Exception{
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             serverLevelReference.value().setChunkForced(0, 0, true);
         }
     }
 
     // TODO: Stub.
-    @Test public void testIsPositionEntityTicking() throws Exception {
+    @Test public void testVanillaIsPositionEntityTicking() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             assertFalse(serverLevelReference.value().isPositionEntityTicking(BlockPos.ZERO));
         }
