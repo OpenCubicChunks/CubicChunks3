@@ -12,6 +12,7 @@ import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
+import io.github.opencubicchunks.dasm.api.MethodSig;
 import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.world.level.ChunkPos;
@@ -48,6 +49,6 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
 
     @Override
     @UsedFromASM
-    @TransformFrom("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V")
+    @TransformFrom(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
     public abstract <T> void onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
 }
