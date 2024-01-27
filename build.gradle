@@ -1,3 +1,5 @@
+import io.github.opencubicchunks.gradle.GeneratePackageInfo
+
 buildscript {
     dependencies {
         classpath("com.google.code.gson:gson:2.8.5")
@@ -52,16 +54,16 @@ sourceSets {
 tasks.register("generatePackageInfo") {
     group = "filegen"
     doFirst {
-        // GeneratePackageInfo.generateFiles(project.sourceSets["main"])
-        // GeneratePackageInfo.generateFiles(project.sourceSets["test"])
+        for (final def sourceSet in project.sourceSets) {
+            GeneratePackageInfo.generateFiles(sourceSet)
+        }
     }
 }
 
 tasks.register("genAll") {
     group = "filegen"
-    dependsOn(generatePackageInfo, "generateMixinConfigs")
+    dependsOn(generatePackageInfo, generateMixinConfigs)
 }
-
 
 // TODO mixin auto-gen for mixins in the test sourceset
 mixinGen {
