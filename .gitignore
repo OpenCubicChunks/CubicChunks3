@@ -35,6 +35,8 @@ forge*changelog.txt
 .fabric
 .mixin.out
 
+# Cubic Chunks generated files
+cubicchunks.mixins.*.json
+
 # Dasm
 .dasm.out
-

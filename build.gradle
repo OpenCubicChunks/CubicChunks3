@@ -38,8 +38,10 @@ mcGitVersion {
 
 sourceSets {
     forge {
-        compileClasspath = sourceSets.main.compileClasspath
-        runtimeClasspath = sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.main.compileClasspath
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+        runtimeClasspath += sourceSets.main.output
     }
 //    create("gametest") {
 //        compileClasspath += configurations.compileClasspath
@@ -279,12 +281,16 @@ tasks.withType(ProcessResources).configureEach {
     }
 }
 
+// Force various tasks to run on intellij refresh
 project.tasks.matching {
     // Using prepareKotlinBuildScriptModel instead of ideaSyncTask as it was removed
     it.name == "prepareKotlinBuildScriptModel"
 }.forEach {
     it.dependsOn("CubicChunksCore:assemble")
+    it.dependsOn(genAll)
 }
+// Ensure we always genAll on any run
+processResources.dependsOn(genAll)
 
 // unzipping subproject (CubicChunksCore) tests
 tasks.register('unzipTests', Copy) {
