@@ -6,14 +6,14 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
-import io.github.opencubicchunks.dasm.api.MethodSig;
-import io.github.opencubicchunks.dasm.api.Ref;
-import io.github.opencubicchunks.dasm.api.transform.DasmRedirect;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -44,7 +44,7 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
 import net.minecraft.world.ticks.TickContainerAccess;
 
-@DasmRedirect(CubeAccessAndDescendantsSet.class)
+@Dasm(CubeAccessAndDescendantsSet.class)
 public class ProtoCube extends CubeAccess implements ProtoClo {
     // Fields matching ProtoChunk
     @Nullable
@@ -72,33 +72,33 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
         this.fluidTicks = liquidTicks;
     }
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native TickContainerAccess<Block> getBlockTicks();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getFluidTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$TicksToSave;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native ChunkAccess.TicksToSave getTicksForSerialization();
 
     // dasm + mixin
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native BlockState getBlockState(BlockPos pos);
 
     // dasm + mixin
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
@@ -124,31 +124,31 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
         }
     }
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native void setBlockEntity(BlockEntity pBlockEntity);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override @Nullable public native BlockEntity getBlockEntity(BlockPos pPos);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockEntities()Ljava/util/Map;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native Map<BlockPos, BlockEntity> getBlockEntities();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("addEntity(Lnet/minecraft/nbt/CompoundTag;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native void addEntity(CompoundTag pTag);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("addEntity(Lnet/minecraft/world/entity/Entity;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
@@ -156,89 +156,89 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
 
     // setStartForStructure: ProtoChunk logic handles below-zero retrogen then calls super, so we don't need to override
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getEntities()Ljava/util/List;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native List<CompoundTag> getEntities();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native ChunkStatus getStatus();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("setStatus(Lnet/minecraft/world/level/chunk/ChunkStatus;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native void setStatus(ChunkStatus pStatus);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getNoiseBiome(III)Lnet/minecraft/core/Holder;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native Holder<Biome> getNoiseBiome(int pX, int pY, int pZ);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("packOffsetCoordinates(Lnet/minecraft/core/BlockPos;)S"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     public native static short packOffsetCoordinates(BlockPos pPos);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("unpackOffsetCoordinates(SILnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     public native static BlockPos unpackOffsetCoordinates(short pPackedPos, int pYOffset, ChunkPos pChunkPos);
 
     // dasm + mixin
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native void markPosForPostprocessing(BlockPos pPos);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("addPackedPostProcess(SI)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native void addPackedPostProcess(short pPackedPosition, int pIndex);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockEntityNbts()Ljava/util/Map;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pPos);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native void removeBlockEntity(BlockPos pPos);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getCarvingMask(Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;)Lnet/minecraft/world/level/chunk/CarvingMask;"),
         copyFrom = @Ref(ProtoChunk.class))
     @Override @Nullable public native CarvingMask getCarvingMask(GenerationStep.Carving pStep);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getOrCreateCarvingMask(Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;)Lnet/minecraft/world/level/chunk/CarvingMask;"),
         copyFrom = @Ref(ProtoChunk.class))
     @Override public native CarvingMask getOrCreateCarvingMask(GenerationStep.Carving pStep);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("setCarvingMask(Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;Lnet/minecraft/world/level/chunk/CarvingMask;)V"),
         copyFrom = @Ref(ProtoChunk.class))
     @Override public native void setCarvingMask(GenerationStep.Carving pStep, CarvingMask pCarvingMask);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("setLightEngine(Lnet/minecraft/world/level/lighting/LevelLightEngine;)V"),
         copyFrom = @Ref(ProtoChunk.class)
     )
@@ -248,19 +248,19 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
         // Below-zero retrogen is unused in CC, hence empty method body
     }
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("unpackTicks(Lnet/minecraft/world/ticks/ProtoChunkTicks;)Lnet/minecraft/world/ticks/LevelChunkTicks;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     private static native <T> LevelChunkTicks<T> unpackTicks(ProtoChunkTicks<T> pTicks);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("unpackBlockTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;"),
         copyFrom = @Ref(ProtoChunk.class)
     )
     @Override public native LevelChunkTicks<Block> unpackBlockTicks();
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("unpackFluidTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;"),
         copyFrom = @Ref(ProtoChunk.class)
     )

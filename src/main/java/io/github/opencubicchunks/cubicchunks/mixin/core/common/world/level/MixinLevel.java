@@ -8,14 +8,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
+import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
-import io.github.opencubicchunks.dasm.api.MethodSig;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.DifficultyInstance;
@@ -36,6 +38,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@Dasm(GeneralSet.class)
 @Mixin(Level.class)
 public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAccessor {
     @Shadow @Nullable public abstract ChunkAccess getChunk(int p_46502_, int p_46503_, ChunkStatus p_46504_, boolean p_46505_);
@@ -104,7 +107,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         return true;
     }
 
-    @TransformFrom(@MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
+    @TransformFromMethod(@MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
     public native void markAndNotifyBlock(BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46608_);
 
     // getBlockState

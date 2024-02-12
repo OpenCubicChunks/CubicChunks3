@@ -9,15 +9,15 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
-import io.github.opencubicchunks.dasm.api.MethodSig;
-import io.github.opencubicchunks.dasm.api.Ref;
-import io.github.opencubicchunks.dasm.api.transform.DasmRedirect;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
-import io.github.opencubicchunks.dasm.api.transform.TransformFromClass;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -50,7 +50,7 @@ import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-@DasmRedirect(CubeAccessAndDescendantsSet.class)
+@Dasm(CubeAccessAndDescendantsSet.class)
 public class LevelCube extends CubeAccess implements LevelClo {
     // Fields matching LevelChunk
     static final Logger LOGGER = LogUtils.getLogger();
@@ -149,28 +149,28 @@ public class LevelCube extends CubeAccess implements LevelClo {
         this.unsaved = true;
     }
 
-    @TransformFrom(value = @MethodSig("getBlockTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getBlockTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native TickContainerAccess<Block> getBlockTicks();
 
-    @TransformFrom(value = @MethodSig("getFluidTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getFluidTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
-    @TransformFrom(value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$TicksToSave;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$TicksToSave;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native ChunkAccess.TicksToSave getTicksForSerialization();
 
     // TODO should this actually be dasm'd?
-    @TransformFrom(value = @MethodSig("getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     // dasm + mixin
-    @TransformFrom(value = @MethodSig("getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native @NotNull BlockState getBlockState(BlockPos pos);
 
-    @TransformFrom(value = @MethodSig("getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native @NotNull FluidState getFluidState(BlockPos pos);
 
     // dasm + mixin
-    @TransformFrom(value = @MethodSig("getFluidState(III)Lnet/minecraft/world/level/material/FluidState;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getFluidState(III)Lnet/minecraft/world/level/material/FluidState;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native FluidState getFluidState(int x, int y, int z);
 
     // TODO might be dasm-able eventually, if we get more powerful mixin tools
@@ -224,57 +224,57 @@ public class LevelCube extends CubeAccess implements LevelClo {
         }
     }
 
-    @TransformFrom(value = @MethodSig("addEntity(Lnet/minecraft/world/entity/Entity;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("addEntity(Lnet/minecraft/world/entity/Entity;)V"), copyFrom = @Ref(LevelChunk.class))
     @Deprecated @Override public native void addEntity(Entity entity);
 
-    @TransformFrom(value = @MethodSig("createBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("createBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), copyFrom = @Ref(LevelChunk.class))
     @Nullable private native BlockEntity createBlockEntity(BlockPos pos);
 
-    @TransformFrom(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), copyFrom = @Ref(LevelChunk.class))
     @Override @Nullable public native BlockEntity getBlockEntity(BlockPos pos);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
             + "Lnet/minecraft/world/level/block/entity/BlockEntity;"),
         copyFrom = @Ref(LevelChunk.class)
     )
     @Nullable public native BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
 
-    @TransformFrom(value = @MethodSig("addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), copyFrom = @Ref(LevelChunk.class))
     public native void addAndRegisterBlockEntity(BlockEntity blockEntity);
 
-    @TransformFrom(value = @MethodSig("isInLevel()Z"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("isInLevel()Z"), copyFrom = @Ref(LevelChunk.class))
     private native boolean isInLevel();
 
-    @TransformFrom(value = @MethodSig("isTicking(Lnet/minecraft/core/BlockPos;)Z"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("isTicking(Lnet/minecraft/core/BlockPos;)Z"), copyFrom = @Ref(LevelChunk.class))
     public native boolean isTicking(BlockPos pos);
 
-    @TransformFrom(value = @MethodSig("setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), copyFrom = @Ref(LevelChunk.class))
     @Override public native void setBlockEntity(BlockEntity blockEntity);
 
-    @TransformFrom(value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"), copyFrom = @Ref(LevelChunk.class))
     @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
-    @TransformFrom(value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"), copyFrom = @Ref(LevelChunk.class))
     @Override public native void removeBlockEntity(BlockPos pos);
 
     // TODO maybe shouldn't be dasm
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("removeGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"),
         copyFrom = @Ref(LevelChunk.class)
     )
     private native <T extends BlockEntity> void removeGameEventListener(T blockEntity, ServerLevel level);
 
-    @TransformFrom(value = @MethodSig("removeGameEventListenerRegistry(I)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("removeGameEventListenerRegistry(I)V"), copyFrom = @Ref(LevelChunk.class))
     private native void removeGameEventListenerRegistry(int p_283355_);
 
-    @TransformFrom(value = @MethodSig("removeBlockEntityTicker(Lnet/minecraft/core/BlockPos;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("removeBlockEntityTicker(Lnet/minecraft/core/BlockPos;)V"), copyFrom = @Ref(LevelChunk.class))
     private native void removeBlockEntityTicker(BlockPos pos);
 
-    @TransformFrom(value = @MethodSig("runPostLoad()V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("runPostLoad()V"), copyFrom = @Ref(LevelChunk.class))
     public native void runPostLoad();
 
-    @TransformFrom(value = @MethodSig("isEmpty()Z"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("isEmpty()Z"), copyFrom = @Ref(LevelChunk.class))
     public native boolean isEmpty();
 
     public void replaceWithPacketData(
@@ -298,16 +298,16 @@ public class LevelCube extends CubeAccess implements LevelClo {
         });
     }
 
-    @TransformFrom(value = @MethodSig("replaceBiomes(Lnet/minecraft/network/FriendlyByteBuf;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("replaceBiomes(Lnet/minecraft/network/FriendlyByteBuf;)V"), copyFrom = @Ref(LevelChunk.class))
     public native void replaceBiomes(FriendlyByteBuf buffer);
 
-    @TransformFrom(value = @MethodSig("setLoaded(Z)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("setLoaded(Z)V"), copyFrom = @Ref(LevelChunk.class))
     public native void setLoaded(boolean loaded);
 
-    @TransformFrom(value = @MethodSig("getLevel()Lnet/minecraft/world/level/Level;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getLevel()Lnet/minecraft/world/level/Level;"), copyFrom = @Ref(LevelChunk.class))
     public native Level getLevel();
 
-    @TransformFrom(value = @MethodSig("getBlockEntities()Ljava/util/Map;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getBlockEntities()Ljava/util/Map;"), copyFrom = @Ref(LevelChunk.class))
     public native Map<BlockPos, BlockEntity> getBlockEntities();
 
     // TODO P2 or P3 figure this out later - stub method for now
@@ -325,48 +325,48 @@ public class LevelCube extends CubeAccess implements LevelClo {
         this.pendingBlockEntities.clear();
     }
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("promotePendingBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/block/entity/BlockEntity;"),
         copyFrom = @Ref(LevelChunk.class)
     )
     @Nullable private native BlockEntity promotePendingBlockEntity(BlockPos pos, CompoundTag tag);
 
-    @TransformFrom(value = @MethodSig("unpackTicks(J)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("unpackTicks(J)V"), copyFrom = @Ref(LevelChunk.class))
     public native void unpackTicks(long pos);
 
-    @TransformFrom(value = @MethodSig("registerTickContainerInLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("registerTickContainerInLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
     public native void registerTickContainerInLevel(ServerLevel level);
 
-    @TransformFrom(value = @MethodSig("unregisterTickContainerFromLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("unregisterTickContainerFromLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
     public native void unregisterTickContainerFromLevel(ServerLevel level);
 
-    @TransformFrom(value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native ChunkStatus getStatus();
 
-    @TransformFrom(value = @MethodSig("getFullStatus()Lnet/minecraft/server/level/FullChunkStatus;"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("getFullStatus()Lnet/minecraft/server/level/FullChunkStatus;"), copyFrom = @Ref(LevelChunk.class))
     public native FullChunkStatus getFullStatus();
 
-    @TransformFrom(value = @MethodSig("setFullStatus(Ljava/util/function/Supplier;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("setFullStatus(Ljava/util/function/Supplier;)V"), copyFrom = @Ref(LevelChunk.class))
     public native void setFullStatus(Supplier<FullChunkStatus> fullStatus);
 
     // TODO a bit concerning
-    @TransformFrom(value = @MethodSig("clearAllBlockEntities()V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("clearAllBlockEntities()V"), copyFrom = @Ref(LevelChunk.class))
     public native void clearAllBlockEntities();
 
-    @TransformFrom(value = @MethodSig("registerAllBlockEntitiesAfterLevelLoad()V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("registerAllBlockEntitiesAfterLevelLoad()V"), copyFrom = @Ref(LevelChunk.class))
     public native void registerAllBlockEntitiesAfterLevelLoad();
 
     // TODO (P3): GameEvent stuff is a bit concerning
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("addGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"),
         copyFrom = @Ref(LevelChunk.class)
     )
     private native <T extends BlockEntity> void addGameEventListener(T blockEntity, ServerLevel level);
 
-    @TransformFrom(value = @MethodSig("updateBlockEntityTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), copyFrom = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("updateBlockEntityTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), copyFrom = @Ref(LevelChunk.class))
     private native <T extends BlockEntity> void updateBlockEntityTicker(T blockEntity);
 
-    @TransformFrom(
+    @TransformFromMethod(
         value = @MethodSig("createTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/level/block/entity/BlockEntityTicker;)"
             + "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;"),
         copyFrom = @Ref(LevelChunk.class)
@@ -395,8 +395,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 //    }
     // FORGE END
 
-    @DasmRedirect(CubeAccessAndDescendantsSet.class)
-    @TransformFromClass(@Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"))
+    @TransformFromClass(value = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"), sets = CubeAccessAndDescendantsSet.class)
     class BoundTickingBlockEntity<T extends BlockEntity> implements TickingBlockEntity {
         private final T blockEntity;
         private final BlockEntityTicker<T> ticker;
@@ -422,8 +421,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         void run(LevelCube cube);
     }
 
-    @DasmRedirect(CubeAccessAndDescendantsSet.class)
-    @TransformFromClass(@Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"))
+    @TransformFromClass(value = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"), sets = CubeAccessAndDescendantsSet.class)
     public class RebindableTickingBlockEntityWrapper implements TickingBlockEntity {
         private TickingBlockEntity ticker;
 

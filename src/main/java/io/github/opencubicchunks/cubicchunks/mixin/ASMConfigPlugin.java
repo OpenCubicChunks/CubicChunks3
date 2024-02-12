@@ -11,15 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
+import io.github.notstirred.dasm.annotation.AnnotationParser;
+import io.github.notstirred.dasm.transformer.Transformer;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
-import io.github.opencubicchunks.dasm.AnnotationParser;
-import io.github.opencubicchunks.dasm.Transformer;
-import io.github.opencubicchunks.dasm.api.provider.CachingClassProvider;
-import io.github.opencubicchunks.dasm.api.provider.ClassProvider;
-import io.github.opencubicchunks.dasm.api.provider.MappingsProvider;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
-import io.github.opencubicchunks.dasm.transformer.redirect.RedirectSet;
-import io.github.opencubicchunks.dasm.transformer.target.TargetClass;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;

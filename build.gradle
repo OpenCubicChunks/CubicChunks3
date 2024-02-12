@@ -213,6 +213,7 @@ runs {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    mavenLocal()
     maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots/") }
     maven { setUrl("https://jitpack.io") }
     maven { setUrl("https://maven.fabricmc.net/") }
@@ -235,7 +236,7 @@ dependencies {
         targetConfiguration = "testArchivesOutput"
     }
 
-    libraries("com.github.OpenCubicChunks:dasm:feature~add_to_set-SNAPSHOT") {
+    libraries("io.github.notstirred:dasm:2.0.0-SNAPSHOT") {
         transitive = false
     }
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")

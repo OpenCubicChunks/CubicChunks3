@@ -3,12 +3,13 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import io.github.opencubicchunks.dasm.api.MethodSig;
-import io.github.opencubicchunks.dasm.api.transform.DasmRedirect;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.TickingTracker;
@@ -32,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * <br><br>
  * This mixin is used to convert {@link TickingTracker} to use {@link CloPos} instead of {@link ChunkPos}.
  */
-@DasmRedirect()
+@Dasm(GeneralSet.class)
 @Mixin(TickingTracker.class)
 public abstract class MixinTickingTracker extends MixinChunkTracker implements CubicTickingTracker {
     @Inject(method = "setLevel", at = @At("HEAD"))
@@ -68,12 +69,12 @@ public abstract class MixinTickingTracker extends MixinChunkTracker implements C
         return CubicTicketType.PLAYER;
     }
 
-    @TransformFrom(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @TransformFromMethod(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public abstract <T> void addTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
-    @TransformFrom(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @TransformFromMethod(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public abstract <T> void removeTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
-    @TransformFrom(@MethodSig("getLevel(Lnet/minecraft/world/level/ChunkPos;)I"))
+    @TransformFromMethod(@MethodSig("getLevel(Lnet/minecraft/world/level/ChunkPos;)I"))
     public abstract int getLevel(CloPos cloPos);
 }
