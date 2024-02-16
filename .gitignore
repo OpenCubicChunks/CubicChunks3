@@ -34,3 +34,7 @@ forge*changelog.txt
 # Fabric
 .fabric
 .mixin.out
+
+# Dasm
+.dasm.out
+
