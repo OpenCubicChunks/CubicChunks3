@@ -15,14 +15,14 @@ import net.minecraft.world.level.chunk.LevelChunk;
 @RedirectSet
 public interface GeneralSet {
     @TypeRedirect(from = @Ref(ChunkPos.class), to = @Ref(CloPos.class))
-    abstract class ChunkPosToCloPosRedirects { }
+    abstract class ChunkPos_to_CloPos_redirects { }
 
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CloAccess.class))
-    abstract class ChunkAccessToCloAccessRedirects {
+    abstract class ChunkAccess_to_CloAccess_redirects {
         @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
         public native CloPos cc_getCloPos();
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelClo.class))
-    abstract class LevelChunkToLevelCloRedirects { }
+    abstract class LevelChunk_to_LevelClo_redirects { }
 }
