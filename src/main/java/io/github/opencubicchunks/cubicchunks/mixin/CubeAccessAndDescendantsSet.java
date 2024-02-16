@@ -19,7 +19,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 
 @RedirectSet
-public interface CubeAccessAndDescendantsSet extends GeneralSet {
+public interface CubeAccessAndDescendantsSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CubeAccess.class))
     abstract class ChunkAccess_to_CubeAccess_redirects {
         @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CloPos cloPos;
@@ -28,19 +28,20 @@ public interface CubeAccessAndDescendantsSet extends GeneralSet {
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelCube.class))
-    abstract class LevelChunk_to_LevelCube_redirects { }
+    abstract class LevelChunk_to_LevelCube_redirects {
+        @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CloPos cloPos;
+
+        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;")) public native CloPos cc_getCloPos();
+    }
+
+    @TypeRedirect(from = @Ref(LevelChunk.PostLoadProcessor.class), to = @Ref(LevelCube.PostLoadProcessor.class))
+    interface LevelChunk$PostLoadProcessor_to_LevelCube$PostLoadProcessor_redirects { }
 
     @TypeRedirect(
         from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"),
         to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$BoundTickingBlockEntity")
     )
     abstract class LevelChunk$BoundTickingBlockEntity_to_LevelCube$BoundTickingBlockEntity_redirects { }
-
-    @TypeRedirect(
-        from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$PostLoadProcessor"),
-        to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$PostLoadProcessor")
-    )
-    abstract class LevelChunk$PostLoadProcessor_to_LevelCube$PostLoadProcessor_redirects { }
 
     @TypeRedirect(
         from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"),
