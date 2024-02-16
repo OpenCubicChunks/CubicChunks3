@@ -92,7 +92,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         LevelChunkTicks<Fluid> fluidTicks,
         long inhabitedTime,
         @Nullable LevelChunkSection[] sections,
-        @Nullable PostLoadProcessor postLoad,
+        @Nullable LevelClo.PostLoadProcessor postLoad,
         @Nullable BlendingData blendingData
     ) {
         super(pos, data, level, level.registryAccess().registryOrThrow(Registries.BIOME), inhabitedTime, sections, blendingData);
@@ -106,12 +106,12 @@ public class LevelCube extends CubeAccess implements LevelClo {
             }
         }
 
-        this.postLoad = postLoad;
+        this.postLoad = LevelClo.PostLoadProcessor.forCube(postLoad);
         this.blockTicks = blockTicks;
         this.fluidTicks = fluidTicks;
     }
 
-    public LevelCube(ServerLevel level, ProtoCube cube, @Nullable PostLoadProcessor postLoad) {
+    public LevelCube(ServerLevel level, ProtoCube cube, @Nullable LevelClo.PostLoadProcessor postLoad) {
         this(
             level,
             cube.cc_getCloPos(),
@@ -137,12 +137,12 @@ public class LevelCube extends CubeAccess implements LevelClo {
         this.setAllStarts(cube.getAllStarts());
         this.setAllReferences(cube.getAllReferences());
 
-        for(Map.Entry<Heightmap.Types, Heightmap> entry : cube.getHeightmaps()) {
-            if (ChunkStatus.FULL.heightmapsAfter().contains(entry.getKey())) {
-                // TODO (P2) heightmaps
+        // TODO (P2) heightmaps
+//        for(Map.Entry<Heightmap.Types, Heightmap> entry : cube.getHeightmaps()) {
+//            if (ChunkStatus.FULL.heightmapsAfter().contains(entry.getKey())) {
 //                this.setHeightmap(entry.getKey(), entry.getValue().getRawData());
-            }
-        }
+//            }
+//        }
 
         this.skyLightSources = cube.skyLightSources;
         this.setLightCorrect(cube.isLightCorrect());
@@ -334,11 +334,19 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("unpackTicks(J)V"), copyFrom = @Ref(LevelChunk.class))
     public native void unpackTicks(long pos);
 
-    @TransformFromMethod(value = @MethodSig("registerTickContainerInLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
-    public native void registerTickContainerInLevel(ServerLevel level);
+//    @TransformFromMethod(value = @MethodSig("registerTickContainerInLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
+//    public native void registerTickContainerInLevel(ServerLevel level);
+//
+//    @TransformFromMethod(value = @MethodSig("unregisterTickContainerFromLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
+//    public native void unregisterTickContainerFromLevel(ServerLevel level);
 
-    @TransformFromMethod(value = @MethodSig("unregisterTickContainerFromLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
-    public native void unregisterTickContainerFromLevel(ServerLevel level);
+    // TODO (P2 or P3) ticks are disabled for now
+    public void registerTickContainerInLevel(ServerLevel level) {
+
+    }
+    public void unregisterTickContainerFromLevel(ServerLevel level) {
+
+    }
 
     @TransformFromMethod(value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native ChunkStatus getStatus();

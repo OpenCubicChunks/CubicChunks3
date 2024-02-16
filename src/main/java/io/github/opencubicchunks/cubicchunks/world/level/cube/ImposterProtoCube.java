@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.world.level.cube;
 
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
@@ -19,6 +21,7 @@ public class ImposterProtoCube extends ProtoCube implements ImposterProtoClo {
     }
 
     // Method is implemented in MixinImposterProtoCube instead, since DASM clears everything in this class.
+    @AddMethodToSets(sets = CubeAccessAndDescendantsSet.class, owner = @Ref(ImposterProtoChunk.class), method = @MethodSig("Lnet/minecraft/world/level/chunk/ImposterProtoChunk;getWrapped()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Override public LevelClo cc_getWrappedClo() {
         throw new IllegalStateException("DASM failed to apply");
     }
