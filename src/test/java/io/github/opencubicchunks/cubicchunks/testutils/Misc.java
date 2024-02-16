@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.Util;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -50,7 +51,8 @@ public class Misc {
                 mock(RETURNS_DEEP_STUBS),
                 mock(RETURNS_DEEP_STUBS),
                 levelStemMock,
-                mock(RETURNS_DEEP_STUBS),
+                // Need to mock an implementation of the interface, so that it also implements CubicChunkProgressListener
+                Mockito.<LoggerChunkProgressListener>mock(RETURNS_DEEP_STUBS),
                 false,
                 0,
                 mock(RETURNS_DEEP_STUBS),
