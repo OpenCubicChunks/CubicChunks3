@@ -1,15 +1,14 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.server.level.TickingTracker;
 import net.minecraft.world.level.ChunkPos;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -19,12 +18,7 @@ import org.junit.jupiter.api.TestInstance;
  * We only test replacePlayerTicketsLevel since that is the only method that needs any bespoke functionality in {@link TickingTracker}.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestCubicTickingTracker {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestCubicTickingTracker extends BaseTest {
     private TickingTracker setupTracker() {
         var tracker = new TickingTracker();
         ((MarkableAsCubic) tracker).cc_setCubic();

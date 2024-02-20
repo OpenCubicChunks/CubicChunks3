@@ -2,33 +2,23 @@ package io.github.opencubicchunks.cubicchunks.test.server.level;
 
 
 import static io.github.opencubicchunks.cubicchunks.testutils.Misc.setupServerLevel;
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.withSettings;
 
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.RandomState;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.Answers;
-import org.mockito.Mockito;
 
 /**
  * This test class is for testing {@link io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinServerLevel}
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestCubicServerLevel {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestCubicServerLevel extends BaseTest {
     // TODO: Phase 3 - This needs a more rigorous test down the line when we actually care about entities
     @Test public void testVanillaSpawningAllowed() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {

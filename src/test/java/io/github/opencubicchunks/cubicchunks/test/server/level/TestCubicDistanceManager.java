@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -16,6 +15,7 @@ import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.CubicDistanceManagerTestAccess;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
@@ -27,7 +27,6 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Unit;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.level.ChunkPos;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -35,12 +34,7 @@ import org.junit.jupiter.api.TestInstance;
  * Tests for {@link io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinDistanceManager} and {@link io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinPlayerTicketTracker}
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestCubicDistanceManager {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestCubicDistanceManager extends BaseTest {
     static class TestDistanceManager extends DistanceManager {
         public TestDistanceManager(Executor executor, Executor executor2) {
             super(executor, executor2);
