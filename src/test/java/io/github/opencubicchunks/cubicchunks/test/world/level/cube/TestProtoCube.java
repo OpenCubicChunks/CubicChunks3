@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.test.world.level.cube;
 
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -13,6 +12,7 @@ import java.util.Random;
 import java.util.Set;
 
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import net.minecraft.core.BlockPos;
@@ -21,18 +21,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Answers;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestProtoCube {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestProtoCube extends BaseTest {
     private ProtoCube makeProtoCube(CloPos cubePos) {
         LevelHeightAccessor heightAccessor = mock(Answers.RETURNS_DEEP_STUBS);
         when(heightAccessor.getMinBuildHeight()).thenReturn(-(1 << 24));

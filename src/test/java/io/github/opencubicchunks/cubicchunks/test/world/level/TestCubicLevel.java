@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
@@ -53,9 +54,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 import org.jetbrains.annotations.Nullable;
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Answers;
@@ -70,12 +68,7 @@ import org.mockito.Mockito;
  * The unit tests will not be further developed. We are just going to integration test this class once we have enough working functionality elsewhere.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestCubicLevel {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestCubicLevel extends BaseTest {
     public static class TestLevel extends Level {
         ChunkSource mockChunkSource = mock(ChunkSource.class, RETURNS_DEEP_STUBS);
 

@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.test.world.level.cube;
 
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,6 +16,7 @@ import java.util.Random;
 import java.util.Set;
 
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.BlockPos;
@@ -24,18 +24,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Answers;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestLevelCube {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestLevelCube extends BaseTest {
     // TODO integration test for constructing from a ProtoCube
 
     // TODO replaceWithPacketData - probably needs to be an integration test

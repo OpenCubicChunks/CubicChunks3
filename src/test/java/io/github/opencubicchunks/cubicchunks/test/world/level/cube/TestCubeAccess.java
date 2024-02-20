@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.test.world.level.cube;
 
-import static io.github.opencubicchunks.cubicchunks.testutils.Setup.setupTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -10,6 +9,7 @@ import java.util.Set;
 
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import net.minecraft.core.BlockPos;
@@ -31,17 +31,11 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestCubeAccess {
-    @BeforeAll
-    public static void setup() {
-        setupTests();
-    }
-
+public class TestCubeAccess extends BaseTest {
     static class CubeAccessTestImpl extends CubeAccess {
         public CubeAccessTestImpl(CloPos cloPos, UpgradeData upgradeData,
                                   LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
