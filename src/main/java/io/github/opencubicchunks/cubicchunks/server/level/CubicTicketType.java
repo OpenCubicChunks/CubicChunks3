@@ -11,6 +11,7 @@ public class CubicTicketType {
     public static final TicketType<CloPos> FORCED = create("forced", Comparator.comparingLong(CloPos::asLong));
     public static final TicketType<CloPos> LIGHT = create("light", Comparator.comparingLong(CloPos::asLong));
     public static final TicketType<CloPos> UNKNOWN = create("unknown", Comparator.comparingLong(CloPos::asLong), 1);
+    // TODO we don't actually need this; remove it and use TicketType.START
     public static final TicketType<Unit> START = create("start", (a, b) -> 0);
 
     public static <T> TicketType<T> create(String nameIn, Comparator<T> comparator) {
