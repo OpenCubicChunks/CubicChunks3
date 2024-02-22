@@ -208,7 +208,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
         );
 
         for (ChunkHolder holder : cloHolders) {
-//            holder.addSaveDependency("getChunkRangeFuture " + pos + " " + radius, combinedFuture);
+            ((CubicChunkHolder) holder).cc_addSaveDependency("getChunkRangeFuture " + pos + " " + radius, combinedFuture);
         }
 
         cir.setReturnValue(combinedFuture);
@@ -259,7 +259,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("scheduleChunkGeneration(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkGeneration(ChunkHolder pChunkHolder, ChunkStatus pChunkStatus);
 
-    // FIXME requires redirect from ticket type to cubic ticket type
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("releaseLightTicket(Lnet/minecraft/world/level/ChunkPos;)V"))
     protected native void cc_releaseLightTicket(ChunkPos pChunkPos);
 

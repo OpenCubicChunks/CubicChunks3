@@ -18,12 +18,14 @@ import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.TicketType;
@@ -90,4 +92,10 @@ public interface GlobalSet extends ForgeSet {
 
     @TypeRedirect(from = @Ref(ChunkProgressListener.class), to = @Ref(CubicChunkProgressListener.class))
     interface ChunkProgressListener_to_CubicChunkProgressListener_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
+    interface ChunkTrackingView_to_CloTrackingView_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
+    interface ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects { }
 }

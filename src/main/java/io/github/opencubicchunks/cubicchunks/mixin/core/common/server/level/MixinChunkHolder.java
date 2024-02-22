@@ -188,7 +188,7 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
         value = @MethodSig("addSaveDependency(Ljava/lang/String;Ljava/util/concurrent/CompletableFuture;)V"))
-    protected native void cc_addSaveDependency(String source, CompletableFuture<?> future);
+    public native void cc_addSaveDependency(String source, CompletableFuture<?> future);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
         value = @MethodSig("updateChunkToSave(Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V"))
