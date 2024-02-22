@@ -18,6 +18,8 @@ public interface CubicChunkHolder {
 
     CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
 
+    void cc_addSaveDependency(String source, CompletableFuture<?> future);
+
     @FunctionalInterface
     interface LevelChangeListener {
         void onLevelChange(CloPos cloPos, IntSupplier p_140120_, int p_140121_, IntConsumer p_140122_);
