@@ -28,16 +28,21 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
+import io.github.opencubicchunks.cubicchunks.mixin.SectionPosToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.storage.MixinChunkStorage;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
+import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -58,14 +63,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Dasm(GeneralSet.class)
 @Mixin(ChunkMap.class)
-public abstract class MixinChunkMap extends MixinChunkStorage {
+public abstract class MixinChunkMap extends MixinChunkStorage implements CubicChunkMap {
     // TODO maybe don't shadow logger; use our own?
     @Shadow @Final private static Logger LOGGER;
+
+    @Shadow public abstract ReportedException debugFuturesAndCreateReportedException(IllegalStateException pException, String pDetails);
+
+    @Shadow protected abstract ChunkHolder getUpdatingChunkIfPresent(long aLong);
 
     @AddFieldToSets(sets = GeneralSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "progressListener"))
     private CubicChunkProgressListener cc_progressListener;
@@ -95,11 +105,32 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    // isChunkTracked - requires CubeTrackingView
+    // TODO make vanilla isChunkTracked/isChunkOnTrackedBorder fail in cubic world
 
-    // isChunkOnTrackedBorder - requires CubeTrackingView
+    // These methods are not copied due to taking 3 ints instead of 2
+    @Override
+    public boolean cc_isChunkTracked(ServerPlayer player, int x, int y, int z) {
+        return ((CloTrackingView) player.getChunkTrackingView()).cc_contains(x, y, z)
+            // TODO this requires PlayerChunkSender to accept Clo longs
+            && !player.connection.chunkSender.isPending(CloPos.asLong(x, y, z));
+    }
 
-    // getChunkDebugData - low prio
+    private boolean cc_isChunkOnTrackedBorder(ServerPlayer player, int x, int y, int z) {
+        if (this.cc_isChunkTracked(player, x, y, z)) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                for (int dz = -1; dz <= 1; ++dz) {
+                    for (int dy = -1; dy <= 1; ++dy) {
+                        if ((dx != 0 || dz != 0 || dy != 0) && !this.cc_isChunkTracked(player, x + dx, y + dy, z + dz)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    // TODO getChunkDebugData - low prio
 
     // dasm + mixin
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("getChunkRangeFuture(Lnet/minecraft/server/level/ChunkHolder;ILjava/util/function/IntFunction;)Ljava/util/concurrent/CompletableFuture;"))
@@ -116,6 +147,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
         CloPos pos = ((CubicChunkHolder) cloHolder).cc_getPos();
         if (!pos.isCube()) return;
         if (radius == 0) {
+            // TODO maybe this if shouldn't be here? if radius 0 we might still need to load chunks that intersect the cube
             ChunkStatus chunkstatus1 = statusByRadius.apply(0);
             var cm = ((ChunkMap) (Object) this);
             CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> future = ((CubicChunkHolder) cloHolder).cc_getOrScheduleFuture(chunkstatus1, cm);
@@ -133,7 +165,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
                 for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
                     for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
                         ChunkHolder holder = this.getUpdatingChunkIfPresent(CloPos.asLong(Coords.cubeToSection(pos.getX()+dx, sectionX), Coords.cubeToSection(pos.getZ()+dz, sectionZ)));
-                        // TODO do we really want Mojang's janky error handling? can we just crash instead?
                         if (holder == null) {
                             var pos1 = new ChunkPos(Coords.cubeToSection(pos.getX()+dx, sectionX), Coords.cubeToSection(pos.getZ()+dz, sectionZ));
                             cir.setReturnValue(CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
@@ -155,7 +186,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
                         middleCubeIndex = cloHolders.size();
                     }
                     ChunkHolder holder = this.getUpdatingChunkIfPresent(CloPos.asLong(pos.getX()+dx, pos.getY()+dy, pos.getZ()+dz));
-                    // TODO do we really want Mojang's janky error handling? can we just crash instead?
                     if (holder == null) {
                         var pos1 = CloPos.cube(pos.getX()+dx, pos.getY()+dy, pos.getZ()+dz);
                         cir.setReturnValue(CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
@@ -185,16 +215,17 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
 
                 for(final Either<CloAccess, ChunkHolder.ChunkLoadingFailure> either : p_183730_) {
                     if (either == null) {
-//                        throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
+                        throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
                     }
 
                     Optional<CloAccess> optional = either.left();
                     if (optional.isEmpty()) {
+                        int index = k1;
                         return Either.right(new ChunkHolder.ChunkLoadingFailure() {
                             @Override
                             public String toString() {
-                                // TODO
-                                return "Unloaded ";// + new ChunkPos(i + k1 % (p_282030_ * 2 + 1), j + k1 / (p_282030_ * 2 + 1)) + " " + either.right().get();
+                                // TODO we should actually show the position here, not just the index - see vanilla method
+                                return "Unloaded " + index + " " + either.right().get();
                             }
                         });
                     }
@@ -255,17 +286,16 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("markPosition(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus$ChunkType;)B"))
     private native byte cc_markPosition(CloPos cloPos, ChunkStatus.ChunkType chunkType);
 
-    // TODO does this work properly with dasm?
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("scheduleChunkGeneration(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkGeneration(ChunkHolder pChunkHolder, ChunkStatus pChunkStatus);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("releaseLightTicket(Lnet/minecraft/world/level/ChunkPos;)V"))
     protected native void cc_releaseLightTicket(ChunkPos pChunkPos);
 
-    // TODO getDependencyStatus - might need changes?
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("getDependencyStatus(Lnet/minecraft/world/level/chunk/ChunkStatus;I)Lnet/minecraft/world/level/chunk/ChunkStatus;"))
+    private native ChunkStatus cc_getDependencyStatus(ChunkStatus pChunkStatus, int p_140264_);
 
     // FIXME remove call to forge hook in copied method
-    // FIXME include currentlyLoading on ChunkHolder in forge sourceset
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("protoChunkToFullChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_protoChunkToFullChunk(ChunkHolder pHolder);
 
@@ -329,17 +359,36 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("playerIsCloseEnoughForSpawning(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)Z"))
     private native boolean cc_playerIsCloseEnoughForSpawning(ServerPlayer player, CloPos cloPos);
 
-    // updatePlayerStatus - DASM due to calling DASM-duplicated methods? not sure
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("updatePlayerStatus(Lnet/minecraft/server/level/ServerPlayer;Z)V"))
+    native void cc_updatePlayerStatus(ServerPlayer pPlayer, boolean pTrack);
 
-    // move - DASM due to calling DASM-duplicated methods?
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("move(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    public native void cc_move(ServerPlayer pPlayer);
 
-    // updateChunkTracking - DASM; possibly conditional redirect original method to copy
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("updateChunkTracking(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    private native void cc_updateChunkTracking(ServerPlayer pPlayer);
 
-    // applyChunkTrackingView - complex
+    // dasm + mixin - TODO redirect for ClientboundSetChunkCacheCenterPacket construction, 2 -> 3 ints
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("applyChunkTrackingView(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ChunkTrackingView;)V"))
+    private native void cc_applyChunkTrackingView(ServerPlayer pPlayer, ChunkTrackingView pChunkTrackingView);
 
-    // getPlayers - complex
+    // dasm + mixin
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"))
+    public native List<ServerPlayer> cc_getPlayers(CloPos pos, boolean boundaryOnly);
 
-    // tick - DASM or mixin, there's a single `.chunk()` call in there on a sectionpos
+    @Dynamic @Redirect(method = "cc_dasm$cc_getPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkOnTrackedBorder(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
+    private boolean cc_getPlayers_isChunkOnTrackedBorder(ChunkMap instance, ServerPlayer player, int x, int z, @Local CloPos pos) {
+        return this.cc_isChunkOnTrackedBorder(player, pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Dynamic @Redirect(method = "cc_dasm$cc_getPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
+    private boolean cc_getPlayers_isChunkTracked(ChunkMap instance, ServerPlayer player, int x, int z, @Local CloPos pos) {
+        return this.cc_isChunkTracked(player, pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    // Replace `SectionPos.chunk()` with `SectionPos.cc_cube()` unconditionally here
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(value = @MethodSig("tick()V"), useRedirectSets = { GeneralSet.class, SectionPosToCubeSet.class })
+    protected native void cc_tick();
 
     // TODO resendBiomesForChunks - only used for FillBiomeCommand
 
@@ -349,14 +398,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage {
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("waitForLightBeforeSending(Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_waitForLightBeforeSending(CloPos cloPos, int p_301130_);
 
-    // TrackedEntity.updatePlayer - in its own mixin class bc inner class - complex
-
-    @Shadow
-    protected abstract ChunkHolder getUpdatingChunkIfPresent(long aLong);
-
-
-    // TEMPORARY - needs dasm subclass method redirect inheritance for non-overriden methods
-
+    // TODO these three are temporary - needs dasm subclass method redirect inheritance for non-overriden methods
     @AddMethodToSets(sets = GeneralSet.class, owner = @Ref(ChunkMap.class),
         method = @MethodSig("isOldChunkAround(Lnet/minecraft/world/level/ChunkPos;I)Z"))
     public boolean cc_isOldChunkAround(CloPos pPos, int pRadius) {
