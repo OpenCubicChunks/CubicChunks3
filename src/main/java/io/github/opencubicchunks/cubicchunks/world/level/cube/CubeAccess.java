@@ -10,15 +10,16 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import io.github.opencubicchunks.dasm.api.Ref;
-import io.github.opencubicchunks.dasm.api.transform.DasmRedirect;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
@@ -51,7 +52,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.Nullable;
 
-@DasmRedirect(CubeAccessAndDescendantsSet.class)
+@Dasm(CubeAccessAndDescendantsSet.class)
 public abstract class CubeAccess implements CloAccess {
     // Fields copied from ChunkAccess, except ChunkPos -> CloPos
     protected final ShortList[] postProcessing;
@@ -107,14 +108,17 @@ public abstract class CubeAccess implements CloAccess {
     }
 
     private static void replaceMissingSections(Registry<Biome> biomeRegistry, LevelChunkSection[] sections) {
-        for(int i = 0; i < sections.length; ++i) {
+        for (int i = 0; i < sections.length; ++i) {
             if (sections[i] == null) {
                 sections[i] = new LevelChunkSection(biomeRegistry);
             }
         }
     }
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;")
+    @TransformFromMethod(
+        value = @MethodSig("getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
@@ -133,13 +137,22 @@ public abstract class CubeAccess implements CloAccess {
         return this.getMinBuildHeight();
     }
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlockEntitiesPos()Ljava/util/Set;")
+    @TransformFromMethod(
+        value = @MethodSig("getBlockEntitiesPos()Ljava/util/Set;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native Set<BlockPos> getBlockEntitiesPos();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getSections()[Lnet/minecraft/world/level/chunk/LevelChunkSection;")
+    @TransformFromMethod(
+        value = @MethodSig("getSections()[Lnet/minecraft/world/level/chunk/LevelChunkSection;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native LevelChunkSection[] getSections();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;")
+    @TransformFromMethod(
+        value = @MethodSig("getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native LevelChunkSection getSection(int index);
 
     // TODO (P2) heightmap methods on cubes
@@ -167,31 +180,52 @@ public abstract class CubeAccess implements CloAccess {
         return cloPos;
     }
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
-        + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;")
+    @TransformFromMethod(
+        value = @MethodSig("getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)Lnet/minecraft/world/level/levelgen/structure/StructureStart;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override @Nullable public native StructureStart getStartForStructure(Structure structure);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;"
-        + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V")
+    @TransformFromMethod(
+        value = @MethodSig("setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setStartForStructure(Structure structure, StructureStart structureStart);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getAllStarts()Ljava/util/Map;")
+    @TransformFromMethod(
+        value = @MethodSig("getAllStarts()Ljava/util/Map;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native Map<Structure, StructureStart> getAllStarts();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setAllStarts(Ljava/util/Map;)V")
+    @TransformFromMethod(
+        value = @MethodSig("setAllStarts(Ljava/util/Map;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setAllStarts(Map<Structure, StructureStart> structureStarts);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
-        + "Lit/unimi/dsi/fastutil/longs/LongSet;")
+    @TransformFromMethod(
+        value = @MethodSig("getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)Lit/unimi/dsi/fastutil/longs/LongSet;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native LongSet getReferencesForStructure(Structure structure);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V")
+    @TransformFromMethod(
+        value = @MethodSig("addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void addReferenceForStructure(Structure structure, long reference);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getAllReferences()Ljava/util/Map;")
+    @TransformFromMethod(
+        value = @MethodSig("getAllReferences()Ljava/util/Map;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native Map<Structure, LongSet> getAllReferences();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setAllReferences(Ljava/util/Map;)V")
+    @TransformFromMethod(
+        value = @MethodSig("setAllReferences(Ljava/util/Map;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setAllReferences(Map<Structure, LongSet> structureReferencesMap);
 
     @Override public boolean isYSpaceEmpty(int startY, int endY) {
@@ -199,10 +233,16 @@ public abstract class CubeAccess implements CloAccess {
         return false;
     }
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setUnsaved(Z)V")
+    @TransformFromMethod(
+        value = @MethodSig("setUnsaved(Z)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setUnsaved(boolean unsaved);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "isUnsaved()Z")
+    @TransformFromMethod(
+        value = @MethodSig("isUnsaved()Z"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native boolean isUnsaved();
 
     @Override public abstract ChunkStatus getStatus();
@@ -214,28 +254,52 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public abstract void removeBlockEntity(BlockPos pos);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V")
+    @TransformFromMethod(
+        value = @MethodSig("markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void markPosForPostprocessing(BlockPos pos);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getPostProcessing()[Lit/unimi/dsi/fastutil/shorts/ShortList;")
+    @TransformFromMethod(
+        value = @MethodSig("getPostProcessing()[Lit/unimi/dsi/fastutil/shorts/ShortList;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native ShortList[] getPostProcessing();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "addPackedPostProcess(SI)V")
+    @TransformFromMethod(
+        value = @MethodSig("addPackedPostProcess(SI)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void addPackedPostProcess(short packedPosition, int index);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V")
+    @TransformFromMethod(
+        value = @MethodSig("setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setBlockEntityNbt(CompoundTag tag);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
+    @TransformFromMethod(
+        value = @MethodSig("getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override @Nullable public native CompoundTag getBlockEntityNbt(BlockPos pos);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;")
+    @TransformFromMethod(
+        value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "findBlockLightSources(Ljava/util/function/BiConsumer;)V")
+    @TransformFromMethod(
+        value = @MethodSig("findBlockLightSources(Ljava/util/function/BiConsumer;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void findBlockLightSources(BiConsumer<BlockPos, BlockState> output);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "findBlocks(Ljava/util/function/Predicate;Ljava/util/function/BiConsumer;)V")
+    @TransformFromMethod(
+        value = @MethodSig("findBlocks(Ljava/util/function/Predicate;Ljava/util/function/BiConsumer;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
     @Override public void findBlocks(BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output) {
@@ -248,9 +312,9 @@ public abstract class CubeAccess implements CloAccess {
                     if (levelchunksection.maybeHas((state) -> predicate.test(state, BlockPos.ZERO))) {
                         BlockPos blockpos = this.cloPos.cubePos().asSectionPos().offset(x, y, z).origin();
 
-                        for(int sectionLocalY = 0; sectionLocalY < SectionPos.SECTION_SIZE; ++sectionLocalY) {
-                            for(int sectionLocalZ = 0; sectionLocalZ < SectionPos.SECTION_SIZE; ++sectionLocalZ) {
-                                for(int sectionLocalX = 0; sectionLocalX < SectionPos.SECTION_SIZE; ++sectionLocalX) {
+                        for (int sectionLocalY = 0; sectionLocalY < SectionPos.SECTION_SIZE; ++sectionLocalY) {
+                            for (int sectionLocalZ = 0; sectionLocalZ < SectionPos.SECTION_SIZE; ++sectionLocalZ) {
+                                for (int sectionLocalX = 0; sectionLocalX < SectionPos.SECTION_SIZE; ++sectionLocalX) {
                                     BlockState blockstate = levelchunksection.getBlockState(sectionLocalX, sectionLocalY, sectionLocalZ);
                                     mutableBlockPos.setWithOffset(blockpos, sectionLocalX, sectionLocalY, sectionLocalZ);
                                     if (predicate.test(blockstate, mutableBlockPos.immutable())) {
@@ -271,40 +335,76 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public abstract ChunkAccess.TicksToSave getTicksForSerialization();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getUpgradeData()Lnet/minecraft/world/level/chunk/UpgradeData;")
+    @TransformFromMethod(
+        value = @MethodSig("getUpgradeData()Lnet/minecraft/world/level/chunk/UpgradeData;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native UpgradeData getUpgradeData();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "isOldNoiseGeneration()Z")
+    @TransformFromMethod(
+        value = @MethodSig("isOldNoiseGeneration()Z"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native boolean isOldNoiseGeneration();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getBlendingData()Lnet/minecraft/world/level/levelgen/blending/BlendingData;")
+    @TransformFromMethod(
+        value = @MethodSig("getBlendingData()Lnet/minecraft/world/level/levelgen/blending/BlendingData;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override @Nullable public native BlendingData getBlendingData();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setBlendingData(Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
+    @TransformFromMethod(
+        value = @MethodSig("setBlendingData(Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setBlendingData(BlendingData blendingData);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getInhabitedTime()J")
+    @TransformFromMethod(
+        value = @MethodSig("getInhabitedTime()J"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native long getInhabitedTime();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "incrementInhabitedTime(J)V")
+    @TransformFromMethod(
+        value = @MethodSig("incrementInhabitedTime(J)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void incrementInhabitedTime(long amount);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setInhabitedTime(J)V")
+    @TransformFromMethod(
+        value = @MethodSig("setInhabitedTime(J)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setInhabitedTime(long inhabitedTime);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;")
+    @TransformFromMethod(
+        value = @MethodSig("getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     public static native ShortList getOrCreateOffsetList(ShortList[] packedPositions, int index);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "isLightCorrect()Z")
+    @TransformFromMethod(
+        value = @MethodSig("isLightCorrect()Z"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native boolean isLightCorrect();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "setLightCorrect(Z)V")
+    @TransformFromMethod(
+        value = @MethodSig("setLightCorrect(Z)V"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native void setLightCorrect(boolean lightCorrect);
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getMinBuildHeight()I")
+    @TransformFromMethod(
+        value = @MethodSig("getMinBuildHeight()I"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native int getMinBuildHeight();
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getHeight()I")
+    @TransformFromMethod(
+        value = @MethodSig("getHeight()I"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native int getHeight();
 
     @Override public NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> noiseChunkCreator) {
@@ -323,7 +423,10 @@ public abstract class CubeAccess implements CloAccess {
         throw new UnsupportedOperationException(); // TODO P3
     }
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "hasAnyStructureReferences()Z")
+    @TransformFromMethod(
+        value = @MethodSig("hasAnyStructureReferences()Z"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native boolean hasAnyStructureReferences();
 
     @Override @Nullable public BelowZeroRetrogen getBelowZeroRetrogen() {
@@ -334,7 +437,10 @@ public abstract class CubeAccess implements CloAccess {
         return false; // Used for below-zero retrogen; not applicable to cubes
     }
 
-    @TransformFrom(copyFrom = @Ref(ChunkAccess.class), value = "getHeightAccessorForGeneration()Lnet/minecraft/world/level/LevelHeightAccessor;")
+    @TransformFromMethod(
+        value = @MethodSig("getHeightAccessorForGeneration()Lnet/minecraft/world/level/LevelHeightAccessor;"),
+        copyFrom = @Ref(ChunkAccess.class)
+    )
     @Override public native LevelHeightAccessor getHeightAccessorForGeneration();
 
     @Override public void initializeLightSources() {

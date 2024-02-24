@@ -8,18 +8,26 @@ import java.util.stream.Stream;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
+import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import io.github.opencubicchunks.dasm.api.transform.TransformFrom;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
+import net.minecraft.util.Unit;
+import net.minecraft.util.thread.ProcessorHandle;
 import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Dasm(GeneralSet.class)
 @Mixin(ChunkTaskPriorityQueueSorter.class)
 public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter, MarkableAsCubic {
     protected boolean cc_isCubic;
@@ -31,6 +39,14 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
     @Override public boolean cc_isCubic() {
         return cc_isCubic;
     }
+
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
+        @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/lang/Runnable;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
+    private static native ChunkTaskPriorityQueueSorter.Message<Runnable> cc_message(ChunkHolder pChunkHolder, Runnable pTask);
+
+    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
+        @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/util/function/Function;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
+    private static native <T> ChunkTaskPriorityQueueSorter.Message<T> cc_message(ChunkHolder pChunkHolder, Function<ProcessorHandle<Unit>, T> pTask);
 
     /**
      * This is a method that is only used for debugging, so we don't currently test it.
@@ -48,6 +64,6 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
 
     @Override
     @UsedFromASM
-    @TransformFrom("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V")
+    @TransformFromMethod(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
     public abstract <T> void onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
 }
