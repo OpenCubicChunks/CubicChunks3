@@ -26,14 +26,14 @@ public abstract class MixinProcessorChunkProgressListener implements CubicChunkP
     // TODO these two could be dasm?
     @AddMethodToSets(owner = @Ref(ProcessorChunkProgressListener.class), method = @MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"), sets = GeneralSet.class)
     @Override
-    public void updateSpawnPos(CloPos pCenter) {
-        this.mailbox.tell(() -> ((CubicChunkProgressListener) this.delegate).updateSpawnPos(pCenter));
+    public void cc_updateSpawnPos(CloPos pCenter) {
+        this.mailbox.tell(() -> ((CubicChunkProgressListener) this.delegate).cc_updateSpawnPos(pCenter));
     }
 
     @AddMethodToSets(owner = @Ref(ProcessorChunkProgressListener.class), method = @MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"), sets = GeneralSet.class)
     @Override
-    public void onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus) {
-        this.mailbox.tell(() -> ((CubicChunkProgressListener) this.delegate).onStatusChange(pChunkPosition, pNewStatus));
+    public void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus) {
+        this.mailbox.tell(() -> ((CubicChunkProgressListener) this.delegate).cc_onStatusChange(pChunkPosition, pNewStatus));
     }
 
     @Override @Shadow public abstract void start();

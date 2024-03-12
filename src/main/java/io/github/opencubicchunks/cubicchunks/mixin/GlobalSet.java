@@ -5,6 +5,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
+
 import com.mojang.datafixers.util.Either;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
@@ -91,7 +93,13 @@ public interface GlobalSet extends ForgeSet {
     }
 
     @TypeRedirect(from = @Ref(ChunkProgressListener.class), to = @Ref(CubicChunkProgressListener.class))
-    interface ChunkProgressListener_to_CubicChunkProgressListener_redirects { }
+    interface ChunkProgressListener_to_CubicChunkProgressListener_redirects {
+        @MethodRedirect(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+        void cc_updateSpawnPos(CloPos pCenter);
+
+        @MethodRedirect(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
+        void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus);
+    }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
     interface ChunkTrackingView_to_CloTrackingView_redirects { }

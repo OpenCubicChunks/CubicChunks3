@@ -80,6 +80,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddFieldToSets(sets = GeneralSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "progressListener"))
     private CubicChunkProgressListener cc_progressListener;
 
+    // TODO once we can target non-return locations in constructors, do this when the vanilla field is set
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(ServerLevel pLevel, LevelStorageSource.LevelStorageAccess pLevelStorageAccess, DataFixer pFixerUpper, StructureTemplateManager pStructureManager,
                         Executor pDispatcher, BlockableEventLoop pMainThreadExecutor, LightChunkGetter pLightChunk, ChunkGenerator pGenerator, ChunkProgressListener pProgressListener,
@@ -204,7 +205,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
             }
         }
 
-        // Vanilla expects that the center chunk is in the middle of the list; this is not the case for cubes, so we manually swap the center cube to the middle.
+        // Vanilla expects that the center chunk is in the middle of the list; this is not the case for cubes, so we manually swap the center cube to the middle
+        // - this is a temporary approach, until we make our own cube+chunk list wrapper
         swap(cloHolders, middleCubeIndex, cloHolders.size() / 2);
         swap(dependencyFutures, middleCubeIndex, cloHolders.size() / 2);
 

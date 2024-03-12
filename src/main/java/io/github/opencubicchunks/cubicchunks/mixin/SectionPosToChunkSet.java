@@ -8,6 +8,9 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.core.SectionPos;
 
+/**
+ * Replaces {@link SectionPos}.chunk() in dasm-copied code in cases where a chunk position should still be returned, not a cube position.
+ */
 @RedirectSet
 public interface SectionPosToChunkSet {
     @IntraOwnerContainer(owner = @Ref(SectionPos.class))

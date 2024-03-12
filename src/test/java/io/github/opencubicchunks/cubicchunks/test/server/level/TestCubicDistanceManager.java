@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.CubicDistanceManagerTestAccess;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.Util;
@@ -230,7 +229,7 @@ public class TestCubicDistanceManager extends BaseTest {
     @Test public void testRemoveTicketsOnClosing() {
         var distanceManager = setupDistanceManager();
         ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManager)distanceManager).addTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicDistanceManager)distanceManager).addTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
         assertTrue(distanceManager.hasTickets());
         distanceManager.removeTicketsOnClosing();
         assertFalse(distanceManager.hasTickets());
@@ -251,13 +250,13 @@ public class TestCubicDistanceManager extends BaseTest {
     @Test public void testAddRemoveTickets() {
         var distanceManager = setupDistanceManager();
         ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManager)distanceManager).addTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicDistanceManager)distanceManager).addTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
         assertTrue(distanceManager.hasTickets());
-        ((CubicDistanceManager)distanceManager).removeTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicDistanceManager)distanceManager).removeTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
         assertFalse(distanceManager.hasTickets());
-        ((CubicDistanceManager)distanceManager).addRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicDistanceManager)distanceManager).addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
         assertTrue(distanceManager.hasTickets());
-        ((CubicDistanceManager)distanceManager).removeRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicDistanceManager)distanceManager).removeRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
         assertFalse(distanceManager.hasTickets());
     }
 
@@ -272,9 +271,9 @@ public class TestCubicDistanceManager extends BaseTest {
     @Test public void testShouldForceTicks() {
         var distanceManager = setupDistanceManager();
         ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManager)distanceManager).addRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
+        ((CubicDistanceManager)distanceManager).addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
         assertTrue(distanceManager.shouldForceTicks(CloPos.asLong(0, 0, 0)));
-        ((CubicDistanceManager)distanceManager).removeRegionTicket(CubicTicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
+        ((CubicDistanceManager)distanceManager).removeRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
         assertFalse(distanceManager.shouldForceTicks(CloPos.asLong(0, 0, 0)));
     }
 

@@ -29,9 +29,9 @@ public abstract class MixinStoringChunkProgressListener implements CubicChunkPro
     // TODO these two could be dasm?
     @AddMethodToSets(owner = @Ref(StoringChunkProgressListener.class), method = @MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"), sets = GeneralSet.class)
     @Override
-    public void updateSpawnPos(CloPos pCenter) {
+    public void cc_updateSpawnPos(CloPos pCenter) {
         if (this.started) {
-            ((CubicChunkProgressListener) this.delegate).updateSpawnPos(pCenter);
+            ((CubicChunkProgressListener) this.delegate).cc_updateSpawnPos(pCenter);
             // FIXME we should have a CloPos spawnPos
             this.spawnPos = pCenter.correspondingChunkPos();
         }
@@ -39,9 +39,9 @@ public abstract class MixinStoringChunkProgressListener implements CubicChunkPro
 
     @AddMethodToSets(owner = @Ref(StoringChunkProgressListener.class), method = @MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"), sets = GeneralSet.class)
     @Override
-    public void onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus) {
+    public void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus) {
         if (this.started) {
-            ((CubicChunkProgressListener) this.delegate).onStatusChange(pChunkPosition, pNewStatus);
+            ((CubicChunkProgressListener) this.delegate).cc_onStatusChange(pChunkPosition, pNewStatus);
             if (pNewStatus == null) {
                 this.statuses.remove(pChunkPosition.toLong());
             } else {
