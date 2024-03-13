@@ -44,6 +44,10 @@ public class GeneratePackageInfo {
         Map<Path, Path> packages = new HashMap<>();
         for (File it : allJava) {
             Path javaClass = it.getCanonicalFile().toPath();
+            if (javaClass.toString().contains("mixin/test")) {
+                // junit will try to load package-info files (when scanning for tests) causing mixin to throw as classes in mixin packages must not be loaded.
+                continue;
+            }
             for (Path srcPath : srcPaths) {
                 if (javaClass.startsWith(srcPath) && javaClass.toString().endsWith(".java")) {
                     Path relative = srcPath.relativize(javaClass);
