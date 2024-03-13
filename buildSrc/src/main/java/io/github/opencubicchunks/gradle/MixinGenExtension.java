@@ -1,6 +1,7 @@
 package io.github.opencubicchunks.gradle;
 
 
+import static java.nio.file.StandardOpenOption.CREATE;
 import static org.apache.tools.ant.util.StringUtils.removePrefix;
 import static org.apache.tools.ant.util.StringUtils.removeSuffix;
 
@@ -203,43 +204,47 @@ import org.gradle.api.tasks.SourceSet;
 
                 String fileName = String.format(filePattern, name);
 
-                try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(resources.resolve(fileName)))) {
-                    writer.setIndent("    ");
-                    writer.beginObject();
-                    if (config.required != null) {
-                        writer.name("required").value(config.required);
-                    }
-                    if (config.packageName != null) {
-                        writer.name("package").value(config.packageName);
-                    }
-                    if (config.refmap != null) {
-                        writer.name("refmap").value(config.refmap);
-                    }
-                    if (config.configurationPlugin != null) {
-                        writer.name("plugin").value(config.configurationPlugin);
-                    }
-                    if (config.compatibilityLevel != null) {
-                        writer.name("compatibilityLevel").value(config.compatibilityLevel);
-                    }
-                    if (config.minVersion != null) {
-                        writer.name("minVersion").value(config.minVersion);
-                    }
-                    if (config.mixinPriority != null) {
-                        writer.name("mixinPriority").value(config.mixinPriority);
-                    }
-                    if (config.injectorsDefaultRequire != null) {
-                        writer.name("injectors").beginObject();
-                        writer.name("defaultRequire").value(config.injectorsDefaultRequire);
-                        writer.endObject();
-                    }
-                    if (config.conformVisibility != null) {
-                        writer.name("overwrites").beginObject();
-                        writer.name("conformVisibility").value(config.conformVisibility);
-                        writer.endObject();
-                    }
-                    writeMixins(convention, sourceSet, name, config, writer);
+                Path path = resources.resolve(fileName);
+                try {
+                    Files.createDirectories(resources);
+                    try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path, CREATE))) {
+                        writer.setIndent("    ");
+                        writer.beginObject();
+                        if (config.required != null) {
+                            writer.name("required").value(config.required);
+                        }
+                        if (config.packageName != null) {
+                            writer.name("package").value(config.packageName);
+                        }
+                        if (config.refmap != null) {
+                            writer.name("refmap").value(config.refmap);
+                        }
+                        if (config.configurationPlugin != null) {
+                            writer.name("plugin").value(config.configurationPlugin);
+                        }
+                        if (config.compatibilityLevel != null) {
+                            writer.name("compatibilityLevel").value(config.compatibilityLevel);
+                        }
+                        if (config.minVersion != null) {
+                            writer.name("minVersion").value(config.minVersion);
+                        }
+                        if (config.mixinPriority != null) {
+                            writer.name("mixinPriority").value(config.mixinPriority);
+                        }
+                        if (config.injectorsDefaultRequire != null) {
+                            writer.name("injectors").beginObject();
+                            writer.name("defaultRequire").value(config.injectorsDefaultRequire);
+                            writer.endObject();
+                        }
+                        if (config.conformVisibility != null) {
+                            writer.name("overwrites").beginObject();
+                            writer.name("conformVisibility").value(config.conformVisibility);
+                            writer.endObject();
+                        }
+                        writeMixins(convention, sourceSet, name, config, writer);
 
-                    writer.endObject();
+                        writer.endObject();
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
