@@ -67,7 +67,6 @@ tasks.register("genAll") {
     dependsOn(generatePackageInfo, generateMixinConfigs)
 }
 
-// TODO mixin auto-gen for mixins in the test sourceset
 mixinGen {
     filePattern = "cubicchunks.mixins.%s.json"
     defaultRefmap = "CubicChunks-refmap.json"
