@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+// TODO: Remove this mixin class when NeoForge supports JUnit for tests
+//  This mixin class is only required due to NeoForge not supporting JUnit for testing yet (a workaround is currently used, involving Loom)
 @Mixin(DefaultAttributes.class)
 public abstract class MixinDefaultAttributesTest {
     @Redirect(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/ai/attributes/DefaultAttributes;SUPPLIERS:Ljava/util/Map;", shift = At.Shift.BY, by = -1))
