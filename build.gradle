@@ -263,6 +263,7 @@ test {
         events "passed", "skipped", "failed"
     }
     jvmArgs("-ea", "-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true", "-Dmixin.checks.interfaces=true")
+    exclude "**/mixin*"
 }
 
 tasks.withType(ProcessResources).configureEach {
