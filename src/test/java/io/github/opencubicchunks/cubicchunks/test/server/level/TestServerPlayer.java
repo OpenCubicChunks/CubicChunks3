@@ -36,11 +36,11 @@ public class TestServerPlayer {
             ServerPlayer player = setupServerPlayer(serverLevelReference.value());
 
             // teleportTo takes the destination level to teleport to as a param, so we mock it
-            ServerLevel serverLevelReferenceSpy = spy(serverLevelReference.value());
+            ServerLevel serverLevelSpy = spy(serverLevelReference.value());
             ServerChunkCache serverChunkCacheMock = mock(ServerChunkCache.class);
-            Mockito.when(serverLevelReferenceSpy.getChunkSource()).thenReturn(serverChunkCacheMock);
+            Mockito.when(serverLevelSpy.getChunkSource()).thenReturn(serverChunkCacheMock);
 
-            player.teleportTo(serverLevelReferenceSpy, 0, 0, 0, mock(), 0, 0);
+            player.teleportTo(serverLevelSpy, 0, 0, 0, mock(), 0, 0);
 
             // Verify that serverChunkCacheMock.addRegionTicket(...) is called once
             Mockito.verify(serverChunkCacheMock, Mockito.times(1))

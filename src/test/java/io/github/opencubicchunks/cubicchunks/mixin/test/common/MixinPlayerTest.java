@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public class MixinPlayerTest {
+public abstract class MixinPlayerTest {
     @Inject(method = "createAttributes", at = @At(value = "HEAD"), cancellable = true)
     private static void cubic_chunks_3$fixNeoForgeErrors(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         cir.setReturnValue(AttributeSupplier.builder());

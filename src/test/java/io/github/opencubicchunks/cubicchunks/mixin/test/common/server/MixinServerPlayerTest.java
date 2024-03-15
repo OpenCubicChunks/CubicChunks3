@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ServerPlayer.class)
-public class MixinServerPlayerTest {
+public abstract class MixinServerPlayerTest {
     @Shadow
     @SuppressWarnings("unused")
     public ServerGamePacketListenerImpl connection = Mockito.mock();
