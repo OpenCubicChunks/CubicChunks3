@@ -28,7 +28,9 @@ public class TestServerPlayer {
     }
 
     private ServerPlayer setupServerPlayer(ServerLevel serverLevel) {
-        return new ServerPlayer(mock(RETURNS_DEEP_STUBS), serverLevel, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS));
+        var serverPlayer = new ServerPlayer(mock(RETURNS_DEEP_STUBS), serverLevel, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS));
+        serverPlayer.connection = Mockito.mock();
+        return serverPlayer;
     }
 
     @Test public void testTeleportToVanilla() throws Exception {
