@@ -77,6 +77,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     // TODO maybe don't shadow logger; use our own?
     @Shadow @Final private static Logger LOGGER;
 
+    private static final List<ChunkStatus> cc_CHUNK_STATUSES = ChunkStatus.getStatusList();
+
     @Shadow public abstract ReportedException debugFuturesAndCreateReportedException(IllegalStateException pException, String pDetails);
 
     @Shadow protected abstract ChunkHolder getUpdatingChunkIfPresent(long aLong);
@@ -141,6 +143,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("getChunkRangeFuture(Lnet/minecraft/server/level/ChunkHolder;ILjava/util/function/IntFunction;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> cc_getChunkRangeFuture(ChunkHolder cloHolder, int radius,
                                                                                                                       IntFunction<ChunkStatus> statusByRadius);
+    private static ChunkStatus cc_getChildStatus(ChunkStatus status) {
+        int index = status.getIndex();
+        return index >= cc_CHUNK_STATUSES.size() ? ChunkStatus.FULL : cc_CHUNK_STATUSES.get(index + 1);
+    }
 
     // TODO this could be substantially improved probably hopefully
     /**
@@ -174,6 +180,9 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                             return;
                         }
                         ChunkStatus expectedStatus = statusByRadius.apply(chunkDistance);
+                        // getChunkRangeFuture statusByRadius returns the status that is depended on, not the actual destination status. for non-central chunks that's fine,
+                        // but for the chunks intersecting the center cube, the central cube reaching the destination status depends on the intersecting chunks reaching the destination status, not its parent.
+                        if (chunkDistance == 0) expectedStatus = cc_getChildStatus(expectedStatus);
                         var future = ((CubicChunkHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
                         cloHolders.add(holder);
                         dependencyFutures.add(future);
