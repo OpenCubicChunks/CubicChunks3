@@ -61,14 +61,14 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
         // We seem to need an actual directory, not a mock
         LevelStorageSource.LevelStorageAccess levelStorageAccessMock = mock(Mockito.RETURNS_DEEP_STUBS);
         when(levelStorageAccessMock.getDimensionPath(any())).thenReturn(Files.createTempDirectory("cc_test"));
-        // This executor is what vanilla uses
-        var executor = Util.backgroundExecutor();
         var serverChunkCache = new ServerChunkCache(
             serverLevelMock,
             levelStorageAccessMock,
             mock(Mockito.RETURNS_DEEP_STUBS),
             mock(Mockito.RETURNS_DEEP_STUBS),
-            executor,
+            // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
+            // (which occurs when using RETURNS_DEEP_STUBS)
+            Runnable::run,
             noiseBasedChunkGeneratorMock,
             10, // server view distance
             10, // simulation distance
