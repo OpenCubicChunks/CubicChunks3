@@ -67,6 +67,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * The vanilla {@link ChunkMap} class stores all loaded chunks for a world and handles loading and unloading them, including dependencies on neighboring chunks.
+ * This mixin adds cubic chunks equivalents for methods where necessary, to allow ChunkMap to work with CLOs (i.e. both chunks and cubes).
+ */
 @Dasm(GeneralSet.class)
 @Mixin(ChunkMap.class)
 public abstract class MixinChunkMap extends MixinChunkStorage implements CubicChunkMap {
@@ -147,14 +151,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                                           CallbackInfoReturnable<CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>>> cir) {
         CloPos pos = ((CubicChunkHolder) cloHolder).cc_getPos();
         if (!pos.isCube()) return;
-        if (radius == 0) {
-            // TODO maybe this if shouldn't be here? if radius 0 we might still need to load chunks that intersect the cube
-            ChunkStatus chunkstatus1 = statusByRadius.apply(0);
-            var cm = ((ChunkMap) (Object) this);
-            CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> future = ((CubicChunkHolder) cloHolder).cc_getOrScheduleFuture(chunkstatus1, cm);
-            cir.setReturnValue(future.thenApply(p_214893_ -> p_214893_.mapLeft(List::of)));
-            return;
-        }
+        // The vanilla method has an early exit for radius=0 here; this is not valid for cubes because even if radius=0 we still depend on chunks that neighbor the cube
         List<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> dependencyFutures = new ArrayList<>();
         List<ChunkHolder> cloHolders = new ArrayList<>();
         int middleCubeIndex = -1;
@@ -240,6 +237,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
             }
         );
 
+        // TODO verify whether this addSaveDependency logic is correct for cubes, especially for radius=0
         for (ChunkHolder holder : cloHolders) {
             ((CubicChunkHolder) holder).cc_addSaveDependency("getChunkRangeFuture " + pos + " " + radius, combinedFuture);
         }

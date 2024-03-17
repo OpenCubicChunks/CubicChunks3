@@ -334,19 +334,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("unpackTicks(J)V"), copyFrom = @Ref(LevelChunk.class))
     public native void unpackTicks(long pos);
 
+    // TODO (P2 or P3) ticks are disabled for now; stub methods as placeholders
 //    @TransformFromMethod(value = @MethodSig("registerTickContainerInLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
 //    public native void registerTickContainerInLevel(ServerLevel level);
-//
+    public void registerTickContainerInLevel(ServerLevel level) {}
+
 //    @TransformFromMethod(value = @MethodSig("unregisterTickContainerFromLevel(Lnet/minecraft/server/level/ServerLevel;)V"), copyFrom = @Ref(LevelChunk.class))
 //    public native void unregisterTickContainerFromLevel(ServerLevel level);
-
-    // TODO (P2 or P3) ticks are disabled for now
-    public void registerTickContainerInLevel(ServerLevel level) {
-
-    }
-    public void unregisterTickContainerFromLevel(ServerLevel level) {
-
-    }
+    public void unregisterTickContainerFromLevel(ServerLevel level) {}
 
     @TransformFromMethod(value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"), copyFrom = @Ref(LevelChunk.class))
     @Override public native ChunkStatus getStatus();

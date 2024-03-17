@@ -21,8 +21,4 @@ public abstract class MixinLoggerChunkProgressListener implements CubicChunkProg
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
     @Override public native void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus);
-
-    @Override @Shadow public abstract void start();
-
-    @Override @Shadow public abstract void stop();
 }

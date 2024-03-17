@@ -9,8 +9,4 @@ public interface CubicChunkProgressListener {
     void cc_updateSpawnPos(CloPos pCenter);
 
     void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus);
-
-    void start();
-
-    void stop();
 }
