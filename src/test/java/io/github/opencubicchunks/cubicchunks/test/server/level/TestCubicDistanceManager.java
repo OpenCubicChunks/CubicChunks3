@@ -63,7 +63,6 @@ public class TestCubicDistanceManager extends BaseTest {
     }
 
     private DistanceManager setupDistanceManager() {
-        var executor = Util.backgroundExecutor();
         var mainThread = Thread.currentThread();
         var mainThreadExecutor = // Based on ServerChunkCache.MainThreadExecutor
             new BlockableEventLoop<>("test_event_loop") {
@@ -87,7 +86,9 @@ public class TestCubicDistanceManager extends BaseTest {
                     return mainThread;
                 }
             };
-        DistanceManager distanceManager = new TestDistanceManager(executor, mainThreadExecutor);
+        // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
+        // (which occurs when using RETURNS_DEEP_STUBS)
+        DistanceManager distanceManager = new TestDistanceManager(Runnable::run, mainThreadExecutor);
         return distanceManager;
     }
 

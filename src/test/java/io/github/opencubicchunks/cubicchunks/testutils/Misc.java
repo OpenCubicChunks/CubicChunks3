@@ -43,10 +43,11 @@ public class Misc {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        var executor = Util.backgroundExecutor();
         return new CloseableReference<>(
             new ServerLevel(mock(RETURNS_DEEP_STUBS),
-                executor,
+                // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
+                // (which occurs when using RETURNS_DEEP_STUBS)
+                Runnable::run,
                 levelStorageAccessMock,
                 mock(RETURNS_DEEP_STUBS),
                 mock(RETURNS_DEEP_STUBS),
