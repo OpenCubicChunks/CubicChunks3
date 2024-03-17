@@ -51,6 +51,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * The vanilla {@link ChunkHolder} class wraps completable futures for different statuses (load levels) of a single chunk and handles logic for loading/unloading that chunk, as well as broadcasting updates to clients.
+ * This mixin adds cubic chunks equivalents for methods where necessary, to allow ChunkHolder to dynamically wrap either a chunk or a cube (i.e. a CLO).
+ */
 @Dasm(GeneralSet.class)
 @Mixin(ChunkHolder.class)
 public abstract class MixinChunkHolder implements CubicChunkHolder {
@@ -127,6 +131,7 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
     /**
      * Redirect to use cube section indexing instead of chunk section indexing
      */
+    // This can't be done using purely dasm because the original getSectionIndex call takes a y coordinate, whereas we need the full blockpos.
     @Dynamic @Redirect(method = "cc_dasm$cc_blockChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionIndex(I)I"))
     private int cc_blockChanged_sectionIndex(LevelHeightAccessor instance, int y, BlockPos pos) {
         return Coords.blockToIndex(pos);
@@ -134,7 +139,7 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
 
     // We want a different signature (see below); can't automatically redirect this one
     @Inject(method = "sectionLightChanged", at = @At("HEAD"))
-    private void onSectionLightChanged(LightLayer pType, int pSectionY, CallbackInfo ci) {
+    private void cc_onSectionLightChanged(LightLayer pType, int pSectionY, CallbackInfo ci) {
         // We should be calling the cubic signature instead
         assert !cc_isCubic;
     }
