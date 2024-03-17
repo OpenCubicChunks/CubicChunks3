@@ -297,6 +297,16 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
             var either = future.get();
             assertTrue(either.left().isPresent(), () -> "Full cube future Either should be successful, but was " + either.right().get());
             assertInstanceOf(LevelCube.class, either.left().get());
+            for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
+                for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
+                    ChunkStatus status = chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(sectionX, sectionZ)).getLastAvailableStatus();
+                    int finalSectionX = sectionX; // java why
+                    int finalSectionZ = sectionZ;
+                    assertTrue(status.isOrAfter(ChunkStatus.FULL),
+                        () -> "Chunks intersecting the center cube should be at full status, but " + finalSectionX + ", " + finalSectionZ + " has status " + status
+                    );
+                }
+            }
         }
     }
 }
