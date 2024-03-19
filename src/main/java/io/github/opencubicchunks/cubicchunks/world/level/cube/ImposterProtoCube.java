@@ -4,7 +4,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToS
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
-import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.CubeAccessAndDescendantsSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;

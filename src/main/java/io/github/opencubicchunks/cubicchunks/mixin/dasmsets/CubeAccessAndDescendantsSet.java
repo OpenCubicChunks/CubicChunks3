@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin;
+package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;

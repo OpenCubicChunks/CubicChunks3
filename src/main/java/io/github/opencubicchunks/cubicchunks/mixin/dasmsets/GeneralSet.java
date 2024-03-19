@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin;
+package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
 import javax.annotation.Nullable;
 

@@ -7,7 +7,7 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
-import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;

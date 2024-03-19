@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
-import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;

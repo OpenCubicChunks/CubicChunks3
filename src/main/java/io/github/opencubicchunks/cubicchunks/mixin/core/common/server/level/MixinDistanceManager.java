@@ -9,7 +9,7 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.mixin.GeneralSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;

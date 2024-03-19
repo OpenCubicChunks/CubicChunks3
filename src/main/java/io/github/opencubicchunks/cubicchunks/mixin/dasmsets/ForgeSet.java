@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin;
+package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.InterOwnerContainer;

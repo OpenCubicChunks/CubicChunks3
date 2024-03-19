@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin;
+package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

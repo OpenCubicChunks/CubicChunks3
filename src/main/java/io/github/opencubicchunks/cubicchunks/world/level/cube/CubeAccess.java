@@ -17,7 +17,7 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
-import io.github.opencubicchunks.cubicchunks.mixin.CubeAccessAndDescendantsSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.CubeAccessAndDescendantsSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import it.unimi.dsi.fastutil.longs.LongSet;
