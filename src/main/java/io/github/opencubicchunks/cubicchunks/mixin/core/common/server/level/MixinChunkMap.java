@@ -27,9 +27,9 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.storage.MixinChunkStorage;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.SectionPosToCubeSet;
-import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.storage.MixinChunkStorage;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
@@ -83,6 +83,12 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     @Shadow protected abstract ChunkHolder getUpdatingChunkIfPresent(long aLong);
 
+    @Shadow private static boolean isChunkDataValid(CompoundTag pTag) {
+        throw new IllegalStateException("mixin failed to apply");
+    }
+
+    @Shadow @Final private BlockableEventLoop<Runnable> mainThreadExecutor;
+    @Shadow @Final ServerLevel level;
     @AddFieldToSets(sets = GeneralSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "progressListener"))
     private CubicChunkProgressListener cc_progressListener;
 
@@ -279,8 +285,95 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("schedule(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
     public native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_schedule(ChunkHolder pHolder, ChunkStatus pStatus);
 
+    // dasm + mixin
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("scheduleChunkLoad(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkLoad(CloPos cloPos);
+
+    /**
+     * Loading cubes at EMPTY requires additional logic to ensure that the corresponding chunks are loaded first
+     * (Unlike other statuses, this dependency is not handled in {@link ChunkMap#getChunkRangeFuture})
+     */
+    @Dynamic @Inject(method = "cc_dasm$cc_scheduleChunkLoad", at = @At("HEAD"), cancellable = true)
+    private void cc_onScheduleChunkLoad(CloPos pos,
+                                          CallbackInfoReturnable<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> cir) {
+        if (!pos.isCube()) return;
+        // TODO this is a bit of a disaster, why did mojang ever design their code around futures of Eithers
+        // Logic for loading cube-adjacent chunks first, similar to getChunkRangeFuture
+        List<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> chunkLoadFutures = new ArrayList<>();
+
+        for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
+            for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
+                final CloPos chunkPos = CloPos.chunk(Coords.cubeToSection(pos.getX(), sectionX), Coords.cubeToSection(pos.getZ(), sectionZ));
+                long chunkPosLong = chunkPos.toLong();
+                ChunkHolder chunkholder = this.getUpdatingChunkIfPresent(chunkPosLong);
+                if (chunkholder == null) { // This shouldn't occur as DistanceManager should add chunks to the ChunkMap before their corresponding cubes
+                    cir.setReturnValue(CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
+                        @Override
+                        public String toString() {
+                            return "Unloaded " + chunkPos;
+                        }
+                    })));
+                    return;
+                }
+
+                CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = ((CubicChunkHolder) chunkholder).cc_getOrScheduleFuture(
+                    ChunkStatus.EMPTY, (ChunkMap) (Object) this
+                );
+                chunkLoadFutures.add(completablefuture);
+            }
+        }
+
+        CompletableFuture<List<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> chunkResultsFuture = Util.sequence(chunkLoadFutures);
+        CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> allChunksLoadedFuture = chunkResultsFuture.thenApply(p_183730_ -> {
+            List<CloAccess> list2 = Lists.newArrayList();
+            int index = 0;
+
+            for(final Either<CloAccess, ChunkHolder.ChunkLoadingFailure> either : p_183730_) {
+                if (either == null) {
+                    throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
+                }
+
+                Optional<CloAccess> optional = either.left();
+                if (optional.isEmpty()) {
+                    final int indexFinal = index; // thanks java
+                    return Either.right(new ChunkHolder.ChunkLoadingFailure() {
+                        @Override
+                        public String toString() {
+                            return "Unloaded chunk for cube " + pos + "offset: " + new ChunkPos(indexFinal % CubicConstants.DIAMETER_IN_SECTIONS, indexFinal / CubicConstants.DIAMETER_IN_SECTIONS) + " " + either.right().get();
+                        }
+                    });
+                }
+
+                list2.add(optional.get());
+                ++index;
+            }
+
+            return Either.left(list2);
+        });
+        // Wait for adjacent chunks to load, and then load the cube
+        // TODO allChunksLoadedFuture and cc_readChunk could (and probably should) run in parallel, it just makes this future logic a bit more complex
+        cir.setReturnValue(allChunksLoadedFuture
+            .thenCompose((result) -> result.map(
+                left -> this.cc_readChunk(pos).thenApply(p_214925_ -> p_214925_.filter(p_214928_ -> {
+                    boolean flag = isChunkDataValid(p_214928_);
+                    if (!flag) {
+                        LOGGER.error("Chunk file at {} is missing level data, skipping", pos);
+                    }
+                    return flag;
+                })).<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>thenApplyAsync(p_313584_ -> {
+                    this.level.getProfiler().incrementCounter("chunkLoad");
+                    // TODO (P2) loading save data
+//                    if (p_313584_.isPresent()) {
+//                        ChunkAccess chunkaccess = ChunkSerializer.read(this.level, this.poiManager, pos, p_313584_.get());
+//                        this.markPosition(pos, chunkaccess.getStatus().getChunkType());
+//                        return Either.left(chunkaccess);
+//                    } else {
+                        return Either.left(this.cc_createEmptyChunk(pos));
+//                    }
+                }, this.mainThreadExecutor).exceptionallyAsync(p_214888_ -> this.cc_handleChunkLoadFailure(p_214888_, pos), this.mainThreadExecutor),
+                right -> CompletableFuture.completedFuture(Either.right(right)))));
+
+    }
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("handleChunkLoadFailure(Ljava/lang/Throwable;Lnet/minecraft/world/level/ChunkPos;)Lcom/mojang/datafixers/util/Either;"))
     private native Either<CloAccess, ChunkHolder.ChunkLoadingFailure> cc_handleChunkLoadFailure(Throwable exception, CloPos cloPos);
