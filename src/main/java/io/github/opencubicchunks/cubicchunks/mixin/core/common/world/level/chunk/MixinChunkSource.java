@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk;
 
+import javax.annotation.Nullable;
+
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
@@ -21,11 +23,11 @@ public abstract class MixinChunkSource implements CubicChunkSource, MarkableAsCu
         return cc_isCubic;
     }
 
-    public LevelCube cc_getCube(int x, int y, int z, boolean forceLoad) {
+    public @Nullable LevelCube cc_getCube(int x, int y, int z, boolean forceLoad) {
         return (LevelCube)this.cc_getCube(x, y, z, ChunkStatus.FULL, forceLoad);
     }
 
-    public LevelCube cc_getCubeNow(int x, int y, int z) {
+    public @Nullable LevelCube cc_getCubeNow(int x, int y, int z) {
         return this.cc_getCube(x, y, z,false);
     }
 
@@ -35,7 +37,7 @@ public abstract class MixinChunkSource implements CubicChunkSource, MarkableAsCu
         return this.cc_getCube(x, y, z, ChunkStatus.FULL, false) != null;
     }
 
-    public abstract CubeAccess cc_getCube(int x, int y, int z, ChunkStatus status, boolean forceLoad);
+    public abstract @Nullable CubeAccess cc_getCube(int x, int y, int z, ChunkStatus status, boolean forceLoad);
 
     public abstract int cc_getLoadedCubeCount();
 

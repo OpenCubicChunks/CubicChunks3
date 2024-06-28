@@ -1,14 +1,16 @@
 package io.github.opencubicchunks.cubicchunks.world.level.cube;
 
+import javax.annotation.Nullable;
+
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 
 public interface CubicChunkSource {
-    CubeAccess cc_getCube(int x, int y, int z, ChunkStatus status, boolean forceLoad);
+    @Nullable CubeAccess cc_getCube(int x, int y, int z, ChunkStatus status, boolean forceLoad);
 
-    LevelCube cc_getCube(int x, int y, int z, boolean forceLoad);
+    @Nullable LevelCube cc_getCube(int x, int y, int z, boolean forceLoad);
 
-    LevelCube cc_getCubeNow(int x, int y, int z);
+    @Nullable LevelCube cc_getCubeNow(int x, int y, int z);
 
     // TODO: Phase 2 - getCubeForLighting
 
