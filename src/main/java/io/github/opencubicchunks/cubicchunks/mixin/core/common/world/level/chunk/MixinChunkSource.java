@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChunkSource.class)
 public abstract class MixinChunkSource implements CubicChunkSource, MarkableAsCubic {
-    private boolean cc_isCubic;
+    protected boolean cc_isCubic;
 
     @Override public void cc_setCubic() {
         cc_isCubic = true;

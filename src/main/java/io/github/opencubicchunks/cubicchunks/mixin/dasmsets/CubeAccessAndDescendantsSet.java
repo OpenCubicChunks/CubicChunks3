@@ -7,17 +7,20 @@ import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientChunkCache;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
+import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 
+// TODO rename this, it's used for anything that works with specifically cubes, not just descendants of CubeAccess
 @RedirectSet
 public interface CubeAccessAndDescendantsSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CubeAccess.class))
@@ -54,4 +57,10 @@ public interface CubeAccessAndDescendantsSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ImposterProtoChunk.class), to = @Ref(ImposterProtoCube.class))
     abstract class ImposterProtoChunk_to_ImposterProtoCube_redirects { }
+
+    @TypeRedirect(
+        from = @Ref(ClientChunkCache.Storage.class),
+        to = @Ref(CubicClientChunkCache.Storage.class)
+    )
+    abstract class ClientChunkCache$Storage_to_CubicClientChunkCache$Storage_redirects { }
 }
