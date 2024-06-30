@@ -40,6 +40,7 @@ public interface CubicClientChunkCache extends CubicChunkSource {
     void cc_updateViewRadius(int pViewDistance);
 
     // Fields and methods on this are public so they can be accessed from MixinClientChunkCache and tests; they should not be used anywhere else
+    // (This has to be here since we can't add inner classes with mixin)
     @Dasm(CubeAccessAndDescendantsSet.class)
     final class Storage {
         public final AtomicReferenceArray<LevelCube> chunks;

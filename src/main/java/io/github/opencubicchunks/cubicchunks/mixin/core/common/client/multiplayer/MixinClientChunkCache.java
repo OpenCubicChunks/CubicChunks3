@@ -35,6 +35,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * The vanilla {@link ClientChunkCache} class stores all loaded chunks on the client and has methods to update and unload them, as well as change the center and range of the chunk storage.
+ * This mixin adds versions of these methods for cubes, meaning that this class now stores both cubes and chunks.
+ */
 @Dasm(CubeAccessAndDescendantsSet.class)
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements CubicClientChunkCache {
@@ -46,6 +50,9 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
 
     @Shadow @Final ClientLevel level;
 
+    /**
+     * Initialize cube storage and the empty cube if the level is cubic
+     */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void cc_onConstruct(ClientLevel pLevel, int pViewDistance, CallbackInfo ci) {
         if (((CanBeCubic) pLevel).cc_isCubic()) {

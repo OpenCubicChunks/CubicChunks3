@@ -7,10 +7,16 @@ import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 
+/**
+ * The {@link ChunkSource} class is the abstract parent class of both {@link ClientChunkCache} and {@link ServerChunkCache}, and contains a few methods common to both classes.
+ * This mixin adds versions of chunk-related methods for cubes where necessary, as the subclasses of this class are used to track both cubes and chunks when cubic chunks is enabled.
+ */
 @Mixin(ChunkSource.class)
 public abstract class MixinChunkSource implements CubicChunkSource, MarkableAsCubic {
     protected boolean cc_isCubic;
