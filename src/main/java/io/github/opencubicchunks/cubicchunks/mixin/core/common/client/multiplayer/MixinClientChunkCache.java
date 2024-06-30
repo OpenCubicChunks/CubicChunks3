@@ -57,7 +57,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     private void cc_onConstruct(ClientLevel pLevel, int pViewDistance, CallbackInfo ci) {
         if (((CanBeCubic) pLevel).cc_isCubic()) {
             cc_emptyCube = new EmptyLevelCube(
-                pLevel, CubePos.of(0, 0, 0), pLevel.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
+                pLevel, CloPos.cube(0, 0, 0), pLevel.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
             );
             cc_cubeStorage = new CubicClientChunkCache.Storage(calculateStorageRange(pViewDistance), pLevel);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter

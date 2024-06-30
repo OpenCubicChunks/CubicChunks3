@@ -10,12 +10,14 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientChunkCache;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
@@ -57,6 +59,9 @@ public interface CubeAccessAndDescendantsSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ImposterProtoChunk.class), to = @Ref(ImposterProtoCube.class))
     abstract class ImposterProtoChunk_to_ImposterProtoCube_redirects { }
+
+    @TypeRedirect(from = @Ref(EmptyLevelChunk.class), to = @Ref(EmptyLevelCube.class))
+    abstract class EmptyLevelChunk_to_EmptyLevelCube_redirects { }
 
     @TypeRedirect(
         from = @Ref(ClientChunkCache.Storage.class),
