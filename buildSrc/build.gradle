@@ -12,9 +12,6 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.OpenCubicChunks:dasm:83a8175258"
-    implementation "net.neoforged.gradle:userdev:7.0.84"
-
     implementation 'org.ow2.asm:asm:9.3'
     implementation 'org.ow2.asm:asm-tree:9.1'
     implementation 'org.ow2.asm:asm-util:9.1'
