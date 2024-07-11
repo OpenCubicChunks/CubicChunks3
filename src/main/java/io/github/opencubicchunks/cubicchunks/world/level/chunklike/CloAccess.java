@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

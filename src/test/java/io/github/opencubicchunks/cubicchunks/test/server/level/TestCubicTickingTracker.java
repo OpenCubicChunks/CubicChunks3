@@ -2,11 +2,11 @@ package io.github.opencubicchunks.cubicchunks.test.server.level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.server.level.TickingTracker;
 import net.minecraft.world.level.ChunkPos;
 import org.junit.jupiter.api.Test;

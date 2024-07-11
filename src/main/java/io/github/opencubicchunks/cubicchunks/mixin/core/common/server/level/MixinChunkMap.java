@@ -25,6 +25,7 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.storage.MixinChunkStorage;
@@ -35,7 +36,6 @@ import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
@@ -421,7 +421,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     /**
      * Redirect error logging to log with CloPos
      */
-    @Dynamic @Inject(method = "cc_dasm$cc_save", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/world/level/chunklike/CloPos;getX()I"), cancellable = true)
+    @Dynamic @Inject(method = "cc_dasm$cc_save", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;getX()I"), cancellable = true)
     private void cc_onSave_errorLog(CloAccess cloAccess, CallbackInfoReturnable<Boolean> cir, @Local Exception exception) {
         LOGGER.error("Failed to save chunk or cube {}", cloAccess.cc_getCloPos().toString(), exception);
         cir.setReturnValue(false);

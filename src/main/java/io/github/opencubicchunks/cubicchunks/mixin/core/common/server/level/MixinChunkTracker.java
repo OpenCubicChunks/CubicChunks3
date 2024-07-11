@@ -1,9 +1,9 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;

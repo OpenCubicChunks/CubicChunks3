@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Nullable;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;

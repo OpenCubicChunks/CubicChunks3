@@ -1,7 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;

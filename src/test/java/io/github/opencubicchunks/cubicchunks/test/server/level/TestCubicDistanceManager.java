@@ -11,12 +11,11 @@ import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.CubicDistanceManagerTestAccess;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
-import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;

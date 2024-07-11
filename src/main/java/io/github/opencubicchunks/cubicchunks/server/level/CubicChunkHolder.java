@@ -6,8 +6,8 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 import com.mojang.datafixers.util.Either;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerPlayer;

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;

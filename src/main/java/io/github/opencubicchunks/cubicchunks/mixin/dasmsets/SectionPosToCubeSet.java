@@ -5,7 +5,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContain
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import net.minecraft.core.SectionPos;
 
 /**

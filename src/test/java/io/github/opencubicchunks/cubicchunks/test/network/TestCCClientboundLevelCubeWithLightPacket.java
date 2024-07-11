@@ -7,10 +7,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.Random;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.multiplayer.ClientLevel;

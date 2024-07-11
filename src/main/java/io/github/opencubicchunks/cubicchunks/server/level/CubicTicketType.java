@@ -1,10 +1,10 @@
 package io.github.opencubicchunks.cubicchunks.server.level;
 
-import io.github.opencubicchunks.cubicchunks.mixin.access.common.TicketTypeAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import java.util.Comparator;
+
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.mixin.access.common.TicketTypeAccess;
 import net.minecraft.server.level.TicketType;
-import net.minecraft.util.Unit;
 
 public class CubicTicketType {
     public static final TicketType<CloPos> PLAYER = create("player", Comparator.comparingLong(CloPos::asLong));

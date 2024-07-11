@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import org.codehaus.plexus.util.CollectionUtils;
 import org.junit.jupiter.api.Test;
 

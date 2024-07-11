@@ -1,6 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level;
 
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Dynamic;

@@ -16,11 +16,11 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
@@ -87,7 +87,7 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
         throw new IllegalStateException("dasm failed to apply");
     }
 
-    @Dynamic @Inject(at = @At("RETURN"), method = "cc_dasm$__init__(Lio/github/opencubicchunks/cubicchunks/world/level/chunklike/CloPos;ILnet/minecraft/world/level/LevelHeightAccessor;"
+    @Dynamic @Inject(at = @At("RETURN"), method = "cc_dasm$__init__(Lio/github/opencubicchunks/cc_core/world/level/CloPos;ILnet/minecraft/world/level/LevelHeightAccessor;"
         + "Lnet/minecraft/world/level/lighting/LevelLightEngine;Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$LevelChangeListener;"
         + "Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$PlayerProvider;)V")
     private void onCcInit(CallbackInfo ci) {
