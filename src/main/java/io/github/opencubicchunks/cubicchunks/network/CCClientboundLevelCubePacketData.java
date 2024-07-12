@@ -37,21 +37,18 @@ public class CCClientboundLevelCubePacketData {
         return bytebuf;
     }
 
-    private static int calculateChunkSize(LevelCube pChunk) {
+    private static int calculateChunkSize(LevelCube cube) {
         int i = 0;
-        LevelChunkSection[] var2 = pChunk.getSections();
-        int var3 = var2.length;
 
-        for(int var4 = 0; var4 < var3; ++var4) {
-            LevelChunkSection levelchunksection = var2[var4];
+        for(LevelChunkSection levelchunksection : cube.getSections()) {
             i += levelchunksection.getSerializedSize();
         }
 
         return i;
     }
 
-    public static void extractChunkData(FriendlyByteBuf pBuffer, LevelCube pChunk) {
-        for (LevelChunkSection levelchunksection : pChunk.getSections()) {
+    public static void extractChunkData(FriendlyByteBuf pBuffer, LevelCube cube) {
+        for (LevelChunkSection levelchunksection : cube.getSections()) {
             levelchunksection.write(pBuffer);
         }
     }
