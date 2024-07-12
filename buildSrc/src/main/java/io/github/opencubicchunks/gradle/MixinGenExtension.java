@@ -2,6 +2,7 @@ package io.github.opencubicchunks.gradle;
 
 
 import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.apache.tools.ant.util.StringUtils.removePrefix;
 import static org.apache.tools.ant.util.StringUtils.removeSuffix;
 
@@ -207,7 +208,7 @@ import org.gradle.api.tasks.SourceSet;
                 Path path = resources.resolve(fileName);
                 try {
                     Files.createDirectories(resources);
-                    try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path, CREATE))) {
+                    try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path, CREATE, TRUNCATE_EXISTING))) {
                         writer.setIndent("    ");
                         writer.beginObject();
                         if (config.required != null) {
