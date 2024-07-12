@@ -20,33 +20,33 @@ import net.minecraft.world.level.ChunkPos;
 public interface CloTrackingView extends ChunkTrackingView {
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "EMPTY"))
     CloTrackingView EMPTY = new CloTrackingView() {
-        @Override public boolean cc_contains(int x, int y, int z, boolean pSearchAllChunks) {
+        @Override public boolean cc_contains(int x, int y, int z, boolean searchAllChunks) {
             return false;
         }
 
-        @Override public void cc_forEach(Consumer<CloPos> pAction) {
+        @Override public void cc_forEach(Consumer<CloPos> action) {
         }
 
         @Override
-        public boolean contains(int x, int z, boolean pSearchAllChunks) {
+        public boolean contains(int x, int z, boolean searchAllChunks) {
             return false;
         }
 
         @Override
-        public void forEach(Consumer<ChunkPos> pAction) {
+        public void forEach(Consumer<ChunkPos> action) {
         }
     };
 
     @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
-    static CloTrackingView cc_of(CloPos pCenter, int pViewDistance) {
-        return new CloTrackingView.Positioned(pCenter, pViewDistance);
+    static CloTrackingView cc_of(CloPos center, int viewDistance) {
+        return new CloTrackingView.Positioned(center, viewDistance);
     }
 
     @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("difference(Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
-    static void cc_difference(CloTrackingView pOldCloTrackingView, CloTrackingView pNewCloTrackingView, Consumer<CloPos> pChunkDropper, Consumer<CloPos> pChunkMarker) {
-        if (!pOldCloTrackingView.equals(pNewCloTrackingView)) {
-            if (pOldCloTrackingView instanceof Positioned oldPositioned
-                && pNewCloTrackingView instanceof Positioned newPositioned) {
+    static void cc_difference(CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker) {
+        if (!oldCloTrackingView.equals(newCloTrackingView)) {
+            if (oldCloTrackingView instanceof Positioned oldPositioned
+                && newCloTrackingView instanceof Positioned newPositioned) {
                 if (oldPositioned.cc_cubeIntersects(newPositioned)) {
                     int minX = Math.min(oldPositioned.minX(), newPositioned.minX());
                     int minY = Math.min(oldPositioned.minY(), newPositioned.minY());
@@ -65,9 +65,9 @@ public interface CloTrackingView extends ChunkTrackingView {
                                     boolean newHas = newPositioned.contains(chunkX, chunkZ);
                                     if (oldHas != newHas) {
                                         if (newHas) {
-                                            pChunkDropper.accept(CloPos.chunk(chunkX, chunkZ));
+                                            chunkDropper.accept(CloPos.chunk(chunkX, chunkZ));
                                         } else {
-                                            pChunkMarker.accept(CloPos.chunk(chunkX, chunkZ));
+                                            chunkMarker.accept(CloPos.chunk(chunkX, chunkZ));
                                         }
                                     }
                                 }
@@ -77,9 +77,9 @@ public interface CloTrackingView extends ChunkTrackingView {
                                 boolean newHas = newPositioned.cc_contains(x, y, z);
                                 if (oldHas != newHas) {
                                     if (newHas) {
-                                        pChunkDropper.accept(CloPos.cube(x, y, z));
+                                        chunkDropper.accept(CloPos.cube(x, y, z));
                                     } else {
-                                        pChunkMarker.accept(CloPos.cube(x, y, z));
+                                        chunkMarker.accept(CloPos.cube(x, y, z));
                                     }
                                 }
                             }
@@ -102,9 +102,9 @@ public interface CloTrackingView extends ChunkTrackingView {
                                     boolean newHas = newPositioned.contains(chunkX, chunkZ);
                                     if (oldHas != newHas) {
                                         if (newHas) {
-                                            pChunkDropper.accept(CloPos.chunk(chunkX, chunkZ));
+                                            chunkDropper.accept(CloPos.chunk(chunkX, chunkZ));
                                         } else {
-                                            pChunkMarker.accept(CloPos.chunk(chunkX, chunkZ));
+                                            chunkMarker.accept(CloPos.chunk(chunkX, chunkZ));
                                         }
                                     }
                                 }
@@ -112,14 +112,14 @@ public interface CloTrackingView extends ChunkTrackingView {
                         }
                     }
 
-                    oldPositioned.cc_forEachCubesOnly(pChunkMarker);
-                    newPositioned.cc_forEachCubesOnly(pChunkDropper);
+                    oldPositioned.cc_forEachCubesOnly(chunkMarker);
+                    newPositioned.cc_forEachCubesOnly(chunkDropper);
                     return;
                 }
             }
 
-            pOldCloTrackingView.cc_forEach(pChunkMarker);
-            pNewCloTrackingView.cc_forEach(pChunkDropper);
+            oldCloTrackingView.cc_forEach(chunkMarker);
+            newCloTrackingView.cc_forEach(chunkDropper);
         }
     }
 
@@ -136,10 +136,10 @@ public interface CloTrackingView extends ChunkTrackingView {
         return this.cc_contains(x, y, z, true);
     }
 
-    boolean cc_contains(int x, int y, int z, boolean pSearchAllChunks);
+    boolean cc_contains(int x, int y, int z, boolean searchAllChunks);
 
     @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("forEach(Ljava/util/function/Consumer;)V"))
-    void cc_forEach(Consumer<CloPos> pAction);
+    void cc_forEach(Consumer<CloPos> action);
 
     default boolean cc_isInViewDistance(int x, int y, int z) {
         return this.cc_contains(x, y, z, false);
@@ -193,13 +193,13 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
 
         @Override
-        public void forEach(Consumer<ChunkPos> pAction) {
+        public void forEach(Consumer<ChunkPos> action) {
             for(int x = this.minX(); x <= this.maxX(); ++x) {
                 for(int z = this.minZ(); z <= this.maxZ(); ++z) {
                     if (this.cc_contains(x, center.getY(), z)) {
                         for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                             for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
-                                pAction.accept(new ChunkPos(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
+                                action.accept(new ChunkPos(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
                             }
                         }
                     }
@@ -207,46 +207,46 @@ public interface CloTrackingView extends ChunkTrackingView {
             }
         }
 
-        private boolean cc_cubeIntersects(CloTrackingView.Positioned pOther) {
-            return this.minX() <= pOther.maxX() && this.maxX() >= pOther.minX()
-                && this.minY() <= pOther.maxY() && this.maxY() >= pOther.minY()
-                && this.minZ() <= pOther.maxZ() && this.maxZ() >= pOther.minZ();
+        private boolean cc_cubeIntersects(CloTrackingView.Positioned other) {
+            return this.minX() <= other.maxX() && this.maxX() >= other.minX()
+                && this.minY() <= other.maxY() && this.maxY() >= other.minY()
+                && this.minZ() <= other.maxZ() && this.maxZ() >= other.minZ();
         }
 
-        private boolean cc_chunkIntersects(CloTrackingView.Positioned pOther) {
-            return this.minX() <= pOther.maxX() && this.maxX() >= pOther.minX()
-                && this.minZ() <= pOther.maxZ() && this.maxZ() >= pOther.minZ();
+        private boolean cc_chunkIntersects(CloTrackingView.Positioned other) {
+            return this.minX() <= other.maxX() && this.maxX() >= other.minX()
+                && this.minZ() <= other.maxZ() && this.maxZ() >= other.minZ();
         }
 
         @Override public boolean cc_contains(int x, int y, int z, boolean searchAllChunks) {
             return cc_isWithinDistance(this.center.getX(), this.center.getY(), this.center.getZ(), this.viewDistance, x, y, z, searchAllChunks);
         }
 
-        @Override public void cc_forEach(Consumer<CloPos> pAction) {
+        @Override public void cc_forEach(Consumer<CloPos> action) {
             for(int x = this.minX(); x <= this.maxX(); ++x) {
                 for(int z = this.minZ(); z <= this.maxZ(); ++z) {
                     if (this.cc_contains(x, center.getY(), z)) {
                         for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                             for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
-                                pAction.accept(CloPos.chunk(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
+                                action.accept(CloPos.chunk(Coords.cubeToSection(x, dx), Coords.cubeToSection(z, dz)));
                             }
                         }
                     }
                     for(int y = this.minY(); y <= this.maxY(); ++y) {
                         if (this.cc_contains(x, y, z)) {
-                            pAction.accept(CloPos.cube(x, y, z));
+                            action.accept(CloPos.cube(x, y, z));
                         }
                     }
                 }
             }
         }
 
-        private void cc_forEachCubesOnly(Consumer<CloPos> pAction) {
+        private void cc_forEachCubesOnly(Consumer<CloPos> action) {
             for(int x = this.minX(); x <= this.maxX(); ++x) {
                 for(int z = this.minZ(); z <= this.maxZ(); ++z) {
                     for(int y = this.minY(); y <= this.maxY(); ++y) {
                         if (this.cc_contains(x, y, z)) {
-                            pAction.accept(CloPos.cube(x, y, z));
+                            action.accept(CloPos.cube(x, y, z));
                         }
                     }
                 }

@@ -28,28 +28,28 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
 
 public interface ProtoClo extends CloAccess {
-    static ProtoClo create(CloPos cloPos, UpgradeData pUpgradeData, LevelHeightAccessor pLevelHeightAccessor, Registry<Biome> pBiomeRegistry, @Nullable BlendingData pBlendingData) {
+    static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
         if (cloPos.isCube()) {
-            return new ProtoCube(cloPos, pUpgradeData, pLevelHeightAccessor, pBiomeRegistry, pBlendingData);
+            return new ProtoCube(cloPos, upgradeData, levelHeightAccessor, biomeRegistry, blendingData);
         } else {
-            return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), pUpgradeData, pLevelHeightAccessor, pBiomeRegistry, pBlendingData);
+            return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), upgradeData, levelHeightAccessor, biomeRegistry, blendingData);
         }
     }
 
     static ProtoClo create(
         CloPos cloPos,
-        UpgradeData pUpgradeData,
-        @Nullable LevelChunkSection[] pSections,
-        ProtoChunkTicks<Block> pBlockTicks,
-        ProtoChunkTicks<Fluid> pLiquidTicks,
-        LevelHeightAccessor pLevelHeightAccessor,
-        Registry<Biome> pBiomeRegistry,
-        @Nullable BlendingData pBlendingData
+        UpgradeData upgradeData,
+        @Nullable LevelChunkSection[] sections,
+        ProtoChunkTicks<Block> blockTicks,
+        ProtoChunkTicks<Fluid> liquidTicks,
+        LevelHeightAccessor levelHeightAccessor,
+        Registry<Biome> biomeRegistry,
+        @Nullable BlendingData blendingData
     ) {
         if (cloPos.isCube()) {
-            return new ProtoCube(cloPos, pUpgradeData, pSections, pBlockTicks, pLiquidTicks, pLevelHeightAccessor, pBiomeRegistry, pBlendingData);
+            return new ProtoCube(cloPos, upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
         } else {
-            return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), pUpgradeData, pSections, pBlockTicks, pLiquidTicks, pLevelHeightAccessor, pBiomeRegistry, pBlendingData);
+            return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
         }
     }
 

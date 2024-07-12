@@ -76,9 +76,9 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
     @Shadow private boolean hasChangedSections;
     @Shadow @Final private final ShortSet[] changedBlocksPerSection;
 
-    @Shadow protected abstract void broadcastBlockEntityIfNeeded(List<ServerPlayer> pPlayers, Level pLevel, BlockPos pPos, BlockState pState);
+    @Shadow protected abstract void broadcastBlockEntityIfNeeded(List<ServerPlayer> players, Level level, BlockPos pos, BlockState state);
 
-    @Shadow protected abstract void broadcast(List<ServerPlayer> pPlayers, Packet<?> pPacket);
+    @Shadow protected abstract void broadcast(List<ServerPlayer> players, Packet<?> packet);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
         value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;"
@@ -139,13 +139,13 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
 
     // We want a different signature (see below); can't automatically redirect this one
     @Inject(method = "sectionLightChanged", at = @At("HEAD"))
-    private void cc_onSectionLightChanged(LightLayer pType, int pSectionY, CallbackInfo ci) {
+    private void cc_onSectionLightChanged(LightLayer type, int sectionY, CallbackInfo ci) {
         // We should be calling the cubic signature instead
         assert !cc_isCubic;
     }
 
     @AddMethodToSets(sets = GeneralSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("sectionLightChanged(Lnet/minecraft/world/level/LightLayer;I)V"))
-    public void cc_sectionLightChanged(LightLayer pType, SectionPos pos) {
+    public void cc_sectionLightChanged(LightLayer type, SectionPos pos) {
         // TODO (P2) lighting
     }
 

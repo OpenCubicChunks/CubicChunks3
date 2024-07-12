@@ -83,23 +83,23 @@ public interface GlobalSet extends ForgeSet {
     abstract class ChunkStatus_redirects {
         @MethodRedirect(@MethodSig("generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"))
         public abstract CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_generate(
-            Executor pExectutor,
-            ServerLevel pLevel,
-            ChunkGenerator pChunkGenerator,
-            StructureTemplateManager pStructureTemplateManager,
-            ThreadedLevelLightEngine pLightEngine,
-            Function<CloAccess, CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> pTask,
-            List<CloAccess> pCache
+            Executor exectutor,
+            ServerLevel level,
+            ChunkGenerator chunkGenerator,
+            StructureTemplateManager structureTemplateManager,
+            ThreadedLevelLightEngine lightEngine,
+            Function<CloAccess, CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> task,
+            List<CloAccess> cache
         );
     }
 
     @TypeRedirect(from = @Ref(ChunkProgressListener.class), to = @Ref(CubicChunkProgressListener.class))
     interface ChunkProgressListener_to_CubicChunkProgressListener_redirects {
         @MethodRedirect(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
-        void cc_updateSpawnPos(CloPos pCenter);
+        void cc_updateSpawnPos(CloPos center);
 
         @MethodRedirect(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
-        void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus);
+        void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
     }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))

@@ -41,11 +41,11 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
         @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/lang/Runnable;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
-    private static native ChunkTaskPriorityQueueSorter.Message<Runnable> cc_message(ChunkHolder pChunkHolder, Runnable pTask);
+    private static native ChunkTaskPriorityQueueSorter.Message<Runnable> cc_message(ChunkHolder chunkHolder, Runnable task);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
         @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/util/function/Function;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
-    private static native <T> ChunkTaskPriorityQueueSorter.Message<T> cc_message(ChunkHolder pChunkHolder, Function<ProcessorHandle<Unit>, T> pTask);
+    private static native <T> ChunkTaskPriorityQueueSorter.Message<T> cc_message(ChunkHolder chunkHolder, Function<ProcessorHandle<Unit>, T> task);
 
     /**
      * This is a method that is only used for debugging, so we don't currently test it.

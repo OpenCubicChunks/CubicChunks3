@@ -79,11 +79,11 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     private static final List<ChunkStatus> cc_CHUNK_STATUSES = ChunkStatus.getStatusList();
 
-    @Shadow public abstract ReportedException debugFuturesAndCreateReportedException(IllegalStateException pException, String pDetails);
+    @Shadow public abstract ReportedException debugFuturesAndCreateReportedException(IllegalStateException exception, String details);
 
     @Shadow protected abstract ChunkHolder getUpdatingChunkIfPresent(long aLong);
 
-    @Shadow private static boolean isChunkDataValid(CompoundTag pTag) {
+    @Shadow private static boolean isChunkDataValid(CompoundTag tag) {
         throw new IllegalStateException("mixin failed to apply");
     }
 
@@ -94,10 +94,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     // TODO once we can target non-return locations in constructors, do this when the vanilla field is set
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onInit(ServerLevel pLevel, LevelStorageSource.LevelStorageAccess pLevelStorageAccess, DataFixer pFixerUpper, StructureTemplateManager pStructureManager,
-                        Executor pDispatcher, BlockableEventLoop pMainThreadExecutor, LightChunkGetter pLightChunk, ChunkGenerator pGenerator, ChunkProgressListener pProgressListener,
-                        ChunkStatusUpdateListener pChunkStatusListener, Supplier pOverworldDataStorage, int pViewDistance, boolean pSync, CallbackInfo ci) {
-        cc_progressListener = ((CubicChunkProgressListener) pProgressListener);
+    private void onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager,
+                        Executor dispatcher, BlockableEventLoop mainThreadExecutor, LightChunkGetter lightChunk, ChunkGenerator generator, ChunkProgressListener progressListener,
+                        ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, int viewDistance, boolean sync, CallbackInfo ci) {
+        cc_progressListener = ((CubicChunkProgressListener) progressListener);
     }
 
     /**
@@ -262,7 +262,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     // dasm + mixin
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("updateChunkScheduling(JILnet/minecraft/server/level/ChunkHolder;I)Lnet/minecraft/server/level/ChunkHolder;"))
-    @Nullable native ChunkHolder cc_updateChunkScheduling(long pChunkPos, int pNewLevel, @Nullable ChunkHolder pHolder, int pOldLevel);
+    @Nullable native ChunkHolder cc_updateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
 
     // TODO move to forge sourceset
     /**
@@ -280,10 +280,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     // P4: scheduleUnload lambda we'll want to mirror the forge API for cubes
     // FIXME remove call to forge hook in copied method
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"))
-    private native void cc_scheduleUnload(long pChunkPos, ChunkHolder pChunkHolder);
+    private native void cc_scheduleUnload(long chunkPos, ChunkHolder chunkHolder);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("schedule(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_schedule(ChunkHolder pHolder, ChunkStatus pStatus);
+    public native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_schedule(ChunkHolder holder, ChunkStatus status);
 
     // dasm + mixin
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("scheduleChunkLoad(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;"))
@@ -389,26 +389,26 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     private native byte cc_markPosition(CloPos cloPos, ChunkStatus.ChunkType chunkType);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("scheduleChunkGeneration(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkGeneration(ChunkHolder pChunkHolder, ChunkStatus pChunkStatus);
+    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkGeneration(ChunkHolder chunkHolder, ChunkStatus chunkStatus);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("releaseLightTicket(Lnet/minecraft/world/level/ChunkPos;)V"))
-    protected native void cc_releaseLightTicket(ChunkPos pChunkPos);
+    protected native void cc_releaseLightTicket(ChunkPos chunkPos);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("getDependencyStatus(Lnet/minecraft/world/level/chunk/ChunkStatus;I)Lnet/minecraft/world/level/chunk/ChunkStatus;"))
-    private native ChunkStatus cc_getDependencyStatus(ChunkStatus pChunkStatus, int p_140264_);
+    private native ChunkStatus cc_getDependencyStatus(ChunkStatus chunkStatus, int p_140264_);
 
     // FIXME remove call to forge hook in copied method
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("protoChunkToFullChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_protoChunkToFullChunk(ChunkHolder pHolder);
+    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_protoChunkToFullChunk(ChunkHolder holder);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("prepareTickingChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareTickingChunk(ChunkHolder pHolder);
+    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareTickingChunk(ChunkHolder holder);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("onChunkReadyToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     private native void cc_onChunkReadyToSend(LevelClo cloPos);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("prepareAccessibleChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareAccessibleChunk(ChunkHolder pHolder);
+    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareAccessibleChunk(ChunkHolder holder);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("saveChunkIfNeeded(Lnet/minecraft/server/level/ChunkHolder;)Z"))
     private native boolean cc_saveChunkIfNeeded(ChunkHolder holder);
@@ -462,17 +462,17 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     private native boolean cc_playerIsCloseEnoughForSpawning(ServerPlayer player, CloPos cloPos);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("updatePlayerStatus(Lnet/minecraft/server/level/ServerPlayer;Z)V"))
-    native void cc_updatePlayerStatus(ServerPlayer pPlayer, boolean pTrack);
+    native void cc_updatePlayerStatus(ServerPlayer player, boolean track);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("move(Lnet/minecraft/server/level/ServerPlayer;)V"))
-    public native void cc_move(ServerPlayer pPlayer);
+    public native void cc_move(ServerPlayer player);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("updateChunkTracking(Lnet/minecraft/server/level/ServerPlayer;)V"))
-    private native void cc_updateChunkTracking(ServerPlayer pPlayer);
+    private native void cc_updateChunkTracking(ServerPlayer player);
 
     // dasm + mixin - TODO redirect for ClientboundSetChunkCacheCenterPacket construction, 2 -> 3 ints
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("applyChunkTrackingView(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ChunkTrackingView;)V"))
-    private native void cc_applyChunkTrackingView(ServerPlayer pPlayer, ChunkTrackingView pChunkTrackingView);
+    private native void cc_applyChunkTrackingView(ServerPlayer player, ChunkTrackingView chunkTrackingView);
 
     // dasm + mixin
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"))
@@ -503,8 +503,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     // TODO these three are temporary - needs dasm subclass method redirect inheritance for non-overriden methods
     @AddMethodToSets(sets = GeneralSet.class, owner = @Ref(ChunkMap.class),
         method = @MethodSig("isOldChunkAround(Lnet/minecraft/world/level/ChunkPos;I)Z"))
-    public boolean cc_isOldChunkAround(CloPos pPos, int pRadius) {
-        return super.cc_isOldChunkAround(pPos, pRadius);
+    public boolean cc_isOldChunkAround(CloPos pos, int radius) {
+        return super.cc_isOldChunkAround(pos, radius);
     }
 
     @AddMethodToSets(sets = GeneralSet.class, owner = @Ref(ChunkMap.class),

@@ -88,7 +88,7 @@ public interface GeneralSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoClo.class))
     interface ProtoChunk_to_ProtoClo_redirects {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelHeightAccessor.class), @Ref(Registry.class), @Ref(BlendingData.class) }))
-        static ProtoClo create(CloPos cloPos, UpgradeData pUpgradeData, LevelHeightAccessor pLevelHeightAccessor, Registry<Biome> pBiomeRegistry, @Nullable BlendingData pBlendingData) {
+        static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
             throw new IllegalStateException("this should never be called");
         }
 
@@ -103,13 +103,13 @@ public interface GeneralSet extends GlobalSet {
             @Ref(BlendingData.class)}))
         static ProtoClo create(
             CloPos cloPos,
-            UpgradeData pUpgradeData,
-            @Nullable LevelChunkSection[] pSections,
-            ProtoChunkTicks<Block> pBlockTicks,
-            ProtoChunkTicks<Fluid> pLiquidTicks,
-            LevelHeightAccessor pLevelHeightAccessor,
-            Registry<Biome> pBiomeRegistry,
-            @Nullable BlendingData pBlendingData
+            UpgradeData upgradeData,
+            @Nullable LevelChunkSection[] sections,
+            ProtoChunkTicks<Block> blockTicks,
+            ProtoChunkTicks<Fluid> liquidTicks,
+            LevelHeightAccessor levelHeightAccessor,
+            Registry<Biome> biomeRegistry,
+            @Nullable BlendingData blendingData
         ) {
             throw new IllegalStateException("this should never be called");
         }
@@ -118,7 +118,7 @@ public interface GeneralSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ImposterProtoChunk.class), to = @Ref(ImposterProtoClo.class))
     interface ImposterProtoChunk_to_ImposterProtoClo_redirects {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class)}))
-        static ImposterProtoClo create(LevelClo wrapped, boolean pAllowWrites) {
+        static ImposterProtoClo create(LevelClo wrapped, boolean allowWrites) {
             throw new IllegalStateException("this should never be called");
         }
 

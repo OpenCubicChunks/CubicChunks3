@@ -19,7 +19,7 @@ public abstract class MixinLivingEntityTest {
     }
 
     @Inject(method = "getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D", at = @At(value = "HEAD"), cancellable = true)
-    private void cubic_chunks_3$fixNeoForgeErrors(Attribute pAttribute, CallbackInfoReturnable<Double> cir) {
+    private void cubic_chunks_3$fixNeoForgeErrors(Attribute attribute, CallbackInfoReturnable<Double> cir) {
         cir.setReturnValue(1d);
     }
 }

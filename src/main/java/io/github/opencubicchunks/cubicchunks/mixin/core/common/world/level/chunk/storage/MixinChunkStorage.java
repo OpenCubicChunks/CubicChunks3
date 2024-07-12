@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class MixinChunkStorage {
     @AddMethodToSets(sets = GeneralSet.class, owner = @Ref(ChunkStorage.class),
         method = @MethodSig("isOldChunkAround(Lnet/minecraft/world/level/ChunkPos;I)Z"))
-    public boolean cc_isOldChunkAround(CloPos pPos, int pRadius) {
+    public boolean cc_isOldChunkAround(CloPos pos, int radius) {
         return false; // TODO (P2) should be dasm'd once IOWorker is done
     }
 

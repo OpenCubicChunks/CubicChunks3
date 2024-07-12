@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(LoggerChunkProgressListener.class)
 public abstract class MixinLoggerChunkProgressListener implements CubicChunkProgressListener {
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
-    @Override public native void cc_updateSpawnPos(CloPos pCenter);
+    @Override public native void cc_updateSpawnPos(CloPos center);
 
     @AddTransformToSets(GeneralSet.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
-    @Override public native void cc_onStatusChange(CloPos pChunkPosition, @Nullable ChunkStatus pNewStatus);
+    @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }

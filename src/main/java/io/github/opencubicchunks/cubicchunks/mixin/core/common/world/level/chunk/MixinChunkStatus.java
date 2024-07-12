@@ -22,16 +22,16 @@ import org.spongepowered.asm.mixin.Mixin;
 public class MixinChunkStatus {
     // TODO (P2) proper generation logic; this currently ignores everything and only handles promotion from ProtoClo to LevelClo
     public CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_generate(
-        Executor pExectutor,
-        ServerLevel pLevel,
-        ChunkGenerator pChunkGenerator,
-        StructureTemplateManager pStructureTemplateManager,
-        ThreadedLevelLightEngine pLightEngine,
-        Function<CloAccess, CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> pTask,
-        List<CloAccess> pCache
+        Executor exectutor,
+        ServerLevel level,
+        ChunkGenerator chunkGenerator,
+        StructureTemplateManager structureTemplateManager,
+        ThreadedLevelLightEngine lightEngine,
+        Function<CloAccess, CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> task,
+        List<CloAccess> cache
     ) {
-        CloAccess chunkaccess = pCache.get(pCache.size() / 2);
-        return ((Object) this == ChunkStatus.FULL ? pTask.apply(chunkaccess) : CompletableFuture.completedFuture(Either.left(chunkaccess)))
+        CloAccess chunkaccess = cache.get(cache.size() / 2);
+        return ((Object) this == ChunkStatus.FULL ? task.apply(chunkaccess) : CompletableFuture.completedFuture(Either.left(chunkaccess)))
             .thenApply(
                 p_281217_ -> {
                     p_281217_.ifLeft(p_290029_ -> {

@@ -22,22 +22,22 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 public interface CubicClientChunkCache extends CubicChunkSource {
     // TODO (P2) we might want a version of the vanilla replaceWithPacketData with a different signature for handling chunks, since we only need heightmap data with CC
 
-    void cc_drop(CubePos pChunkPos);
+    void cc_drop(CubePos chunkPos);
 
-    void cc_replaceBiomes(int pX, int pY, int pZ, FriendlyByteBuf pBuffer);
+    void cc_replaceBiomes(int x, int y, int z, FriendlyByteBuf buffer);
 
     @Nullable LevelCube cc_replaceWithPacketData(
-        int pX,
-        int pY,
-        int pZ,
-        FriendlyByteBuf pBuffer,
-        CompoundTag pTag,
-        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> pConsumer
+        int x,
+        int y,
+        int z,
+        FriendlyByteBuf buffer,
+        CompoundTag tag,
+        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     );
 
-    void cc_updateViewCenter(int pX, int pY, int pZ);
+    void cc_updateViewCenter(int x, int y, int z);
 
-    void cc_updateViewRadius(int pViewDistance);
+    void cc_updateViewRadius(int viewDistance);
 
     // Fields and methods on this are public so they can be accessed from MixinClientChunkCache and tests; they should not be used anywhere else
     // (This has to be here since we can't add inner classes with mixin)
@@ -53,54 +53,54 @@ public interface CubicClientChunkCache extends CubicChunkSource {
         // Field added since we can't get it off ClientChunkCache since this is no longer an inner class
         final ClientLevel level;
 
-        public Storage(int pChunkRadius, ClientLevel clientLevel) {
-            this.cubeRadius = pChunkRadius;
-            this.viewRange = pChunkRadius * 2 + 1;
+        public Storage(int chunkRadius, ClientLevel clientLevel) {
+            this.cubeRadius = chunkRadius;
+            this.viewRange = chunkRadius * 2 + 1;
             this.chunks = new AtomicReferenceArray<>(this.viewRange * this.viewRange * this.viewRange);
             this.level = clientLevel;
         }
 
-        public int getIndex(int pX, int pY, int pZ) {
-            return Math.floorMod(pZ, this.viewRange) * this.viewRange * this.viewRange + Math.floorMod(pY, this.viewRange) * this.viewRange + Math.floorMod(pX, this.viewRange);
+        public int getIndex(int x, int y, int z) {
+            return Math.floorMod(z, this.viewRange) * this.viewRange * this.viewRange + Math.floorMod(y, this.viewRange) * this.viewRange + Math.floorMod(x, this.viewRange);
         }
 
-        public void replace(int pChunkIndex, @Nullable LevelCube pChunk) {
-            LevelCube levelchunk = this.chunks.getAndSet(pChunkIndex, pChunk);
+        public void replace(int chunkIndex, @Nullable LevelCube chunk) {
+            LevelCube levelchunk = this.chunks.getAndSet(chunkIndex, chunk);
             if (levelchunk != null) {
                 --this.chunkCount;
 //                this.level.unload(levelchunk); // TODO P2
             }
 
-            if (pChunk != null) {
+            if (chunk != null) {
                 ++this.chunkCount;
             }
         }
 
-        public LevelCube replace(int pChunkIndex, LevelCube pChunk, @Nullable LevelCube pReplaceWith) {
-            if (this.chunks.compareAndSet(pChunkIndex, pChunk, pReplaceWith) && pReplaceWith == null) {
+        public LevelCube replace(int chunkIndex, LevelCube chunk, @Nullable LevelCube replaceWith) {
+            if (this.chunks.compareAndSet(chunkIndex, chunk, replaceWith) && replaceWith == null) {
                 --this.chunkCount;
             }
 
-//            this.level.unload(pChunk); // TODO P2
-            return pChunk;
+//            this.level.unload(chunk); // TODO P2
+            return chunk;
         }
 
-        public boolean inRange(int pX, int pY, int pZ) {
-            return Math.abs(pX - this.viewCenterX) <= this.cubeRadius
-                && Math.abs(pY - this.viewCenterY) <= this.cubeRadius
-                && Math.abs(pZ - this.viewCenterZ) <= this.cubeRadius;
+        public boolean inRange(int x, int y, int z) {
+            return Math.abs(x - this.viewCenterX) <= this.cubeRadius
+                && Math.abs(y - this.viewCenterY) <= this.cubeRadius
+                && Math.abs(z - this.viewCenterZ) <= this.cubeRadius;
         }
 
         @Nullable
         @TransformFromMethod(copyFrom = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"))
-        public native LevelCube getChunk(int pChunkIndex);
+        public native LevelCube getChunk(int chunkIndex);
 
         // TODO dasm copying getChunk currently changes the access modifier from public to protected, so we need a dummy public method
         @Nullable public LevelCube temp_getChunk(int index) {
             return getChunk(index);
         }
 
-        public void dumpChunks(String pFilePath) {
+        public void dumpChunks(String filePath) {
             // TODO reimplement debug code
         }
     }

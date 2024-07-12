@@ -6,11 +6,11 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 public interface ImposterProtoClo extends ProtoClo {
-    static ImposterProtoClo create(LevelClo wrapped, boolean pAllowWrites) {
+    static ImposterProtoClo create(LevelClo wrapped, boolean allowWrites) {
         if (wrapped instanceof LevelCube cube) {
-            return new ImposterProtoCube(cube, pAllowWrites);
+            return new ImposterProtoCube(cube, allowWrites);
         } else {
-            return (ImposterProtoClo) new ImposterProtoChunk(((LevelChunk) wrapped), pAllowWrites);
+            return (ImposterProtoClo) new ImposterProtoChunk(((LevelChunk) wrapped), allowWrites);
         }
     }
 

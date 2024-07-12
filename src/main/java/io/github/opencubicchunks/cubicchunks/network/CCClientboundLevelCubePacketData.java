@@ -47,9 +47,9 @@ public class CCClientboundLevelCubePacketData {
         return i;
     }
 
-    public static void extractChunkData(FriendlyByteBuf pBuffer, LevelCube cube) {
+    public static void extractChunkData(FriendlyByteBuf buffer, LevelCube cube) {
         for (LevelChunkSection levelchunksection : cube.getSections()) {
-            levelchunksection.write(pBuffer);
+            levelchunksection.write(buffer);
         }
     }
 

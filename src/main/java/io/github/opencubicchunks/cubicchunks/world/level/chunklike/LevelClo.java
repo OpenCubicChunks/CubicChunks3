@@ -101,7 +101,7 @@ public interface LevelClo extends CloAccess {
 
     @FunctionalInterface
     interface PostLoadProcessor {
-        void run(LevelClo pChunk);
+        void run(LevelClo chunk);
         /**
          * vanilla expects a (LevelChunk -> void) but this PostLoadProcessor is a (LevelClo -> void), so we delegate
          */

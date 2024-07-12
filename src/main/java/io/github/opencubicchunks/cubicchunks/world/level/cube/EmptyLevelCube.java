@@ -12,8 +12,8 @@ import net.minecraft.world.level.chunk.EmptyLevelChunk;
 // Whole class redirect
 @TransformFromClass(value = @Ref(EmptyLevelChunk.class), sets = CubeAccessAndDescendantsSet.class)
 public class EmptyLevelCube extends LevelCube {
-    public EmptyLevelCube(Level pLevel, CloPos pPos, Holder<Biome> pBiome) {
-        super(pLevel, pPos);
+    public EmptyLevelCube(Level level, CloPos pos, Holder<Biome> biome) {
+        super(level, pos);
         throw new IllegalStateException("DASM failed to apply");
     }
 }

@@ -163,20 +163,20 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     // removeBlockEntity
     // Replaces LevelChunk with a LevelCube to call removeBlockEntity, needs a local ref to do so
     @WrapOperation(method = "removeBlockEntity", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    private LevelChunk cc_replaceGetChunkAtInRemoveBlockEntity(Level level, BlockPos pPos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
+    private LevelChunk cc_replaceGetChunkAtInRemoveBlockEntity(Level level, BlockPos pos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
         if(cc_isCubic) {
-            levelCubeLocalRef.set(cc_getCubeAt(pPos));
+            levelCubeLocalRef.set(cc_getCubeAt(pos));
             return null;
         }
-        return original.call(level, pPos);
+        return original.call(level, pos);
     }
 
     @WrapOperation(method = "removeBlockEntity", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/chunk/LevelChunk;removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"))
-    private void cc_replaceLevelChunkInRemoveBlockEntity(LevelChunk levelChunk, BlockPos pPos, Operation<Void> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
+    private void cc_replaceLevelChunkInRemoveBlockEntity(LevelChunk levelChunk, BlockPos pos, Operation<Void> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
         if(cc_isCubic) {
-            levelCubeLocalRef.get().removeBlockEntity(pPos);
+            levelCubeLocalRef.get().removeBlockEntity(pos);
         } else {
-            original.call(levelChunk, pPos);
+            original.call(levelChunk, pos);
         }
     }
 

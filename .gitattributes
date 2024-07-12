@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Gradle wrapper files are auto-generated
+gradlew linguist-generated=true
+gradlew.bat linguist-generated=true
+gradle/wrapper/** linguist-generated=true
