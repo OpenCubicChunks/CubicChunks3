@@ -280,7 +280,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
                     for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
                         for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
                             ((ChunkMapTestAccess) chunkMap).invokeCc_UpdateChunkScheduling(
-                                CloPos.asLong(Coords.cubeToSection(x, sectionX), Coords.cubeToSection(z, sectionZ)),
+                                CloPos.chunkAsLong(Coords.cubeToSection(x, sectionX), Coords.cubeToSection(z, sectionZ)),
                                 centerLevel + chunkDistance,
                                 null,
                                 ChunkLevel.MAX_LEVEL + 1
@@ -289,7 +289,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
                     }
                     for (int y = -radius; y <= radius; y++) {
                         var holder = ((ChunkMapTestAccess) chunkMap).invokeCc_UpdateChunkScheduling(
-                            CloPos.asLong(x, y, z),
+                            CloPos.cubeAsLong(x, y, z),
                             centerLevel + Math.max(Math.abs(y), chunkDistance),
                             null,
                             ChunkLevel.MAX_LEVEL + 1

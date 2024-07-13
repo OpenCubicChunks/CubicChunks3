@@ -94,7 +94,7 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
             int z = CloPos.extractZ(pos);
             for (int x2 = -1; x2 <= 1; ++x2) {
                 for (int z2 = -1; z2 <= 1; ++z2) {
-                    long neighbor = CloPos.asLong(x + x2, z + z2);
+                    long neighbor = CloPos.chunkAsLong(x + x2, z + z2);
                     if (neighbor == pos) {
                         neighbor = CloPos.INVALID_CLO_POS;
                     }
@@ -113,7 +113,7 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
                 }
             }
             // This is propagating the level from neighboring cubes to this column.
-            long cubeColumnKey = CloPos.asLong(Coords.sectionToCube(x), 0, Coords.sectionToCube(z));
+            long cubeColumnKey = CloPos.cubeAsLong(Coords.sectionToCube(x), 0, Coords.sectionToCube(z));
             IntSet neighborCubeYSet = this.cc_existingCubesForCubeColumns.get(cubeColumnKey);
             if (neighborCubeYSet != null) {
                 for (Integer cubeY : neighborCubeYSet) {
@@ -142,7 +142,7 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     for (int dy = -1; dy <= 1; dy++) {
-                        long neighbor = CloPos.asLong(x + dx, y + dy, z + dz);
+                        long neighbor = CloPos.cubeAsLong(x + dx, y + dy, z + dz);
                         if (neighbor == pos) {
                             neighbor = CloPos.INVALID_CLO_POS;
                         }

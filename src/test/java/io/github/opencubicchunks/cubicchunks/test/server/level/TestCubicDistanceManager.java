@@ -272,9 +272,9 @@ public class TestCubicDistanceManager extends BaseTest {
         var distanceManager = setupDistanceManager();
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         ((CubicDistanceManager)distanceManager).cc_addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
-        assertTrue(distanceManager.shouldForceTicks(CloPos.asLong(0, 0, 0)));
+        assertTrue(distanceManager.shouldForceTicks(CloPos.cubeAsLong(0, 0, 0)));
         ((CubicDistanceManager)distanceManager).cc_removeRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
-        assertFalse(distanceManager.shouldForceTicks(CloPos.asLong(0, 0, 0)));
+        assertFalse(distanceManager.shouldForceTicks(CloPos.cubeAsLong(0, 0, 0)));
     }
 
     // Tests for PlayerTicketTracker

@@ -125,7 +125,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     public boolean cc_isChunkTracked(ServerPlayer player, int x, int y, int z) {
         return ((CloTrackingView) player.getChunkTrackingView()).cc_contains(x, y, z)
             // TODO this requires PlayerChunkSender to accept Clo longs
-            && !player.connection.chunkSender.isPending(CloPos.asLong(x, y, z));
+            && !player.connection.chunkSender.isPending(CloPos.cubeAsLong(x, y, z));
     }
 
     private boolean cc_isChunkOnTrackedBorder(ServerPlayer player, int x, int y, int z) {
@@ -174,7 +174,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                 int chunkDistance = Math.max(Math.abs(dz), Math.abs(dx));
                 for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
                     for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
-                        ChunkHolder holder = this.getUpdatingChunkIfPresent(CloPos.asLong(Coords.cubeToSection(pos.getX()+dx, sectionX), Coords.cubeToSection(pos.getZ()+dz, sectionZ)));
+                        ChunkHolder holder = this.getUpdatingChunkIfPresent(CloPos.chunkAsLong(Coords.cubeToSection(pos.getX()+dx, sectionX), Coords.cubeToSection(pos.getZ()+dz, sectionZ)));
                         if (holder == null) {
                             var pos1 = new ChunkPos(Coords.cubeToSection(pos.getX()+dx, sectionX), Coords.cubeToSection(pos.getZ()+dz, sectionZ));
                             cir.setReturnValue(CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
@@ -198,7 +198,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                     if (dx == 0 && dy == 0 && dz == 0) {
                         middleCubeIndex = cloHolders.size();
                     }
-                    ChunkHolder holder = this.getUpdatingChunkIfPresent(CloPos.asLong(pos.getX()+dx, pos.getY()+dy, pos.getZ()+dz));
+                    ChunkHolder holder = this.getUpdatingChunkIfPresent(CloPos.cubeAsLong(pos.getX()+dx, pos.getY()+dy, pos.getZ()+dz));
                     if (holder == null) {
                         var pos1 = CloPos.cube(pos.getX()+dx, pos.getY()+dy, pos.getZ()+dz);
                         cir.setReturnValue(CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
