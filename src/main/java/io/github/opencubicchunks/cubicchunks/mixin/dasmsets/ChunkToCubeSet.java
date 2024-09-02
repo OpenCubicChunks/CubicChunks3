@@ -22,9 +22,16 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 
-// TODO rename this, it's used for anything that works with specifically cubes, not just descendants of CubeAccess
+/**
+ * Should be used for DASM transforms that work with only Cubes (as opposed to working with both Chunks and Cubes)
+ * <br/><br/>
+ * Cube-related field and type redirects, and method redirects containing Cube-related types in the signature or return type should be added to this set.
+ * <br/>
+ * Other redirects may also be added to this set if they should only be applied in contexts working with only Cubes.
+ * Redirects applicable in all contexts should be added to {@link GlobalSet}.
+ */
 @RedirectSet
-public interface CubeAccessAndDescendantsSet extends GlobalSet {
+public interface ChunkToCubeSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CubeAccess.class))
     abstract class ChunkAccess_to_CubeAccess_redirects {
         @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CloPos cloPos;

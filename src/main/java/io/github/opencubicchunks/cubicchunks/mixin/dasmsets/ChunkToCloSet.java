@@ -34,12 +34,17 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
 
 /**
- * Should be used for most DASM transforms, except in cases where other specific transforms are required (e.g. ChunkAccess to CubeAccess for CubeAccess and subclasses)
+ * Should be used for DASM transforms that work with Clos (i.e. work with both Chunks and Cubes)
  * <br/><br/>
- * Redirects should be added to {@link GlobalSet} rather than this set, except when they cause issues with other sets that inherit from {@link GlobalSet} - for example constructor to factory redirects on ChunkAccess subclasses.
+ * Clo-related field and type redirects, and method redirects containing Clo-related types in the signature or return type should be added to this set.
+ * <br/>
+ * TODO: CloPos is currently an exception to this; it and things that use it are in GlobalSet instead. This should be refactored eventually.
+ * <br/>
+ * Other redirects may also be added to this set if they should only be applied in contexts working with both Chunks and Cubes.
+ * Redirects applicable in all contexts should be added to {@link GlobalSet}.
  */
 @RedirectSet
-public interface GeneralSet extends GlobalSet {
+public interface ChunkToCloSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CloAccess.class))
     interface ChunkAccess_to_CloAccess_redirects {
         @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))

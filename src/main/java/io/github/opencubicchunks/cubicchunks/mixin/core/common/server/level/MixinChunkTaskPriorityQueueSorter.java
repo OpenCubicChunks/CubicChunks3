@@ -14,7 +14,7 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Dasm(GeneralSet.class)
+@Dasm(ChunkToCloSet.class)
 @Mixin(ChunkTaskPriorityQueueSorter.class)
 public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter, MarkableAsCubic {
     protected boolean cc_isCubic;
@@ -39,11 +39,11 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
         return cc_isCubic;
     }
 
-    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
         @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/lang/Runnable;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
     private static native ChunkTaskPriorityQueueSorter.Message<Runnable> cc_message(ChunkHolder chunkHolder, Runnable task);
 
-    @AddTransformToSets(GeneralSet.class) @TransformFromMethod(
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
         @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/util/function/Function;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
     private static native <T> ChunkTaskPriorityQueueSorter.Message<T> cc_message(ChunkHolder chunkHolder, Function<ProcessorHandle<Unit>, T> task);
 

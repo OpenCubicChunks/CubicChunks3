@@ -8,17 +8,16 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToS
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.world.level.ChunkPos;
 
-@Dasm(GeneralSet.class)
+@Dasm(ChunkToCloSet.class)
 public interface CloTrackingView extends ChunkTrackingView {
-    @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "EMPTY"))
+    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "EMPTY"))
     CloTrackingView EMPTY = new CloTrackingView() {
         @Override public boolean cc_contains(int x, int y, int z, boolean searchAllChunks) {
             return false;
@@ -37,12 +36,12 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
     };
 
-    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
     static CloTrackingView cc_of(CloPos center, int viewDistance) {
         return new CloTrackingView.Positioned(center, viewDistance);
     }
 
-    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("difference(Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("difference(Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
     static void cc_difference(CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker) {
         if (!oldCloTrackingView.equals(newCloTrackingView)) {
             if (oldCloTrackingView instanceof Positioned oldPositioned
@@ -123,7 +122,7 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
     }
 
-    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("contains(Lnet/minecraft/world/level/ChunkPos;)Z"))
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("contains(Lnet/minecraft/world/level/ChunkPos;)Z"))
     default boolean cc_contains(CloPos cloPos) {
         if (cloPos.isCube()) {
             return this.cc_contains(cloPos.getX(), cloPos.getY(), cloPos.getZ());
@@ -138,7 +137,7 @@ public interface CloTrackingView extends ChunkTrackingView {
 
     boolean cc_contains(int x, int y, int z, boolean searchAllChunks);
 
-    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("forEach(Ljava/util/function/Consumer;)V"))
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("forEach(Ljava/util/function/Consumer;)V"))
     void cc_forEach(Consumer<CloPos> action);
 
     default boolean cc_isInViewDistance(int x, int y, int z) {

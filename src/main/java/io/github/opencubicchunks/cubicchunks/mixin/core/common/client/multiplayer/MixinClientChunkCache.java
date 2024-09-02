@@ -17,7 +17,7 @@ import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientChunkCache;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.MixinChunkSource;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.CubeAccessAndDescendantsSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
@@ -39,10 +39,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * The vanilla {@link ClientChunkCache} class stores all loaded chunks on the client and has methods to update and unload them, as well as change the center and range of the chunk storage.
  * This mixin adds versions of these methods for cubes, meaning that this class now stores both cubes and chunks.
  */
-@Dasm(CubeAccessAndDescendantsSet.class)
+@Dasm(ChunkToCubeSet.class)
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements CubicClientChunkCache {
-    @AddFieldToSets(sets = CubeAccessAndDescendantsSet.class, owner = @Ref(ClientChunkCache.class),
+    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ClientChunkCache.class),
         field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))
     volatile CubicClientChunkCache.Storage cc_cubeStorage;
 

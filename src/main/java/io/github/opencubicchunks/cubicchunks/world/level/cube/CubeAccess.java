@@ -18,7 +18,7 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.CubeAccessAndDescendantsSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.shorts.ShortList;
@@ -52,7 +52,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.Nullable;
 
-@Dasm(CubeAccessAndDescendantsSet.class)
+@Dasm(ChunkToCubeSet.class)
 public abstract class CubeAccess implements CloAccess {
     // Fields copied from ChunkAccess, except ChunkPos -> CloPos
     protected final ShortList[] postProcessing;

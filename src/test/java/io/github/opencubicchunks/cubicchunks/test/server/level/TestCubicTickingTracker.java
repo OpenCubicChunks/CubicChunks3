@@ -28,50 +28,50 @@ public class TestCubicTickingTracker extends BaseTest {
     @Test public void testReplaceSinglePlayerTicketLevel() {
         var tracker = setupTracker();
         var clopos = CloPos.cube(0, 0, 0);
-        ((CubicTickingTracker)tracker).addTicket(CubicTicketType.PLAYER, clopos, 0, clopos);
+        ((CubicTickingTracker)tracker).cc_addTicket(CubicTicketType.PLAYER, clopos, 0, clopos);
         tracker.runAllUpdates();
-        assertEquals(0, ((CubicTickingTracker)tracker).getLevel(clopos), "Adding ticket failed.");
+        assertEquals(0, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Adding ticket failed.");
         tracker.replacePlayerTicketsLevel(2);
         tracker.runAllUpdates();
-        assertEquals(2, ((CubicTickingTracker)tracker).getLevel(clopos), "Replacing ticket failed.");
+        assertEquals(2, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Replacing ticket failed.");
     }
 
     @Test public void testReplaceMultiplePlayerTicketsLevel() {
         var tracker = setupTracker();
         var clopos = CloPos.cube(0, 0, 0);
-        ((CubicTickingTracker)tracker).addTicket(CubicTicketType.PLAYER, clopos, 0, clopos);
+        ((CubicTickingTracker)tracker).cc_addTicket(CubicTicketType.PLAYER, clopos, 0, clopos);
         tracker.runAllUpdates();
-        assertEquals(0, ((CubicTickingTracker)tracker).getLevel(clopos), "Adding ticket failed.");
-        ((CubicTickingTracker)tracker).addTicket(CubicTicketType.PLAYER, clopos, 0, clopos);
+        assertEquals(0, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Adding ticket failed.");
+        ((CubicTickingTracker)tracker).cc_addTicket(CubicTicketType.PLAYER, clopos, 0, clopos);
         tracker.runAllUpdates();
-        assertEquals(0, ((CubicTickingTracker)tracker).getLevel(clopos), "Adding ticket failed.");
+        assertEquals(0, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Adding ticket failed.");
         tracker.replacePlayerTicketsLevel(2);
         tracker.runAllUpdates();
-        assertEquals(2, ((CubicTickingTracker)tracker).getLevel(clopos), "Replacing ticket failed.");
+        assertEquals(2, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Replacing ticket failed.");
     }
 
     @Test public void testReplaceSingleNonPlayerTicketLevel() {
         var tracker = setupTracker();
         var clopos = CloPos.cube(0, 0, 0);
-        ((CubicTickingTracker)tracker).addTicket(CubicTicketType.UNKNOWN, clopos, 0, clopos);
+        ((CubicTickingTracker)tracker).cc_addTicket(CubicTicketType.UNKNOWN, clopos, 0, clopos);
         tracker.runAllUpdates();
-        assertEquals(0, ((CubicTickingTracker)tracker).getLevel(clopos), "Adding ticket failed.");
+        assertEquals(0, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Adding ticket failed.");
         tracker.replacePlayerTicketsLevel(2);
         tracker.runAllUpdates();
-        assertEquals(0, ((CubicTickingTracker)tracker).getLevel(clopos), "Replacing ticket failed.");
+        assertEquals(0, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Replacing ticket failed.");
     }
 
     @Test public void testReplaceMixedTicketsLevel() {
         var tracker = setupTracker();
         var clopos = CloPos.cube(0, 0, 0);
-        ((CubicTickingTracker)tracker).addTicket(CubicTicketType.PLAYER, clopos, 4, clopos);
+        ((CubicTickingTracker)tracker).cc_addTicket(CubicTicketType.PLAYER, clopos, 4, clopos);
         tracker.runAllUpdates();
-        assertEquals(4, ((CubicTickingTracker)tracker).getLevel(clopos), "Adding ticket failed.");
-        ((CubicTickingTracker)tracker).addTicket(CubicTicketType.UNKNOWN, clopos, 3, clopos);
+        assertEquals(4, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Adding ticket failed.");
+        ((CubicTickingTracker)tracker).cc_addTicket(CubicTicketType.UNKNOWN, clopos, 3, clopos);
         tracker.runAllUpdates();
-        assertEquals(3, ((CubicTickingTracker)tracker).getLevel(clopos), "Adding ticket failed.");
+        assertEquals(3, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Adding ticket failed.");
         tracker.replacePlayerTicketsLevel(2);
         tracker.runAllUpdates();
-        assertEquals(2, ((CubicTickingTracker)tracker).getLevel(clopos), "Replacing ticket failed.");
+        assertEquals(2, ((CubicTickingTracker)tracker).cc_getLevel(clopos), "Replacing ticket failed.");
     }
 }

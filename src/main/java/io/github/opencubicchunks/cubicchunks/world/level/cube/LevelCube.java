@@ -16,7 +16,7 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.CubeAccessAndDescendantsSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -50,7 +50,7 @@ import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-@Dasm(CubeAccessAndDescendantsSet.class)
+@Dasm(ChunkToCubeSet.class)
 public class LevelCube extends CubeAccess implements LevelClo {
     // Fields matching LevelChunk
     static final Logger LOGGER = LogUtils.getLogger();
@@ -398,7 +398,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 //    }
     // FORGE END
 
-    @TransformFromClass(value = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"), sets = CubeAccessAndDescendantsSet.class)
+    @TransformFromClass(value = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"), sets = ChunkToCubeSet.class)
     class BoundTickingBlockEntity<T extends BlockEntity> implements TickingBlockEntity {
         private final T blockEntity;
         private final BlockEntityTicker<T> ticker;
@@ -424,7 +424,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         void run(LevelCube cube);
     }
 
-    @TransformFromClass(value = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"), sets = CubeAccessAndDescendantsSet.class)
+    @TransformFromClass(value = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"), sets = ChunkToCubeSet.class)
     public class RebindableTickingBlockEntityWrapper implements TickingBlockEntity {
         private TickingBlockEntity ticker;
 

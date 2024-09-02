@@ -6,10 +6,10 @@ import net.minecraft.server.level.TicketType;
 
 public interface CubicTickingTracker {
     @UsedFromASM
-    <T> void addTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
+    <T> void cc_addTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
     @UsedFromASM
-    <T> void removeTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
+    <T> void cc_removeTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
 
-    int getLevel(CloPos cloPos);
+    int cc_getLevel(CloPos cloPos);
 }

@@ -39,12 +39,13 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
- * Generally should not be used directly for DASM transforms; prefer using {@link GeneralSet} instead.
+ * Contains redirects that are applied to all DASM transforms.
  * <br/><br/>
- * Redirects should be added to this set rather than {@link GeneralSet}, except when they cause issues with other sets that inherit from {@link GlobalSet} - for example constructor to factory redirects on ChunkAccess subclasses.
+ * Redirects should only be added to this set if they are applicable in all contexts.
  */
 @RedirectSet
 public interface GlobalSet extends ForgeSet {
+    // TODO CloPos-related things should be refactored into ChunkToCloSet eventually
     @TypeRedirect(from = @Ref(ChunkPos.class), to = @Ref(CloPos.class))
     abstract class ChunkPos_to_CloPos_redirects {
         @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "x"))

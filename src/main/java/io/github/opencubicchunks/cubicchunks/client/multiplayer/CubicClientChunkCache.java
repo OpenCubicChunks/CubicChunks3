@@ -10,7 +10,7 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.CubeAccessAndDescendantsSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
@@ -41,7 +41,7 @@ public interface CubicClientChunkCache extends CubicChunkSource {
 
     // Fields and methods on this are public so they can be accessed from MixinClientChunkCache and tests; they should not be used anywhere else
     // (This has to be here since we can't add inner classes with mixin)
-    @Dasm(CubeAccessAndDescendantsSet.class)
+    @Dasm(ChunkToCubeSet.class)
     final class Storage {
         public final AtomicReferenceArray<LevelCube> chunks;
         public final int cubeRadius;

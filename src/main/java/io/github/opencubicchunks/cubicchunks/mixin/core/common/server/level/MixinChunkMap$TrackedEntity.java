@@ -4,8 +4,7 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GeneralSet;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -16,13 +15,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Dasm(GeneralSet.class)
+@Dasm(ChunkToCloSet.class)
 @Mixin(ChunkMap.TrackedEntity.class)
 public abstract class MixinChunkMap$TrackedEntity {
     @Shadow @Final Entity entity;
 
     // dasm + mixin
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
     public native void cc_updatePlayer(ServerPlayer player);
 
     @Dynamic @Redirect(method = "cc_dasm$cc_updatePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
