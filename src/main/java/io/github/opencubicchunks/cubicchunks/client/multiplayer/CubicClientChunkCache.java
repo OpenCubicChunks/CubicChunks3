@@ -92,7 +92,7 @@ public interface CubicClientChunkCache extends CubicChunkSource {
         }
 
         @Nullable
-        @TransformFromMethod(copyFrom = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"))
+        @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"))
         public native LevelCube getChunk(int chunkIndex);
 
         // TODO dasm copying getChunk currently changes the access modifier from public to protected, so we need a dummy public method
