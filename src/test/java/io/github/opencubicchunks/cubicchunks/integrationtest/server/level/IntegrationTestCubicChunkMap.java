@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.ChunkHolderTestAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.ChunkMapTestAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.ServerChunkCacheTestAccess;
@@ -50,7 +51,10 @@ import org.mockito.Mockito;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class IntegrationTestCubicChunkMap extends BaseTest {
-    private CloseableReference<ServerChunkCache> createServerChunkCache(boolean vanillaTest) throws IOException {
+    // TODO can we avoid code duplication between here and IntegrationTestCubicServerChunkCache?
+    //      (they differ only in that DistanceManager construction is mocked here but not in IntegrationTestCubicServerChunkCache)
+    // these are test classes, it's probably fine? different things need to be mocked in different tests anyway
+    private CloseableReference<ServerChunkCache> createServerChunkCache(boolean vanillaTest) throws IOException, NoSuchFieldException, IllegalAccessException {
         // Worldgen internals
         var randomStateMockedStatic = Mockito.mockStatic(RandomState.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         NoiseBasedChunkGenerator noiseBasedChunkGeneratorMock = mock();
@@ -63,8 +67,17 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
 
         // Distance manager is responsible for updating chunk levels; we do this manually for testing
         var distanceManagerMockedConstruction = Mockito.mockConstruction(ChunkMap.DistanceManager.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-        // Server level
-        ServerLevel serverLevelMock = mock(Mockito.RETURNS_DEEP_STUBS);
+        ServerLevel serverLevelMock;
+        try (var ignored = Mockito.mockConstruction(ServerChunkCache.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS))) {
+            // Server level
+            serverLevelMock = mock(withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS).extraInterfaces(CanBeCubic.class));
+        }
+        if (!vanillaTest) {
+            var f = serverLevelMock.getClass().getSuperclass().getDeclaredField("cc_isCubic");
+            f.setAccessible(true);
+            f.set(serverLevelMock, true);
+            when(((CanBeCubic) serverLevelMock).cc_isCubic()).thenReturn(true);
+        }
         when(serverLevelMock.getHeight()).thenReturn(384);
         when(serverLevelMock.getSectionsCount()).thenReturn(24);
         // We seem to need an actual directory, not a mock
@@ -87,6 +100,9 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
             mock(Mockito.RETURNS_DEEP_STUBS),
             mock(Mockito.RETURNS_DEEP_STUBS)
         );
+        var f = serverLevelMock.getClass().getSuperclass().getDeclaredField("chunkSource");
+        f.setAccessible(true);
+        f.set(serverLevelMock, serverChunkCache);
         when(serverLevelMock.getChunkSource()).thenReturn(serverChunkCache);
         return new CloseableReference<>(serverChunkCache, randomStateMockedStatic, distanceManagerMockedConstruction);
     }

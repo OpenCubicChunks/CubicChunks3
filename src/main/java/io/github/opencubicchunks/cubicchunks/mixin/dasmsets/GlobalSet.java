@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 
 import javax.annotation.Nullable;
 
@@ -48,6 +50,9 @@ public interface GlobalSet extends ForgeSet {
     // TODO CloPos-related things should be refactored into ChunkToCloSet eventually
     @TypeRedirect(from = @Ref(ChunkPos.class), to = @Ref(CloPos.class))
     abstract class ChunkPos_to_CloPos_redirects {
+        @FieldRedirect(@FieldSig(type = @Ref(long.class), name = "INVALID_CHUNK_POS"))
+        static final long INVALID_CLO_POS = Long.MAX_VALUE;
+
         @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "x"))
         native int getX();
 
@@ -60,13 +65,19 @@ public interface GlobalSet extends ForgeSet {
 
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(int.class), @Ref(int.class) }))
         static native CloPos chunk(int x, int z);
+
+        @MethodRedirect(@MethodSig("asLong(II)J"))
+        static native long chunkAsLong(int x, int z);
     }
 
     @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CubicChunkHolder.LevelChangeListener.class))
-    abstract class LevelChangeListenerChunkHolder_to_CubicChunkHolder_redirects { }
+    interface LevelChangeListenerChunkHolder_to_CubicChunkHolder_redirects {
+        @MethodRedirect(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
+        void cc_onLevelChange(CloPos cloPos, IntSupplier p_140120_, int p_140121_, IntConsumer p_140122_);
+    }
 
     @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CubicChunkHolder.PlayerProvider.class))
-    abstract class PlayerProviderChunkHolder_to_CubicChunkHolder_redirects { }
+    interface PlayerProviderChunkHolder_to_CubicChunkHolder_redirects { }
 
     @InterOwnerContainer(owner = @Ref(TicketType.class), newOwner = @Ref(CubicTicketType.class))
     abstract class ChunkTicketType_to_CloTicketType_redirects {

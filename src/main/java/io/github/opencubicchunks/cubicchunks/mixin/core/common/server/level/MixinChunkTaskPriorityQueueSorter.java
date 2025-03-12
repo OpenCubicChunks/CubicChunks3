@@ -15,6 +15,7 @@ import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
@@ -28,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Dasm(ChunkToCloSet.class)
 @Mixin(ChunkTaskPriorityQueueSorter.class)
-public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter, MarkableAsCubic {
+public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter, CubicChunkHolder.LevelChangeListener, MarkableAsCubic {
     protected boolean cc_isCubic;
 
     @Override public void cc_setCubic() {
@@ -64,5 +65,5 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPrio
     @Override
     @UsedFromASM
     @TransformFromMethod(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
-    public abstract <T> void onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
+    public native void cc_onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
 }

@@ -19,6 +19,7 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
@@ -42,9 +43,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -60,19 +63,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinChunkHolder implements CubicChunkHolder {
     private boolean cc_isCubic;
 
-    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
+    @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
     private CloPos cc_cloPos;
 
-    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "onLevelChange", type = @Ref(ChunkHolder.LevelChangeListener.class)))
+    @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "onLevelChange", type = @Ref(ChunkHolder.LevelChangeListener.class)))
     private final CubicChunkHolder.LevelChangeListener cc_onLevelChange;
-    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "playerProvider", type = @Ref(ChunkHolder.PlayerProvider.class)))
+    @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "playerProvider", type = @Ref(ChunkHolder.PlayerProvider.class)))
     private final CubicChunkHolder.PlayerProvider cc_playerProvider;
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getPos() {
         return cc_cloPos;
     }
 
+    @Shadow @Mutable @Final ChunkPos pos;
     @Shadow private boolean hasChangedSections;
     @Shadow @Final private final ShortSet[] changedBlocksPerSection;
 
@@ -80,7 +84,7 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
 
     @Shadow protected abstract void broadcast(List<ServerPlayer> players, Packet<?> packet);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;"
             + "Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V"))
     public MixinChunkHolder() {
@@ -90,29 +94,36 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
     @Dynamic @Inject(at = @At("RETURN"), method = "cc_dasm$__init__(Lio/github/opencubicchunks/cc_core/world/level/CloPos;ILnet/minecraft/world/level/LevelHeightAccessor;"
         + "Lnet/minecraft/world/level/lighting/LevelLightEngine;Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$LevelChangeListener;"
         + "Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$PlayerProvider;)V")
-    private void onCcInit(CallbackInfo ci) {
+    private void onCcInit(CloPos cloPos,
+                          int ticketLevel,
+                          LevelHeightAccessor levelHeightAccessor,
+                          LevelLightEngine lightEngine,
+                          CubicChunkHolder.LevelChangeListener onLevelChange,
+                          CubicChunkHolder.PlayerProvider playerProvider,
+                          CallbackInfo ci) {
         // TODO redirect changedBlocksPerSection construction for chunks
         cc_isCubic = true;
+        if (cloPos.isChunk()) this.pos = cloPos.chunkPos();
     }
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelClo cc_getTickingChunk();
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelClo cc_getChunkToSend();
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("getFullChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelClo cc_getFullChunk();
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("getLastAvailable()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public native CloAccess cc_getLastAvailable();
 
     // dasm + mixin
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("blockChanged(Lnet/minecraft/core/BlockPos;)V"))
     public native void cc_blockChanged(BlockPos pos);
 
@@ -144,12 +155,12 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
         assert !cc_isCubic;
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("sectionLightChanged(Lnet/minecraft/world/level/LightLayer;I)V"))
+    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("sectionLightChanged(Lnet/minecraft/world/level/LightLayer;I)V"))
     public void cc_sectionLightChanged(LightLayer type, int sectionY) {
         // TODO (P2) lighting
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public void cc_broadcastChanges(LevelClo clo) {
         // TODO (P2) also handle lighting - see vanilla method
         // TODO seems like this should only run for cubes; is that correct?
@@ -187,33 +198,33 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
         }
     }
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("getOrScheduleFuture(Lnet/minecraft/world/level/chunk/ChunkStatus;Lnet/minecraft/server/level/ChunkMap;)Ljava/util/concurrent/CompletableFuture;"))
     @Override public native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("addSaveDependency(Ljava/lang/String;Ljava/util/concurrent/CompletableFuture;)V"))
     public native void cc_addSaveDependency(String source, CompletableFuture<?> future);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("updateChunkToSave(Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V"))
     private native void cc_updateChunkToSave(CompletableFuture<? extends Either<? extends CloAccess, ChunkHolder.ChunkLoadingFailure>> future, String source);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("scheduleFullChunkPromotion(Lnet/minecraft/server/level/ChunkMap;Ljava/util/concurrent/CompletableFuture;Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/FullChunkStatus;)V"))
     private native void cc_scheduleFullChunkPromotion(
         ChunkMap chunkMap, CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> future, Executor executor, FullChunkStatus fullChunkStatus
     );
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("demoteFullChunk(Lnet/minecraft/server/level/ChunkMap;Lnet/minecraft/server/level/FullChunkStatus;)V"))
     private native void cc_demoteFullChunk(ChunkMap chunkMap, FullChunkStatus fullChunkStatus);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("updateFutures(Lnet/minecraft/server/level/ChunkMap;Ljava/util/concurrent/Executor;)V"))
     protected native void cc_updateFutures(ChunkMap chunkMap, Executor executor);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("replaceProtoChunk(Lnet/minecraft/world/level/chunk/ImposterProtoChunk;)V"))
     public native void cc_replaceProtoChunk(ImposterProtoClo imposter);
 

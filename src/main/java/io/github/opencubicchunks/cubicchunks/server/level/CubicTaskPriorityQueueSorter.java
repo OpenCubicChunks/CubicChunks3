@@ -8,5 +8,5 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 
 public interface CubicTaskPriorityQueueSorter {
     @UsedFromASM
-    <T> void onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
+    <T> void cc_onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
 }

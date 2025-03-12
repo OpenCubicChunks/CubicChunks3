@@ -28,6 +28,8 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.CanBeCubic;
+import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.storage.MixinChunkStorage;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.SectionPosToCubeSet;
@@ -89,6 +91,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     @Shadow @Final private BlockableEventLoop<Runnable> mainThreadExecutor;
     @Shadow @Final ServerLevel level;
+    @Shadow @Final private ChunkMap.DistanceManager distanceManager;
     @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "progressListener"))
     private CubicChunkProgressListener cc_progressListener;
 
@@ -97,7 +100,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     private void onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager,
                         Executor dispatcher, BlockableEventLoop mainThreadExecutor, LightChunkGetter lightChunk, ChunkGenerator generator, ChunkProgressListener progressListener,
                         ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, int viewDistance, boolean sync, CallbackInfo ci) {
-        cc_progressListener = ((CubicChunkProgressListener) progressListener);
+        if (((CanBeCubic) level).cc_isCubic()) {
+            cc_progressListener = ((CubicChunkProgressListener) progressListener);
+            ((MarkableAsCubic) distanceManager).cc_setCubic();
+        }
     }
 
     /**
@@ -150,8 +156,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     private native CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> cc_getChunkRangeFuture(ChunkHolder cloHolder, int radius,
                                                                                                                       IntFunction<ChunkStatus> statusByRadius);
     private static ChunkStatus cc_getChildStatus(ChunkStatus status) {
-        int index = status.getIndex();
-        return index >= cc_CHUNK_STATUSES.size() ? ChunkStatus.FULL : cc_CHUNK_STATUSES.get(index + 1);
+        int index = status.getIndex() + 1;
+        return index >= cc_CHUNK_STATUSES.size() ? ChunkStatus.FULL : cc_CHUNK_STATUSES.get(index);
     }
 
     // TODO this could be substantially improved probably hopefully
@@ -263,6 +269,14 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateChunkScheduling(JILnet/minecraft/server/level/ChunkHolder;I)Lnet/minecraft/server/level/ChunkHolder;"))
     @Nullable native ChunkHolder cc_updateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
+
+    // TODO this is a bit jank; maybe things that call this method should be altered instead?
+    @Inject(method = "updateChunkScheduling", at = @At("HEAD"), cancellable = true)
+    private void cc_onUpdateChunkScheduling(long chunkPos, int newLevel, ChunkHolder holder, int oldLevel, CallbackInfoReturnable<ChunkHolder> cir) {
+        if (((CanBeCubic) level).cc_isCubic()) {
+            cir.setReturnValue(cc_updateChunkScheduling(chunkPos, newLevel, holder, oldLevel));
+        }
+    }
 
     // TODO move to forge sourceset
     /**

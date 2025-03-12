@@ -14,7 +14,7 @@ public interface CubicDistanceManagerTestAccess {
     void invoke_updateChunkForced(ChunkPos pos, boolean add);
 
     @Dynamic
-    @Invoker(value = "updateCubeForced", remap = false)
+    @Invoker(value = "cc_updateCubeForced", remap = false)
     void invoke_updateCubeForced(CloPos pos, boolean add);
 
     @Accessor(value = "playerTicketManager")

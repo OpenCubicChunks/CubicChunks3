@@ -1,8 +1,10 @@
 package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
@@ -15,6 +17,7 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
@@ -75,4 +78,12 @@ public interface ChunkToCubeSet extends GlobalSet {
         to = @Ref(CubicClientChunkCache.Storage.class)
     )
     abstract class ClientChunkCache$Storage_to_CubicClientChunkCache$Storage_redirects { }
+
+    // TODO move to a forge-specific sourceset
+    // getter/setter as a workaround to forge adding a field that needs to be used as a LevelClo in some places and a LevelCube in others
+    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    abstract class ChunkHolder_Forge_Jank_redirects {
+        @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
+        native LevelCube cc_getCurrentlyLoading();
+    }
 }
