@@ -9,11 +9,13 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
@@ -101,14 +103,14 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     private boolean cc_replaceLevelChunkInMarkAndNotifyBlock(Level level, BlockPos blockPos, LevelChunk levelChunk, BlockState blockStatePrev, BlockState blockStateNew, int flags,
                                                              int p_46607_, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef) {
         if(cc_isCubic) {
-            this.markAndNotifyBlock(blockPos, levelCubeLocalRef.get(), blockStatePrev, blockStateNew, flags, p_46607_);
+            this.cc_markAndNotifyBlock(blockPos, levelCubeLocalRef.get(), blockStatePrev, blockStateNew, flags, p_46607_);
             return false;
         }
         return true;
     }
 
-    @TransformFromMethod(@MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
-    public native void markAndNotifyBlock(BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46608_);
+    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
+    public native void cc_markAndNotifyBlock(BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46608_);
 
     // getBlockState
     // Replaces LevelChunk with a LevelCube to call getBlockState

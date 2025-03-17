@@ -13,10 +13,10 @@ public class CubicTicketType {
     public static final TicketType<CloPos> UNKNOWN = create("unknown", Comparator.comparingLong(CloPos::asLong), 1);
 
     public static <T> TicketType<T> create(String nameIn, Comparator<T> comparator) {
-        return TicketTypeAccess.createNew(nameIn, comparator, 0L);
+        return TicketTypeAccess.cc_createNew(nameIn, comparator, 0L);
     }
 
     public static <T> TicketType<T> create(String nameIn, Comparator<T> comparator, int lifespanIn) {
-        return TicketTypeAccess.createNew(nameIn, comparator, lifespanIn);
+        return TicketTypeAccess.cc_createNew(nameIn, comparator, lifespanIn);
     }
 }

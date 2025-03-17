@@ -109,7 +109,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     // TODO inject at head once we can inject at non-return locations
     @Inject(method = "<init>", at = @At(value = "RETURN"))
-    private void onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager, Executor dispatcher,
+    private void cc_onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager, Executor dispatcher,
                         ChunkGenerator generator, int viewDistance, int simulationDistance, boolean sync, ChunkProgressListener progressListener,
                         ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic())  {
@@ -159,7 +159,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
      * When clearing caches, clear the cube cache as well as the chunk cache
      */
     @Inject(method = "clearCache", at = @At("HEAD"))
-    private void onClearCache(CallbackInfo ci) {
+    private void cc_onClearCache(CallbackInfo ci) {
         cc_clearCache();
     }
 
@@ -246,7 +246,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
             profilerfiller.push("filteringLoadedChunks");
             List<CloAndHolder> list = Lists.newArrayListWithCapacity(this.chunkMap.size());
 
-            for(ChunkHolder chunkholder : ((ChunkMapAccess) this.chunkMap).invokeGetChunks()) {
+            for(ChunkHolder chunkholder : ((ChunkMapAccess) this.chunkMap).cc_invokeGetChunks()) {
                 LevelClo levelchunk = ((CubicChunkHolder) chunkholder).cc_getTickingChunk();
                 if (levelchunk != null) {
                     list.add(new CloAndHolder(levelchunk, chunkholder));

@@ -94,13 +94,13 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
     @Dynamic @Inject(at = @At("RETURN"), method = "cc_dasm$__init__(Lio/github/opencubicchunks/cc_core/world/level/CloPos;ILnet/minecraft/world/level/LevelHeightAccessor;"
         + "Lnet/minecraft/world/level/lighting/LevelLightEngine;Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$LevelChangeListener;"
         + "Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$PlayerProvider;)V")
-    private void onCcInit(CloPos cloPos,
-                          int ticketLevel,
-                          LevelHeightAccessor levelHeightAccessor,
-                          LevelLightEngine lightEngine,
-                          CubicChunkHolder.LevelChangeListener onLevelChange,
-                          CubicChunkHolder.PlayerProvider playerProvider,
-                          CallbackInfo ci) {
+    private void cc_onCcInit(CloPos cloPos,
+                             int ticketLevel,
+                             LevelHeightAccessor levelHeightAccessor,
+                             LevelLightEngine lightEngine,
+                             CubicChunkHolder.LevelChangeListener onLevelChange,
+                             CubicChunkHolder.PlayerProvider playerProvider,
+                             CallbackInfo ci) {
         // TODO redirect changedBlocksPerSection construction for chunks
         cc_isCubic = true;
         if (cloPos.isChunk()) this.pos = cloPos.chunkPos();

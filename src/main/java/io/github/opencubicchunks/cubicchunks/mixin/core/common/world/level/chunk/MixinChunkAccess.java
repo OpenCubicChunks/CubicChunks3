@@ -19,9 +19,9 @@ public abstract class MixinChunkAccess implements CloAccess {
     private CloPos cc_cloPos;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onInit(ChunkPos chunkPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry biomeRegistry, long inhabitedTime, LevelChunkSection[] sections,
-                        BlendingData blendingData,
-                        CallbackInfo ci) {
+    private void cc_onInit(ChunkPos chunkPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry biomeRegistry, long inhabitedTime, LevelChunkSection[] sections,
+                           BlendingData blendingData,
+                           CallbackInfo ci) {
         cc_cloPos = CloPos.chunk(chunkPos);
     }
 

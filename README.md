@@ -46,7 +46,7 @@ If running with IntelliJ, ensure that `io.github.opencubicchunks.[folder name].m
 ### Contributing
 
 #### PR Guidelines
-- All mixin methods and fields _**must**_ have a `cc_` prefix // todo automate this check in gh workflows.
+- All mixin methods and fields _**must**_ have a `cc_` prefix, except for those in test mixins. // todo automate this check in gh workflows.
 - If a class is significantly modified with mixins, it _**must**_ have documentation explaining:
 	- The original vanilla behaviour, can mention important fields/methods.
 		- If the vanilla class has sufficient javadoc (through parchment), this can be skipped. Our javadoc should link to the parchment javadoc.

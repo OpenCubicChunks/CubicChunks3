@@ -7,5 +7,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ChunkMap.class)
 public interface ChunkMapAccess {
-    @Invoker Iterable<ChunkHolder> invokeGetChunks();
+    @Invoker("getChunks") Iterable<ChunkHolder> cc_invokeGetChunks();
 }

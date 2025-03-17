@@ -19,7 +19,7 @@ public class MixinPlayerRespawnLogic {
      * This mixin uses SpawnPlaceFinder (core CC2 code) in a similar fashion to the CC2 implementation.
      */
     @Inject(method = "getOverworldRespawnPos", at = @At("HEAD"), cancellable = true)
-    private static void getOverworldRespawnPos(ServerLevel level, int posX, int posZ, CallbackInfoReturnable<BlockPos> cir) {
+    private static void cc_onGetOverworldRespawnPos(ServerLevel level, int posX, int posZ, CallbackInfoReturnable<BlockPos> cir) {
         if (!((CanBeCubic) level).cc_isCubic()) {
             return;
         }

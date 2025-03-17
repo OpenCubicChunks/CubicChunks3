@@ -7,5 +7,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(DistanceManager.class)
 public interface DistanceManagerAccess {
-    @Accessor("ticketThrottler") ChunkTaskPriorityQueueSorter ticketThrottler();
+    @Accessor("ticketThrottler") ChunkTaskPriorityQueueSorter cc_ticketThrottler();
 }

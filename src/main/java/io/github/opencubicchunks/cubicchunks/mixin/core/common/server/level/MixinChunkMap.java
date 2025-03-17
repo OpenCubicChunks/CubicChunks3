@@ -97,9 +97,9 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     // TODO once we can target non-return locations in constructors, do this when the vanilla field is set
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager,
-                        Executor dispatcher, BlockableEventLoop mainThreadExecutor, LightChunkGetter lightChunk, ChunkGenerator generator, ChunkProgressListener progressListener,
-                        ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, int viewDistance, boolean sync, CallbackInfo ci) {
+    private void cc_onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager,
+                           Executor dispatcher, BlockableEventLoop mainThreadExecutor, LightChunkGetter lightChunk, ChunkGenerator generator, ChunkProgressListener progressListener,
+                           ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, int viewDistance, boolean sync, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_progressListener = ((CubicChunkProgressListener) progressListener);
             ((MarkableAsCubic) distanceManager).cc_setCubic();
