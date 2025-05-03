@@ -1,7 +1,10 @@
 package io.github.opencubicchunks.cubicchunks.integrationtest.server.level;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -13,6 +16,7 @@ import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicServerChunkCache;
@@ -25,6 +29,7 @@ import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
@@ -122,6 +127,46 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
         singleGetChunkVanilla(status);
     }
 
+    @Test
+    public void getChunkNowVanilla() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(true)) {
+            var serverChunkCache = serverChunkCacheRef.value();
+            // Present chunk
+            ChunkPos pos = new ChunkPos(5, -123);
+            serverChunkCache.getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
+            var chunkAccess = serverChunkCache.getChunkNow(pos.x, pos.z);
+            assertNotNull(chunkAccess);
+            assertSame(ChunkStatus.FULL, chunkAccess.getStatus());
+            assertInstanceOf(LevelChunk.class, chunkAccess);
+
+            // Neighbor chunk
+            chunkAccess = serverChunkCache.getChunkNow(pos.x - 1, pos.z);
+            assertNull(chunkAccess); // Expected to be null as getChunkNow requests at FULL
+
+            // Non-present chunk
+            chunkAccess = serverChunkCache.getChunkNow(0, 0);
+            assertNull(chunkAccess);
+        }
+    }
+
+    @Test
+    public void hasChunkVanilla() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(true)) {
+            var serverChunkCache = serverChunkCacheRef.value();
+            // Non-present chunk
+            ChunkPos pos = new ChunkPos(-12, 65);
+            assertFalse(serverChunkCache.hasChunk(pos.x, pos.z));
+
+            // Load a chunk
+            serverChunkCache.getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
+            // Retest chunk
+            assertTrue(serverChunkCache.hasChunk(pos.x, pos.z));
+
+            // Neighbor chunk, expected to be false as hasChunk checks for FULL
+            assertFalse(serverChunkCache.hasChunk(pos.x - 1, pos.z)); // Ex
+        }
+    }
+
     // TODO (P2) test these methods:
     // isPositionTicking
     // tick
@@ -151,6 +196,51 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
     }
 
     /**
+     * getNow a single chunk in a cubic ServerChunkCache
+     */
+    @Test
+    public void getChunkNow() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+            var serverChunkCache = serverChunkCacheRef.value();
+            // Present chunk
+            serverChunkCache.getChunk(5, -123, ChunkStatus.FULL, true);
+            var chunkAccess = serverChunkCache.getChunkNow(5, -123);
+            assertNotNull(chunkAccess);
+            assertSame(ChunkStatus.FULL, chunkAccess.getStatus());
+            assertInstanceOf(LevelChunk.class, chunkAccess);
+
+            // Neighbor chunk
+            chunkAccess = serverChunkCache.getChunkNow(4, -123);
+            assertNull(chunkAccess); // Expected to be null as getChunkNow requests at FULL
+
+            // Non-present chunk
+            chunkAccess = serverChunkCache.getChunkNow(0, 0);
+            assertNull(chunkAccess);
+        }
+    }
+
+    /**
+     * test hasChunk a for single chunk in a cubic ServerChunkCache
+     */
+    @Test
+    public void hasChunk() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+            var serverChunkCache = serverChunkCacheRef.value();
+            ChunkPos pos = new ChunkPos(-12, 65);
+            // Non-present chunk
+            assertFalse(serverChunkCache.hasChunk(pos.x, pos.z));
+
+            // Load a chunk
+            serverChunkCache.getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
+            // Retest chunk
+            assertTrue(serverChunkCache.hasChunk(pos.x, pos.z));
+
+            // Neighbor chunk, expected to be false as hasChunk checks for FULL
+            assertFalse(serverChunkCache.hasChunk(pos.x - 1, pos.z));
+        }
+    }
+
+    /**
      * Get a single cube in a non-cubic ServerChunkCache
      */
     public void singleGetCube(ChunkStatus status) throws Exception {
@@ -170,6 +260,109 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
     @ParameterizedTest @MethodSource("chunkStatuses")
     public void getCube(ChunkStatus status) throws Exception {
         singleGetCube(status);
+    }
+
+    /**
+     * getNow a single cube in a cubic ServerChunkCache
+     */
+    @Test
+    public void getCubeNow() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+            var serverChunkCache = serverChunkCacheRef.value();
+            var cubicServerChunkCache = ((CubicServerChunkCache) serverChunkCache);
+
+            // Present chunk
+            CubePos cubePos = CubePos.of(5, 1273, -123);
+            cubicServerChunkCache.cc_getCube(cubePos.getX(), cubePos.getY(), cubePos.getZ(), ChunkStatus.FULL, true);
+            var cubeAccess = cubicServerChunkCache.cc_getCubeNow(cubePos.getX(), cubePos.getY(), cubePos.getZ());
+            assertNotNull(cubeAccess);
+            assertSame(ChunkStatus.FULL, cubeAccess.getStatus());
+            assertInstanceOf(LevelCube.class, cubeAccess);
+            // check its chunks
+            for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
+                for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
+                    var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
+                    var chunkAccess = serverChunkCache.getChunkNow(chunkPos.x, chunkPos.z);
+                    assertNotNull(chunkAccess);
+                    assertSame(ChunkStatus.FULL, chunkAccess.getStatus());
+                    assertInstanceOf(LevelChunk.class, chunkAccess);
+                }
+            }
+
+            // Neighbor cube
+            cubePos = CubePos.of(cubePos.getX() - 1, cubePos.getY(), cubePos.getZ());
+            cubeAccess = cubicServerChunkCache.cc_getCubeNow(cubePos.getX(), cubePos.getY(), cubePos.getZ());
+            assertNull(cubeAccess); // Expected to be null as getCubeNow requests at FULL
+            // check its chunks
+            for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
+                for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
+                    var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
+                    var chunkAccess = serverChunkCache.getChunkNow(chunkPos.x, chunkPos.z);
+                    assertNull(chunkAccess);
+                }
+            }
+
+            // Non-present cube
+            cubePos = CubePos.of(0, 0, 0);
+            cubeAccess = cubicServerChunkCache.cc_getCubeNow(cubePos.getX(), cubePos.getY(), cubePos.getZ());
+            assertNull(cubeAccess);
+            // check its chunks
+            for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
+                for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
+                    var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
+                    var chunkAccess = serverChunkCache.getChunkNow(chunkPos.x, chunkPos.z);
+                    assertNull(chunkAccess);
+                }
+            }
+        }
+    }
+
+    /**
+     * test hasCube a for single cube in a cubic ServerChunkCache
+     */
+    @Test
+    public void hasCube() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+            ServerChunkCache serverChunkCache = serverChunkCacheRef.value();
+            var serverCubeCache = ((CubicServerChunkCache) serverChunkCache);
+            // Non-present cube
+            CubePos cubePos = CubePos.of(-12,  98, 65);
+            assertFalse(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ()));
+            // check its chunks
+            for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
+                for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
+                    var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
+                    var has = serverChunkCache.hasChunk(chunkPos.x, chunkPos.z);
+                    assertFalse(has);
+                }
+            }
+
+            // Load a cube
+            serverCubeCache.cc_getCube(cubePos.getX(), cubePos.getY(), cubePos.getZ(), ChunkStatus.FULL, true);
+
+            // Retest cube
+            assertTrue(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ()));
+            // check its chunks
+            for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
+                for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
+                    var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
+                    var has = serverChunkCache.hasChunk(chunkPos.x, chunkPos.z);
+                    assertTrue(has);
+                }
+            }
+
+            // Neighbor cube, expected to be false as hasChunk checks for FULL
+            cubePos = CubePos.of(cubePos.getX() - 1, cubePos.getY(), cubePos.getZ());
+            assertFalse(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ())); // Expected false as hasCube checks for full status
+            // check its chunks
+            for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
+                for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
+                    var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
+                    var has = serverChunkCache.hasChunk(chunkPos.x, chunkPos.z);
+                    assertFalse(has);
+                }
+            }
+        }
     }
 
     /**
