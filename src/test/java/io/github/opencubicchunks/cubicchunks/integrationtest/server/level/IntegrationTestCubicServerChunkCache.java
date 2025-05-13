@@ -241,7 +241,7 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
     }
 
     /**
-     * Get a single cube in a non-cubic ServerChunkCache
+     * Get a single cube in a cubic ServerChunkCache
      */
     public void singleGetCube(ChunkStatus status) throws Exception {
         try(var serverChunkCacheRef = createServerChunkCache(false)) {
