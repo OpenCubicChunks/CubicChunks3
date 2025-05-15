@@ -302,14 +302,20 @@ public abstract class CubeAccess implements CloAccess {
     )
     @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
-    @Override public void findBlocks(BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output) {
+    @TransformFromMethod(
+        value = @MethodSig("findBlocks(Ljava/util/function/BiPredicate;Ljava/util/function/BiConsumer;)V"),
+        owner = @Ref(ChunkAccess.class)
+    )
+    @Override public native void findBlocks(java.util.function.BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output);
+
+    @Override public void findBlocks(Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 
         for (int y = 0; y < CubicConstants.DIAMETER_IN_SECTIONS; y++) {
             for (int z = 0; z < CubicConstants.DIAMETER_IN_SECTIONS; z++) {
                 for (int x = 0; x < CubicConstants.DIAMETER_IN_SECTIONS; x++) {
                     LevelChunkSection levelchunksection = this.getSection(Coords.sectionToIndex(x, y, z));
-                    if (levelchunksection.maybeHas((state) -> predicate.test(state, BlockPos.ZERO))) {
+                    if (levelchunksection.maybeHas(predicate)) {
                         BlockPos blockpos = this.cloPos.cubePos().asSectionPos().offset(x, y, z).origin();
 
                         for (int sectionLocalY = 0; sectionLocalY < SectionPos.SECTION_SIZE; ++sectionLocalY) {
@@ -317,7 +323,7 @@ public abstract class CubeAccess implements CloAccess {
                                 for (int sectionLocalX = 0; sectionLocalX < SectionPos.SECTION_SIZE; ++sectionLocalX) {
                                     BlockState blockstate = levelchunksection.getBlockState(sectionLocalX, sectionLocalY, sectionLocalZ);
                                     mutableBlockPos.setWithOffset(blockpos, sectionLocalX, sectionLocalY, sectionLocalZ);
-                                    if (predicate.test(blockstate, mutableBlockPos.immutable())) {
+                                    if (fineFilter.test(blockstate, mutableBlockPos)) {
                                         output.accept(mutableBlockPos, blockstate);
                                     }
                                 }

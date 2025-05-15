@@ -105,6 +105,8 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     void findBlocks(java.util.function.BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output);
 
+    void findBlocks(Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output);
+
     TickContainerAccess<Block> getBlockTicks();
 
     TickContainerAccess<Fluid> getFluidTicks();

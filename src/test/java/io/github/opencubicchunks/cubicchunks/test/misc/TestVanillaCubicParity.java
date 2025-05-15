@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
@@ -23,7 +23,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
-import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -37,9 +37,13 @@ public class TestVanillaCubicParity extends BaseTest {
         return Modifier.isStatic(method.getModifiers());
     }
 
-    private void testStaticParity(Class<?> vanillaClass, Class<?> cubicClass, Method... excludes) {
+    private void testStaticParity(Class<?> vanillaClass, Class<?> cubicClass) {
+        testStaticParity(vanillaClass, cubicClass, Stream.empty());
+    }
+
+    private void testStaticParity(Class<?> vanillaClass, Class<?> cubicClass, Stream<Method> excludes) {
         // TODO we currently only compare method names; need to be able to apply DASM translation since static methods may have differing signatures
-        var excludesSet = Arrays.stream(excludes)
+        var excludesSet = excludes
             .map(Method::getName)
             .collect(Collectors.toSet());
         var vanillaMethods = Arrays.stream(vanillaClass.getMethods())
@@ -65,8 +69,12 @@ public class TestVanillaCubicParity extends BaseTest {
             vanillaMethods.isEmpty() ? "[none]" : String.join("\n    ", vanillaMethods)));
     }
 
-    private void testParityIncludingAncestors(Class<?> vanillaClass, Class<?> cubicClass, Method... excludes) {
-        var excludesSet = Arrays.stream(excludes)
+    private void testParityIncludingAncestors(Class<?> vanillaClass, Class<?> cubicClass) {
+        testParityIncludingAncestors(vanillaClass, cubicClass, Stream.empty());
+    }
+
+    private void testParityIncludingAncestors(Class<?> vanillaClass, Class<?> cubicClass, Stream<Method> excludes) {
+        var excludesSet = excludes
             .map(TestVanillaCubicParity::stringifyMethod)
             .collect(Collectors.toSet());
         var vanillaMethods = Arrays.stream(vanillaClass.getMethods())
@@ -101,8 +109,14 @@ public class TestVanillaCubicParity extends BaseTest {
         testParityIncludingAncestors(
             ChunkAccess.class,
             CloAccess.class,
-            ChunkAccess.class.getMethod("getPos"),
-            ChunkAccess.class.getMethod("getWorldForge") // TODO need to check existence; this would fail on Fabric
+            Stream.concat(Stream.of(
+                    ChunkAccess.class.getMethod("getPos"),
+                    // TODO need to check existence; these would fail on Fabric
+                    ChunkAccess.class.getMethod("getWorldForge"),
+                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
+                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder")
+            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
         );
         testStaticParity(
             ChunkAccess.class,
@@ -114,19 +128,16 @@ public class TestVanillaCubicParity extends BaseTest {
         testParityIncludingAncestors(
             LevelChunk.class,
             LevelClo.class,
-            ChunkAccess.class.getMethod("getPos"),
-            // TODO need to check existence; these would fail on Fabric
-            ChunkAccess.class.getMethod("getWorldForge"),
-            LevelChunk.class.getMethod("getWorldForge"),
-            LevelChunk.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
-            LevelChunk.class.getMethod("hasData", AttachmentType.class),
-            LevelChunk.class.getMethod("getData", AttachmentType.class),
-            LevelChunk.class.getMethod("writeAttachmentsToNBT"),
-            LevelChunk.class.getMethod("setData", AttachmentType.class, Object.class),
-            LevelChunk.class.getMethod("hasData", Supplier.class),
-            LevelChunk.class.getMethod("getData", Supplier.class),
-            LevelChunk.class.getMethod("setData", Supplier.class, Object.class),
-            LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class)
+            Stream.concat(Stream.of(
+                    ChunkAccess.class.getMethod("getPos"),
+                    // TODO need to check existence; these would fail on Fabric
+                    ChunkAccess.class.getMethod("getWorldForge"),
+                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
+                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
+                    LevelChunk.class.getMethod("getWorldForge"),
+                    LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class)
+            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
         );
         testStaticParity(
             LevelChunk.class,
@@ -138,8 +149,15 @@ public class TestVanillaCubicParity extends BaseTest {
         testParityIncludingAncestors(
             ProtoChunk.class,
             ProtoClo.class,
-            ChunkAccess.class.getMethod("getPos"),
-            ChunkAccess.class.getMethod("getWorldForge") // TODO need to check existence; this would fail on Fabric
+            Stream.concat(Stream.of(
+                    ChunkAccess.class.getMethod("getPos"),
+                    // TODO need to check existence; these would fail on Fabric
+                    ChunkAccess.class.getMethod("getWorldForge"),
+                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
+                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder")
+            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
+//                IAttachmentHolder.class.getMethods()
         );
         testStaticParity(
             ProtoChunk.class,
@@ -151,9 +169,15 @@ public class TestVanillaCubicParity extends BaseTest {
         testParityIncludingAncestors(
             ImposterProtoChunk.class,
             ImposterProtoClo.class,
-            ChunkAccess.class.getMethod("getPos"),
-            ImposterProtoChunk.class.getMethod("getWrapped"),
-            ChunkAccess.class.getMethod("getWorldForge") // TODO need to check existence; this would fail on Fabric
+            Stream.concat(Stream.of(
+                    ChunkAccess.class.getMethod("getPos"),
+                    ImposterProtoChunk.class.getMethod("getWrapped"),
+                    // TODO need to check existence; these would fail on Fabric
+                    ChunkAccess.class.getMethod("getWorldForge"),
+                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
+                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder")
+            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
         );
         testStaticParity(
             ImposterProtoChunk.class,
