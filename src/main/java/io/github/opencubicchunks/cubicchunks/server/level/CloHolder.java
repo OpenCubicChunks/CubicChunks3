@@ -16,7 +16,7 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.ChunkStatus;
 
-public interface CubicChunkHolder {
+public interface CloHolder {
     CloPos cc_getPos();
 
     @Nullable LevelClo cc_getTickingChunk();

@@ -12,7 +12,7 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
-import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
+import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import net.minecraft.server.level.progress.StoringChunkProgressListener;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Dasm(ChunkToCloSet.class)
 @Mixin(StoringChunkProgressListener.class)
-public abstract class MixinStoringChunkProgressListener implements CubicChunkProgressListener {
+public abstract class MixinStoringChunkProgressListener implements CloProgressListener {
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(StoringChunkProgressListener.class), field = @FieldSig(type = @Ref(ChunkPos.class), name = "spawnPos"))
     private CloPos cc_spawnPos;
 

@@ -24,9 +24,9 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
-import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
+import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
@@ -70,14 +70,14 @@ public interface GlobalSet extends ForgeSet {
         static native long chunkAsLong(int x, int z);
     }
 
-    @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CubicChunkHolder.LevelChangeListener.class))
-    interface LevelChangeListenerChunkHolder_to_CubicChunkHolder_redirects {
+    @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CloHolder.LevelChangeListener.class))
+    interface LevelChangeListenerChunkHolder_to_CloHolder_redirects {
         @MethodRedirect(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
         void cc_onLevelChange(CloPos cloPos, IntSupplier p_140120_, int p_140121_, IntConsumer p_140122_);
     }
 
-    @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CubicChunkHolder.PlayerProvider.class))
-    interface PlayerProviderChunkHolder_to_CubicChunkHolder_redirects { }
+    @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CloHolder.PlayerProvider.class))
+    interface PlayerProviderChunkHolder_to_CloHolder_redirects { }
 
     @InterOwnerContainer(owner = @Ref(TicketType.class), newOwner = @Ref(CubicTicketType.class))
     abstract class ChunkTicketType_to_CloTicketType_redirects {
@@ -105,8 +105,8 @@ public interface GlobalSet extends ForgeSet {
         );
     }
 
-    @TypeRedirect(from = @Ref(ChunkProgressListener.class), to = @Ref(CubicChunkProgressListener.class))
-    interface ChunkProgressListener_to_CubicChunkProgressListener_redirects {
+    @TypeRedirect(from = @Ref(ChunkProgressListener.class), to = @Ref(CloProgressListener.class))
+    interface ChunkProgressListener_to_CloProgressListener_redirects {
         @MethodRedirect(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
         void cc_updateSpawnPos(CloPos center);
 

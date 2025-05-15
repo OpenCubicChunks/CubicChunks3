@@ -8,14 +8,14 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
-import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
+import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Dasm(ChunkToCloSet.class)
 @Mixin(ProcessorChunkProgressListener.class)
-public abstract class MixinProcessorChunkProgressListener implements CubicChunkProgressListener {
+public abstract class MixinProcessorChunkProgressListener implements CloProgressListener {
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
     @Override public native void cc_updateSpawnPos(CloPos center);
 

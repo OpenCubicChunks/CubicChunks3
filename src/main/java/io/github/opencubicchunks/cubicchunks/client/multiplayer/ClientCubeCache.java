@@ -11,7 +11,7 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,7 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 
-public interface CubicClientChunkCache extends CubicChunkSource {
+public interface ClientCubeCache extends CubeSource {
     // TODO (P2) we might want a version of the vanilla replaceWithPacketData with a different signature for handling chunks, since we only need heightmap data with CC
 
     void cc_drop(CubePos chunkPos);

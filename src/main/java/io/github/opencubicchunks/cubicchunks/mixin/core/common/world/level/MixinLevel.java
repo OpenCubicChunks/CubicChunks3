@@ -18,7 +18,7 @@ import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -70,7 +70,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     @Nullable
     @Override
     public CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus status, boolean forceLoad) {
-        CubeAccess cubeaccess = ((CubicChunkSource)this.getChunkSource()).cc_getCube(cubeX, cubeY, cubeZ, status, forceLoad);
+        CubeAccess cubeaccess = ((CubeSource)this.getChunkSource()).cc_getCube(cubeX, cubeY, cubeZ, status, forceLoad);
         if (cubeaccess == null && forceLoad) {
             throw new IllegalStateException("Should always be able to create a cube!");
         } else {
@@ -183,11 +183,11 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     }
 
     // isLoaded
-    // Replaces ChunkSource with a CubicChunkSource to call hasCube
+    // Replaces ChunkSource with a CubeSource to call hasCube
     @WrapOperation(method = "isLoaded", at = @At(value="INVOKE", target="Lnet/minecraft/world/level/chunk/ChunkSource;hasChunk(II)Z"))
     private boolean cc_replaceHasChunkInIsLoaded(ChunkSource chunkSource, int x, int z, Operation<Boolean> original, BlockPos blockPos) {
         if(cc_isCubic) {
-            return ((CubicChunkSource)chunkSource).cc_hasCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()), Coords.blockToCube(blockPos.getZ()));
+            return ((CubeSource)chunkSource).cc_hasCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()), Coords.blockToCube(blockPos.getZ()));
         }
         return false;
     }

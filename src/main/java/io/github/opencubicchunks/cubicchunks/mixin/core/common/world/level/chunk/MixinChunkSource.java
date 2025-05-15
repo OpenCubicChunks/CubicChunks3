@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.server.level.ServerChunkCache;
@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.Mixin;
  * This mixin adds versions of chunk-related methods for cubes where necessary, as the subclasses of this class are used to track both cubes and chunks when cubic chunks is enabled.
  */
 @Mixin(ChunkSource.class)
-public abstract class MixinChunkSource implements CubicChunkSource, MarkableAsCubic {
+public abstract class MixinChunkSource implements CubeSource, MarkableAsCubic {
     protected boolean cc_isCubic;
 
     @Override public void cc_setCubic() {

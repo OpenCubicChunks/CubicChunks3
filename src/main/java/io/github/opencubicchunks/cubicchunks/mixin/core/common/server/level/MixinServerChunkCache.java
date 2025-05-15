@@ -30,9 +30,9 @@ import io.github.opencubicchunks.cubicchunks.mixin.access.common.ChunkMapAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.MixinChunkSource;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicServerChunkCache;
+import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
@@ -76,7 +76,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(ServerChunkCache.class)
-public abstract class MixinServerChunkCache extends MixinChunkSource implements CubicServerChunkCache {
+public abstract class MixinServerChunkCache extends MixinChunkSource implements ServerCubeCache {
     // Cube equivalents for cached chunks
     @Shadow @Final private static int CACHE_SIZE;
 
@@ -187,7 +187,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     private CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> cc_onGetChunkFutureMainThread(ChunkHolder chunkHolder, ChunkStatus status, ChunkMap chunkMap,
                                                                                                                   Operation<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> original) {
         if (!cc_isCubic) return original.call(chunkHolder, status, chunkMap);
-        return (CompletableFuture) ((CubicChunkHolder) chunkHolder).cc_getOrScheduleFuture(status, chunkMap);
+        return (CompletableFuture) ((CloHolder) chunkHolder).cc_getOrScheduleFuture(status, chunkMap);
     }
 
     @TransformFromMethod(@MethodSig("getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
@@ -247,7 +247,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
             List<CloAndHolder> list = Lists.newArrayListWithCapacity(this.chunkMap.size());
 
             for(ChunkHolder chunkholder : ((ChunkMapAccess) this.chunkMap).cc_invokeGetChunks()) {
-                LevelClo levelchunk = ((CubicChunkHolder) chunkholder).cc_getTickingChunk();
+                LevelClo levelchunk = ((CloHolder) chunkholder).cc_getTickingChunk();
                 if (levelchunk != null) {
                     list.add(new CloAndHolder(levelchunk, chunkholder));
                 }
@@ -290,7 +290,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
             }
 
             profilerfiller.popPush("broadcast");
-            list.forEach(p_184022_ -> ((CubicChunkHolder) p_184022_.holder()).cc_broadcastChanges(p_184022_.chunk()));
+            list.forEach(p_184022_ -> ((CloHolder) p_184022_.holder()).cc_broadcastChanges(p_184022_.chunk()));
             profilerfiller.pop();
             profilerfiller.pop();
         }

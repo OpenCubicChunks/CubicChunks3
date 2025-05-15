@@ -61,7 +61,7 @@ public class Misc {
                 mock(RETURNS_DEEP_STUBS),
                 mock(RETURNS_DEEP_STUBS),
                 levelStemMock,
-                // Need to mock an implementation of the interface, so that it also implements CubicChunkProgressListener
+                // Need to mock an implementation of the interface, so that it also implements CloProgressListener
                 Mockito.<LoggerChunkProgressListener>mock(RETURNS_DEEP_STUBS),
                 false,
                 0,

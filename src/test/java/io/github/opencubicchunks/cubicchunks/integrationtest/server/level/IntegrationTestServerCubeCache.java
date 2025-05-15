@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicServerChunkCache;
+import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
@@ -49,7 +49,7 @@ import org.mockito.Mockito;
  * This test is strongly dependent on {@link DistanceManager} and {@link ChunkMap} as well; errors here should probably be ignored unless {@link IntegrationTestCubicChunkMap} passes.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class IntegrationTestCubicServerChunkCache extends BaseTest {
+public class IntegrationTestServerCubeCache extends BaseTest {
     private Stream<ChunkStatus> chunkStatuses() {
         return ChunkStatus.getStatusList().stream();
     }
@@ -93,7 +93,7 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
             10, // server view distance
             10, // simulation distance
             false, // sync - not relevant for tests; false should be faster
-            // Need to mock an implementation of the interface, so that it also implements CubicChunkProgressListener
+            // Need to mock an implementation of the interface, so that it also implements CloProgressListener
             Mockito.<ProcessorChunkProgressListener>mock(Mockito.RETURNS_DEEP_STUBS),
             mock(Mockito.RETURNS_DEEP_STUBS),
             mock(Mockito.RETURNS_DEEP_STUBS)
@@ -245,7 +245,7 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
      */
     public void singleGetCube(ChunkStatus status) throws Exception {
         try(var serverChunkCacheRef = createServerChunkCache(false)) {
-            var serverChunkCache = ((CubicServerChunkCache) serverChunkCacheRef.value());
+            var serverChunkCache = ((ServerCubeCache) serverChunkCacheRef.value());
             var chunkAccess = serverChunkCache.cc_getCube(0, 0, 0, status, true);
             assertNotNull(chunkAccess);
             assertTrue(chunkAccess.getStatus().isOrAfter(status));
@@ -269,7 +269,7 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
     public void getCubeNow() throws Exception {
         try(var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
-            var cubicServerChunkCache = ((CubicServerChunkCache) serverChunkCache);
+            var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
 
             // Present chunk
             CubePos cubePos = CubePos.of(5, 1273, -123);
@@ -324,7 +324,7 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
     public void hasCube() throws Exception {
         try(var serverChunkCacheRef = createServerChunkCache(false)) {
             ServerChunkCache serverChunkCache = serverChunkCacheRef.value();
-            var serverCubeCache = ((CubicServerChunkCache) serverChunkCache);
+            var serverCubeCache = ((ServerCubeCache) serverChunkCache);
             // Non-present cube
             CubePos cubePos = CubePos.of(-12,  98, 65);
             assertFalse(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ()));
@@ -371,7 +371,7 @@ public class IntegrationTestCubicServerChunkCache extends BaseTest {
     @Test public void getCubeAndNeighboringCubesAndChunks() throws Exception {
         try(var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
-            var cubicServerChunkCache = ((CubicServerChunkCache) serverChunkCache);
+            var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
             var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
             assertNotNull(cubeAccess);
             assertTrue(cubeAccess.getStatus().isOrAfter(ChunkStatus.FULL));

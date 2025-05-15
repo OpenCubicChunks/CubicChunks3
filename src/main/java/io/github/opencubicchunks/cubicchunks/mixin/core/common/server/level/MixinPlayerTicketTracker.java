@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.access.common.DistanceManagerAccess;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTaskPriorityQueueSorter;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
@@ -42,7 +42,7 @@ public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceC
     @WrapWithCondition(method = "runAllUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
     private boolean cc_onRunAllUpdates(ChunkTaskPriorityQueueSorter instance, ChunkPos chunkPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_) {
         if(!cc_isCubic) return true;
-        ((CubicTaskPriorityQueueSorter)((DistanceManagerAccess)this$0).cc_ticketThrottler())
+        ((CloTaskPriorityQueueSorter)((DistanceManagerAccess)this$0).cc_ticketThrottler())
             .cc_onLevelChange(CloPos.fromLong(chunkPos.toLong()), p_140617_, p_140618_, p_140619_);
         return false;
     }

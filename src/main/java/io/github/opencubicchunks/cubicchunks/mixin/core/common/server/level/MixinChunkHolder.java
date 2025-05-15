@@ -20,7 +20,7 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
@@ -60,16 +60,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Dasm(ChunkToCloSet.class)
 @Mixin(ChunkHolder.class)
-public abstract class MixinChunkHolder implements CubicChunkHolder {
+public abstract class MixinChunkHolder implements CloHolder {
     private boolean cc_isCubic;
 
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
     private CloPos cc_cloPos;
 
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "onLevelChange", type = @Ref(ChunkHolder.LevelChangeListener.class)))
-    private final CubicChunkHolder.LevelChangeListener cc_onLevelChange;
+    private final CloHolder.LevelChangeListener cc_onLevelChange;
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "playerProvider", type = @Ref(ChunkHolder.PlayerProvider.class)))
-    private final CubicChunkHolder.PlayerProvider cc_playerProvider;
+    private final CloHolder.PlayerProvider cc_playerProvider;
 
     @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getPos() {
@@ -92,14 +92,14 @@ public abstract class MixinChunkHolder implements CubicChunkHolder {
     }
 
     @Dynamic @Inject(at = @At("RETURN"), method = "cc_dasm$__init__(Lio/github/opencubicchunks/cc_core/world/level/CloPos;ILnet/minecraft/world/level/LevelHeightAccessor;"
-        + "Lnet/minecraft/world/level/lighting/LevelLightEngine;Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$LevelChangeListener;"
-        + "Lio/github/opencubicchunks/cubicchunks/server/level/CubicChunkHolder$PlayerProvider;)V")
+        + "Lnet/minecraft/world/level/lighting/LevelLightEngine;Lio/github/opencubicchunks/cubicchunks/server/level/CloHolder$LevelChangeListener;"
+        + "Lio/github/opencubicchunks/cubicchunks/server/level/CloHolder$PlayerProvider;)V")
     private void cc_onCcInit(CloPos cloPos,
                              int ticketLevel,
                              LevelHeightAccessor levelHeightAccessor,
                              LevelLightEngine lightEngine,
-                             CubicChunkHolder.LevelChangeListener onLevelChange,
-                             CubicChunkHolder.PlayerProvider playerProvider,
+                             CloHolder.LevelChangeListener onLevelChange,
+                             CloHolder.PlayerProvider playerProvider,
                              CallbackInfo ci) {
         // TODO redirect changedBlocksPerSection construction for chunks
         cc_isCubic = true;

@@ -6,7 +6,7 @@ import java.util.function.IntSupplier;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 
-public interface CubicTaskPriorityQueueSorter {
+public interface CloTaskPriorityQueueSorter {
     @UsedFromASM
     <T> void cc_onLevelChange(CloPos cloPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_);
 }

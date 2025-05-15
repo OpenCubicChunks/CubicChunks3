@@ -10,7 +10,7 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
-import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientChunkCache;
+import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube;
@@ -75,9 +75,9 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(
         from = @Ref(ClientChunkCache.Storage.class),
-        to = @Ref(CubicClientChunkCache.Storage.class)
+        to = @Ref(ClientCubeCache.Storage.class)
     )
-    abstract class ClientChunkCache$Storage_to_CubicClientChunkCache$Storage_redirects { }
+    abstract class ClientChunkCache$Storage_to_ClientCubeCache$Storage_redirects { }
 
     // TODO move to a forge-specific sourceset
     // getter/setter as a workaround to forge adding a field that needs to be used as a LevelClo in some places and a LevelCube in others

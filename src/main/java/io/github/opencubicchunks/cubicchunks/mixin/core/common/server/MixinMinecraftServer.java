@@ -84,7 +84,7 @@ public abstract class MixinMinecraftServer {
             int spawnRadius = (int) Math.ceil(10 * (16 / (float) CubicConstants.DIAMETER_IN_BLOCKS)); //vanilla is 10, 32: 5, 64: 3
             spawnRadiusRef.set(spawnRadius);
             // TODO: Fix this when ServerChunkCache exists
-            //(CubicServerChunkCache)serverChunkCache.addRegionTicket(CubicTicketType.START, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius + 1, unit);
+            //(ServerCubeCache)serverChunkCache.addRegionTicket(CubicTicketType.START, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius + 1, unit);
             return false;
         }
         return true;
@@ -95,7 +95,7 @@ public abstract class MixinMinecraftServer {
         if (((CanBeCubic) overworld().getChunkSource()).cc_isCubic()) {
             int d = spawnRadiusRef.get() * 2 + 1;
             // TODO: Fix this when ServerChunkCache exists
-            //while (this.isRunning() && ((CubicServerChunkCache) overworld().getChunkSource()).getTickingGeneratedCubes() < d * d * d) {
+            //while (this.isRunning() && ((ServerCubeCache) overworld().getChunkSource()).getTickingGeneratedCubes() < d * d * d) {
             //    this.nextTickTimeNanos = Util.getMillis() + 10L;
             //    this.waitUntilNextTick();
             //}

@@ -15,8 +15,8 @@ import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTaskPriorityQueueSorter;
+import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTaskPriorityQueueSorter;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.util.Unit;
@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Dasm(ChunkToCloSet.class)
 @Mixin(ChunkTaskPriorityQueueSorter.class)
-public abstract class MixinChunkTaskPriorityQueueSorter implements CubicTaskPriorityQueueSorter, CubicChunkHolder.LevelChangeListener, MarkableAsCubic {
+public abstract class MixinChunkTaskPriorityQueueSorter implements CloTaskPriorityQueueSorter, CloHolder.LevelChangeListener, MarkableAsCubic {
     protected boolean cc_isCubic;
 
     @Override public void cc_setCubic() {

@@ -34,9 +34,9 @@ import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.SectionPosToCubeSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
-import io.github.opencubicchunks.cubicchunks.server.level.progress.CubicChunkProgressListener;
+import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import net.minecraft.ReportedException;
@@ -93,7 +93,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @Shadow @Final ServerLevel level;
     @Shadow @Final private ChunkMap.DistanceManager distanceManager;
     @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "progressListener"))
-    private CubicChunkProgressListener cc_progressListener;
+    private CloProgressListener cc_progressListener;
 
     // TODO once we can target non-return locations in constructors, do this when the vanilla field is set
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -101,7 +101,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                            Executor dispatcher, BlockableEventLoop mainThreadExecutor, LightChunkGetter lightChunk, ChunkGenerator generator, ChunkProgressListener progressListener,
                            ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, int viewDistance, boolean sync, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
-            cc_progressListener = ((CubicChunkProgressListener) progressListener);
+            cc_progressListener = ((CloProgressListener) progressListener);
             ((MarkableAsCubic) distanceManager).cc_setCubic();
         }
     }
@@ -167,7 +167,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @Dynamic @Inject(method = "cc_dasm$cc_getChunkRangeFuture", at = @At("HEAD"), cancellable = true)
     private void cc_onGetChunkRangeFuture(ChunkHolder cloHolder, int radius, IntFunction<ChunkStatus> statusByRadius,
                                           CallbackInfoReturnable<CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>>> cir) {
-        CloPos pos = ((CubicChunkHolder) cloHolder).cc_getPos();
+        CloPos pos = ((CloHolder) cloHolder).cc_getPos();
         if (!pos.isCube()) return;
         // The vanilla method has an early exit for radius=0 here; this is not valid for cubes because even if radius=0 we still depend on chunks that neighbor the cube
         List<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> dependencyFutures = new ArrayList<>();
@@ -195,7 +195,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                         // getChunkRangeFuture statusByRadius returns the status that is depended on, not the actual destination status. for non-central chunks that's fine,
                         // but for the chunks intersecting the center cube, the central cube reaching the destination status depends on the intersecting chunks reaching the destination status, not its parent.
                         if (chunkDistance == 0) expectedStatus = cc_getChildStatus(expectedStatus);
-                        var future = ((CubicChunkHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
+                        var future = ((CloHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
                         cloHolders.add(holder);
                         dependencyFutures.add(future);
                     }
@@ -216,7 +216,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                         return;
                     }
                     ChunkStatus expectedStatus = statusByRadius.apply(Math.max(chunkDistance, Math.abs(dy)));
-                    var future = ((CubicChunkHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
+                    var future = ((CloHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
                     cloHolders.add(holder);
                     dependencyFutures.add(future);
                 }
@@ -260,7 +260,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
         // TODO verify whether this addSaveDependency logic is correct for cubes, especially for radius=0
         for (ChunkHolder holder : cloHolders) {
-            ((CubicChunkHolder) holder).cc_addSaveDependency("getChunkRangeFuture " + pos + " " + radius, combinedFuture);
+            ((CloHolder) holder).cc_addSaveDependency("getChunkRangeFuture " + pos + " " + radius, combinedFuture);
         }
 
         cir.setReturnValue(combinedFuture);
@@ -330,7 +330,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                     return;
                 }
 
-                CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = ((CubicChunkHolder) chunkholder).cc_getOrScheduleFuture(
+                CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = ((CloHolder) chunkholder).cc_getOrScheduleFuture(
                     ChunkStatus.EMPTY, (ChunkMap) (Object) this
                 );
                 chunkLoadFutures.add(completablefuture);

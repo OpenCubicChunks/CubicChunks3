@@ -13,7 +13,7 @@ import java.util.Random;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientChunkCache;
+import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.mixin.test.client.multiplayer.ClientChunkCache$StorageTestAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.test.client.multiplayer.ClientChunkCacheTestAccess;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
@@ -26,13 +26,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TestCubicClientChunkCache extends BaseTest {
+public class TestClientCubeCache extends BaseTest {
     @Test public void basicTests() {
         ClientLevel clientLevelMock = mock(Mockito.RETURNS_DEEP_STUBS);
         when(((CanBeCubic) clientLevelMock).cc_isCubic()).thenReturn(true);
         when(clientLevelMock.getHeight()).thenReturn(384);
         when(clientLevelMock.getSectionsCount()).thenReturn(24);
-        var clientChunkCache = ((CubicClientChunkCache) new ClientChunkCache(clientLevelMock, 10));
+        var clientChunkCache = ((ClientCubeCache) new ClientChunkCache(clientLevelMock, 10));
         var storage = ((ClientChunkCacheTestAccess) clientChunkCache).cubeStorage();
         var emptyCube = ((ClientChunkCacheTestAccess) clientChunkCache).emptyCube();
 
@@ -112,7 +112,7 @@ public class TestCubicClientChunkCache extends BaseTest {
         when(((CanBeCubic) clientLevelMock).cc_isCubic()).thenReturn(true);
         when(clientLevelMock.getHeight()).thenReturn(384);
         when(clientLevelMock.getSectionsCount()).thenReturn(24);
-        var clientChunkCache = ((CubicClientChunkCache) new ClientChunkCache(clientLevelMock, 10));
+        var clientChunkCache = ((ClientCubeCache) new ClientChunkCache(clientLevelMock, 10));
         var emptyCube = ((ClientChunkCacheTestAccess) clientChunkCache).emptyCube();
 
         var pos1 = CloPos.cube(-3, -2, -3);
@@ -154,7 +154,7 @@ public class TestCubicClientChunkCache extends BaseTest {
         when(((CanBeCubic) clientLevelMock).cc_isCubic()).thenReturn(true);
         when(clientLevelMock.getHeight()).thenReturn(384);
         when(clientLevelMock.getSectionsCount()).thenReturn(24);
-        var clientChunkCache = ((CubicClientChunkCache) new ClientChunkCache(clientLevelMock, 5));
+        var clientChunkCache = ((ClientCubeCache) new ClientChunkCache(clientLevelMock, 5));
         int centerX = 77;
         int centerZ = -33;
         clientChunkCache.cc_updateViewCenter(centerX, 0, centerZ);

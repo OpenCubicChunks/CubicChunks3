@@ -24,7 +24,7 @@ import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.ChunkHolderTestAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.ChunkMapTestAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.ServerChunkCacheTestAccess;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.test.LongRunTest;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
@@ -51,8 +51,8 @@ import org.mockito.Mockito;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class IntegrationTestCubicChunkMap extends BaseTest {
-    // TODO can we avoid code duplication between here and IntegrationTestCubicServerChunkCache?
-    //      (they differ only in that DistanceManager construction is mocked here but not in IntegrationTestCubicServerChunkCache)
+    // TODO can we avoid code duplication between here and IntegrationTestServerCubeCache?
+    //      (they differ only in that DistanceManager construction is mocked here but not in IntegrationTestServerCubeCache)
     // these are test classes, it's probably fine? different things need to be mocked in different tests anyway
     private CloseableReference<ServerChunkCache> createServerChunkCache(boolean vanillaTest) throws IOException, NoSuchFieldException, IllegalAccessException {
         // Worldgen internals
@@ -95,7 +95,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
             10, // server view distance
             10, // simulation distance
             false, // sync - not relevant for tests; false should be faster
-            // Need to mock an implementation of the interface, so that it also implements CubicChunkProgressListener
+            // Need to mock an implementation of the interface, so that it also implements CloProgressListener
             Mockito.<ProcessorChunkProgressListener>mock(Mockito.RETURNS_DEEP_STUBS),
             mock(Mockito.RETURNS_DEEP_STUBS),
             mock(Mockito.RETURNS_DEEP_STUBS)
@@ -352,7 +352,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
 
         // collect cube and chunk holders
         visibleCloMap.forEach((cloPosLong, cloHolder) -> {
-            CloPos cloPos = ((CubicChunkHolder) cloHolder).cc_getPos();
+            CloPos cloPos = ((CloHolder) cloHolder).cc_getPos();
             if (cloPos.isChunk()) {
                 chunksByCubeColumn.computeIfAbsent(cloPos.correspondingCubeCloPos(0), p -> new ArrayList<>())
                     .add(cloHolder);
@@ -363,7 +363,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
 
         // For each cube assert that its chunks exist and are of sufficient status
         cubes.forEach(cubeHolder -> {
-            CloPos cubeCloPos = ((CubicChunkHolder) cubeHolder).cc_getPos();
+            CloPos cubeCloPos = ((CloHolder) cubeHolder).cc_getPos();
             List<ChunkHolder> chunksInCubeColumn = chunksByCubeColumn.get(cubeCloPos.correspondingCubeCloPos(0));
 
             chunksInCubeColumn.forEach(chunkHolder -> assertChunkHolderValidForCubeHolder(chunkHolder, cubeHolder));
@@ -378,7 +378,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
         if (chunkStatus == null) {
             assertNull(cubeStatus,
                 () -> String.format("Chunk (%s) has status null is lower than cube (%s) at status %s",
-                    ((CubicChunkHolder) chunkHolder).cc_getPos(), ((CubicChunkHolder) cubeHolder).cc_getPos(), cubeStatus)
+                    ((CloHolder) chunkHolder).cc_getPos(), ((CloHolder) cubeHolder).cc_getPos(), cubeStatus)
             );
             return;
         }
@@ -391,7 +391,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
         // Neither are null, assert that statuses are valid.
         assertTrue(chunkStatus.isOrAfter(cubeStatus),
             () -> String.format("Chunk (%s) at status %s is lower than cube %s at status %s",
-                ((CubicChunkHolder) chunkHolder).cc_getPos(), chunkStatus, ((CubicChunkHolder) cubeHolder).cc_getPos(), cubeStatus)
+                ((CloHolder) chunkHolder).cc_getPos(), chunkStatus, ((CloHolder) cubeHolder).cc_getPos(), cubeStatus)
         );
     }
 }

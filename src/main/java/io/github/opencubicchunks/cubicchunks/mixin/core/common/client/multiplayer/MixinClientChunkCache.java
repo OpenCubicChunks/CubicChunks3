@@ -15,7 +15,7 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientChunkCache;
+import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.MixinChunkSource;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
@@ -41,10 +41,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(ClientChunkCache.class)
-public abstract class MixinClientChunkCache extends MixinChunkSource implements CubicClientChunkCache {
+public abstract class MixinClientChunkCache extends MixinChunkSource implements ClientCubeCache {
     @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ClientChunkCache.class),
         field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))
-    volatile CubicClientChunkCache.Storage cc_cubeStorage;
+    volatile ClientCubeCache.Storage cc_cubeStorage;
 
     private LevelCube cc_emptyCube;
 
@@ -59,7 +59,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
             cc_emptyCube = new EmptyLevelCube(
                 level, CloPos.cube(0, 0, 0), level.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
             );
-            cc_cubeStorage = new CubicClientChunkCache.Storage(calculateStorageRange(viewDistance), level);
+            cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter
             updateViewRadius(cc_calculateChunkViewDistance(viewDistance));
         }
@@ -163,7 +163,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         int i = this.cc_cubeStorage.cubeRadius;
         int j = calculateStorageRange(viewDistance);
         if (i != j) {
-            CubicClientChunkCache.Storage storage = new CubicClientChunkCache.Storage(j, this.level);
+            ClientCubeCache.Storage storage = new ClientCubeCache.Storage(j, this.level);
             storage.viewCenterX = this.cc_cubeStorage.viewCenterX;
             storage.viewCenterY = this.cc_cubeStorage.viewCenterY;
             storage.viewCenterZ = this.cc_cubeStorage.viewCenterZ;

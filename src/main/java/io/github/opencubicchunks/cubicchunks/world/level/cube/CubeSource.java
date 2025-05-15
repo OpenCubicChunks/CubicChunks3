@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 
-public interface CubicChunkSource {
+public interface CubeSource {
     @Nullable CubeAccess cc_getCube(int x, int y, int z, ChunkStatus status, boolean forceLoad);
 
     @Nullable LevelCube cc_getCube(int x, int y, int z, boolean forceLoad);

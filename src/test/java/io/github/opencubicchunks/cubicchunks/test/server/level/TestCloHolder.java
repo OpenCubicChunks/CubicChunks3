@@ -10,6 +10,6 @@ import net.minecraft.server.level.ServerChunkCache;
  *
  * @see IntegrationTestCubicChunkMap integration tests
  */
-public class TestCubicChunkHolder {
+public class TestCloHolder {
 
 }

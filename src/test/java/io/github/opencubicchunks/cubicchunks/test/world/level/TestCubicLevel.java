@@ -18,7 +18,7 @@ import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubicChunkSource;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -84,8 +84,8 @@ public class TestCubicLevel extends BaseTest {
             int p_270466_
         ) {
             super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
-            when(((CubicChunkSource)mockChunkSource).cc_getCube(anyInt(), anyInt(), anyInt(), anyBoolean())).thenReturn(mock(LevelCube.class));
-            when(((CubicChunkSource)mockChunkSource).cc_getCube(anyInt(), anyInt(), anyInt(), any(), anyBoolean())).thenReturn(mock(LevelCube.class));
+            when(((CubeSource)mockChunkSource).cc_getCube(anyInt(), anyInt(), anyInt(), anyBoolean())).thenReturn(mock(LevelCube.class));
+            when(((CubeSource)mockChunkSource).cc_getCube(anyInt(), anyInt(), anyInt(), any(), anyBoolean())).thenReturn(mock(LevelCube.class));
         }
 
         @Override public void sendBlockUpdated(BlockPos p_46612_, BlockState p_46613_, BlockState p_46614_, int p_46615_) {
