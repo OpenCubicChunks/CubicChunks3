@@ -4,7 +4,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-import org.spongepowered.asm.mixin.injection.IInjectionPointContext;
 import org.spongepowered.asm.mixin.injection.InjectionPoint;
 import org.spongepowered.asm.mixin.injection.InjectionPoint.AtCode;
 import org.spongepowered.asm.mixin.injection.selectors.ISelectorContext;
@@ -18,6 +17,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * This injection point targets a delegating {@code super()} call <b><u>OR</u></b> a delegating {@code this()} call
+ * <p>
  * This is a temporary hack until we update to a mixin version that allows you to target CTOR_SUPER.
  * <p>
  * To use this injection point specify its fully qualified name in the @At annotation.
