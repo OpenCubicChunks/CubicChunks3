@@ -36,5 +36,5 @@ public abstract class MixinChunkTaskPriorityQueue implements MarkableAsCubic {
 
     @UsedFromASM
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V"))
-    protected native void cc_resortCubicTasks(int queueLevel, CloPos cloPos, int ticketLevel);
+    public native void cc_resortCubicTasks(int queueLevel, CloPos cloPos, int ticketLevel);
 }

@@ -222,7 +222,7 @@ public abstract class MixinChunkHolder implements CloHolder {
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("updateFutures(Lnet/minecraft/server/level/ChunkMap;Ljava/util/concurrent/Executor;)V"))
-    protected native void cc_updateFutures(ChunkMap chunkMap, Executor executor);
+    public native void cc_updateFutures(ChunkMap chunkMap, Executor executor);
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("replaceProtoChunk(Lnet/minecraft/world/level/chunk/ImposterProtoChunk;)V"))

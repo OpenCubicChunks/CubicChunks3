@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
+import static io.github.notstirred.dasm.api.annotations.transform.Visibility.PRIVATE;
+
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
@@ -11,6 +13,7 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.annotation.Public;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
@@ -40,13 +43,13 @@ public abstract class MixinChunkTaskPriorityQueueSorter implements CloTaskPriori
         return cc_isCubic;
     }
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
-        @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/lang/Runnable;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
-    private static native ChunkTaskPriorityQueueSorter.Message<Runnable> cc_message(ChunkHolder chunkHolder, Runnable task);
+    // This is private because mixin requires static methods to be private, @Public sets it after mixin applies
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/lang/Runnable;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"), visibility = PRIVATE)
+    @Public private static native ChunkTaskPriorityQueueSorter.Message<Runnable> cc_message(ChunkHolder chunkHolder, Runnable task);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
-        @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/util/function/Function;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"))
-    private static native <T> ChunkTaskPriorityQueueSorter.Message<T> cc_message(ChunkHolder chunkHolder, Function<ProcessorHandle<Unit>, T> task);
+    // This is private because mixin requires static methods to be private, @Public sets it after mixin applies
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("message(Lnet/minecraft/server/level/ChunkHolder;Ljava/util/function/Function;)Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter$Message;"), visibility = PRIVATE)
+    @Public private static native <T> ChunkTaskPriorityQueueSorter.Message<T> cc_message(ChunkHolder chunkHolder, Function<ProcessorHandle<Unit>, T> task);
 
     /**
      * This is a method that is only used for debugging, so we don't currently test it.

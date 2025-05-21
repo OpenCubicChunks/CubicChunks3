@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin;
 
+import static org.objectweb.asm.Opcodes.*;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,16 +24,17 @@ import io.github.notstirred.dasm.annotation.AnnotationParser;
 import io.github.notstirred.dasm.api.annotations.transform.ApplicationStage;
 import io.github.notstirred.dasm.api.provider.MappingsProvider;
 import io.github.notstirred.dasm.exception.DasmException;
-import io.github.notstirred.dasm.exception.wrapped.DasmWrappedExceptions;
 import io.github.notstirred.dasm.transformer.Transformer;
 import io.github.notstirred.dasm.transformer.data.ClassTransform;
 import io.github.notstirred.dasm.transformer.data.MethodTransform;
 import io.github.notstirred.dasm.util.CachingClassProvider;
 import io.github.notstirred.dasm.util.ClassNodeProvider;
 import io.github.notstirred.dasm.util.Either;
+import io.github.opencubicchunks.cc_core.annotation.Public;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -113,7 +116,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     }
                 });
             }
-        } catch (ClassNotFoundException | IOException | DasmWrappedExceptions e) {
+        } catch (ClassNotFoundException | IOException | DasmException e) {
             throw new RuntimeException(e);
         }
         return true;
@@ -155,17 +158,14 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
     }
 
     @Override public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        doPublicAnnotation(targetClass);
+
         // Apply POST_APPLY dasm transforms
         boolean wasTransformed;
         try {
             wasTransformed = transformClass(targetClassName, targetClass, mixinClassName, ApplicationStage.POST_APPLY);
         } catch (DasmException e) {
             throw new RuntimeException(e);
-        }
-        for (MethodNode methodNode : targetClass.methods) {
-            if (methodNode.name.contains("cc_dasm$")) {
-                int asd = 0;
-            }
         }
         // If no DASM transformation happened to this class, we can skip removing the prefixed methods
         if (!(wasTransformed | dasmTransformedInPreApply.get(mixinClassName + "|" + targetClassName)))
@@ -192,6 +192,12 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         methodPairs.forEach(prefixMethodPair -> {
             if (prefixMethodPair.mixinAddedMethod != null) {
                 targetClass.methods.remove(prefixMethodPair.mixinAddedMethod);
+
+                // Copy annotations and visibility from mixin method
+                prefixMethodPair.dasmAddedMethod.visibleAnnotations = prefixMethodPair.mixinAddedMethod.visibleAnnotations;
+                prefixMethodPair.dasmAddedMethod.invisibleAnnotations = prefixMethodPair.mixinAddedMethod.invisibleAnnotations;
+                prefixMethodPair.dasmAddedMethod.access &= ~(ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED);
+                prefixMethodPair.dasmAddedMethod.access |= (ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) & prefixMethodPair.mixinAddedMethod.access;
             }
 
             prefixMethodPair.dasmAddedMethod.name = prefixMethodPair.dasmAddedMethod.name
@@ -210,6 +216,19 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             Files.write(path, classWriter.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void doPublicAnnotation(ClassNode targetClass) {
+        // Making any methods annotated as @Public public
+        for (MethodNode method : targetClass.methods) {
+            List<AnnotationNode> visibleAnnotations = method.visibleAnnotations;
+            if (visibleAnnotations != null) {
+                if (visibleAnnotations.stream().anyMatch(annotationNode -> annotationNode.desc.equals("L" + Public.class.getName().replace('.', '/') + ";"))) {
+                    method.access &= ~(ACC_PRIVATE | ACC_PROTECTED);
+                    method.access |= ACC_PUBLIC;
+                }
+            }
         }
     }
 

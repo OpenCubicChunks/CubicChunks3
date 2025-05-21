@@ -102,7 +102,7 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
 
     @UsedFromASM
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
-    protected abstract void cc_updateCubeForced(CloPos pos, boolean add);
+    public abstract void cc_updateCubeForced(CloPos pos, boolean add);
 
     /**
      * This function replaces a TicketType with a CubicTicketType.

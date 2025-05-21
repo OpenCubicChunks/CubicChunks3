@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.client.multiplayer;
 
+import static io.github.notstirred.dasm.api.annotations.transform.Visibility.*;
+
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Consumer;
 
@@ -9,6 +11,7 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.notstirred.dasm.api.annotations.transform.Visibility;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeSource;
@@ -92,13 +95,8 @@ public interface ClientCubeCache extends CubeSource {
         }
 
         @Nullable
-        @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"))
+        @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"), visibility = PUBLIC)
         public native LevelCube getChunk(int chunkIndex);
-
-        // TODO dasm copying getChunk currently changes the access modifier from public to protected, so we need a dummy public method
-        @Nullable public LevelCube temp_getChunk(int index) {
-            return getChunk(index);
-        }
 
         public void dumpChunks(String filePath) {
             // TODO reimplement debug code

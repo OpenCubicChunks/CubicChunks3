@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.world.level.cube;
 
+import static io.github.notstirred.dasm.api.annotations.transform.Visibility.PUBLIC;
+
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -246,7 +248,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("isInLevel()Z"), owner = @Ref(LevelChunk.class))
     private native boolean isInLevel();
 
-    @TransformFromMethod(value = @MethodSig("isTicking(Lnet/minecraft/core/BlockPos;)Z"), owner = @Ref(LevelChunk.class))
+    @TransformFromMethod(value = @MethodSig("isTicking(Lnet/minecraft/core/BlockPos;)Z"), owner = @Ref(LevelChunk.class), visibility = PUBLIC)
     public native boolean isTicking(BlockPos pos);
 
     @TransformFromMethod(value = @MethodSig("setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), owner = @Ref(LevelChunk.class))

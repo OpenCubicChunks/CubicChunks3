@@ -78,7 +78,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     public void cc_drop(CubePos chunkPos) {
         if (this.cc_cubeStorage.inRange(chunkPos.getX(), chunkPos.getY(), chunkPos.getZ())) {
             int i = this.cc_cubeStorage.getIndex(chunkPos.getX(), chunkPos.getY(), chunkPos.getZ());
-            LevelCube levelCube = this.cc_cubeStorage.temp_getChunk(i);
+            LevelCube levelCube = this.cc_cubeStorage.getChunk(i);
             if (cc_isValidCube(levelCube, chunkPos.getX(), chunkPos.getY(), chunkPos.getZ())) {
                 // TODO event hook
 //                net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.level.ChunkEvent.Unload(levelCube));
@@ -90,7 +90,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     @Override
     public @Nullable LevelCube cc_getCube(int chunkX, int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load) {
         if (this.cc_cubeStorage.inRange(chunkX, chunkY,chunkZ)) {
-            LevelCube levelCube = this.cc_cubeStorage.temp_getChunk(this.cc_cubeStorage.getIndex(chunkX, chunkY,chunkZ));
+            LevelCube levelCube = this.cc_cubeStorage.getChunk(this.cc_cubeStorage.getIndex(chunkX, chunkY,chunkZ));
             if (cc_isValidCube(levelCube, chunkX, chunkY,chunkZ)) {
                 return levelCube;
             }
