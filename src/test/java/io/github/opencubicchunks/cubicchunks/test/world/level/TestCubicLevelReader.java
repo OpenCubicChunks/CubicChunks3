@@ -21,10 +21,10 @@ import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCubicLevelReader extends BaseTest {
-    private static class DummyLevelReader implements CubicLevelReader {
+    public static class DummyLevelReader implements CubicLevelReader {
         private CubeAccess ca;
         private LongSet cubePositions;
-        DummyLevelReader(CubeAccess ca, LongSet cubePositions) {
+        public DummyLevelReader(CubeAccess ca, LongSet cubePositions) {
             this.ca = ca;
             this.cubePositions = cubePositions;
         }
