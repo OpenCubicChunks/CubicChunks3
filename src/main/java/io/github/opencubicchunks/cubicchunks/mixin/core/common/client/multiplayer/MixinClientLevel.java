@@ -17,7 +17,7 @@ public abstract class MixinClientLevel extends MixinLevel implements CubicClient
         return cc_isCubic;
     }
 
-    @Override public boolean cc_hasCube(int x, int y, int z) {
+    @Override public boolean cc_hasCube(int cubeX, int cubeY, int cubeZ) {
         return true;
     }
 

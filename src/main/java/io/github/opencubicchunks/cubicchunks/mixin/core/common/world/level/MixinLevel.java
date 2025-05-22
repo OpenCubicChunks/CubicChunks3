@@ -63,8 +63,8 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
             Coords.blockToCube(blockPos.getZ()));
     }
 
-    public LevelCube cc_getCube(int x, int y, int z) {
-        return (LevelCube)this.cc_getCube(x, y, z, ChunkStatus.FULL);
+    public LevelCube cc_getCube(int cubeX, int cubeY, int cubeZ) {
+        return (LevelCube)this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.FULL);
     }
 
     @Nullable
