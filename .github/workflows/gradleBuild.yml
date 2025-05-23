@@ -32,12 +32,12 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Compiled jars
+          name: compiled-jars
           path: build/libs/*.jar
 
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test reports
+          name: test-reports
           path: build/reports/
