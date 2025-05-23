@@ -1,4 +1,5 @@
 import io.github.opencubicchunks.gradle.GeneratePackageInfo
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 buildscript {
     dependencies {
@@ -328,7 +329,10 @@ def longRunTest = tasks.register("longRunTest", Test) {
 
     // Show test results.
     testLogging {
-        events("passed", "skipped", "failed")
+        events("started", "passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = TestExceptionFormat.FULL
+        minGranularity = 3
     }
 
     jvmArgs("-ea", "-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true", "-Dmixin.checks.interfaces=true")

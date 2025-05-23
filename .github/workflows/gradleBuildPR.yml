@@ -22,7 +22,15 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+
       - name: Build with Gradle
         run: ./gradlew build -x test
       - name: Run tests
         run: ./gradlew check
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test reports
+          path: build/reports/
