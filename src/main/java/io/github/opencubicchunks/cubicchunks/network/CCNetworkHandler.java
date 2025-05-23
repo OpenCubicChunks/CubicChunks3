@@ -5,6 +5,10 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
+
+// !!! Please minimize the amount of packets that we create until we move to 1.21 !!!
+// This is because NeoForge's network is significantly different (and way better!) in 1.21 and beyond
+
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CCNetworkHandler {
     private static final String PROTOCOL_VERSION = "1";
