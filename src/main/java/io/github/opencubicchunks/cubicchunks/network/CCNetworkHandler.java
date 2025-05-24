@@ -18,5 +18,6 @@ public class CCNetworkHandler {
         final IPayloadRegistrar registrar = event.registrar(CubicChunks.MODID);
 
         registrar.play(CCClientboundLevelCubeWithLightPacket.ID, new CCClientboundLevelCubeWithLightPacket.Handler(), new CCClientboundLevelCubeWithLightPacket.Handler());
+        registrar.play(CCClientboundLevelChunkPacket.ID, new CCClientboundLevelChunkPacket.Handler(), new CCClientboundLevelChunkPacket.Handler());
     }
 }

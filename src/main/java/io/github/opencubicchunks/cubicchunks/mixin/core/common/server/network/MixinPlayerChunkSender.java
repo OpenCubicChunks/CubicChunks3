@@ -4,11 +4,13 @@ import java.util.List;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
-import io.github.opencubicchunks.cc_core.api.CubePos;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelChunkPacket;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
 import io.github.opencubicchunks.cubicchunks.world.entity.EntityCubePosGetter;
+import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
@@ -18,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.PlayerChunkSender;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Dasm(ChunkToCubeSet.class)
+@Dasm(ChunkToCloSet.class)
 @Mixin(PlayerChunkSender.class)
 public class MixinPlayerChunkSender {
     @Shadow private int unacknowledgedBatches;
@@ -55,7 +58,7 @@ public class MixinPlayerChunkSender {
                 if (!this.pendingChunks.isEmpty()) {
                     ServerLevel serverlevel = player.serverLevel();
                     ChunkMap chunkmap = serverlevel.getChunkSource().chunkMap;
-                    List<LevelCube> list = this.cc_collectChunksToSend(chunkmap, ((EntityCubePosGetter)player).cc_cubePosition());
+                    List<LevelClo> list = this.cc_collectChunksToSend(chunkmap, CloPos.cube(((EntityCubePosGetter)player).cc_cubePosition()));
                     if (!list.isEmpty()) {
                         ServerGamePacketListenerImpl servergamepacketlistenerimpl = player.connection;
                         ++this.unacknowledgedBatches;
@@ -63,12 +66,19 @@ public class MixinPlayerChunkSender {
                         // This packet can remain the same because it is just for timing purposes in order to determine how many chunks (or cubes) the client should request
                         servergamepacketlistenerimpl.send(new ClientboundChunkBatchStartPacket());
 
-                        // TODO P2 :: We need to send heightmap and lighting data, which would be contained in the Column, but we only send Cubes for now
-                        // TODO P2 :: We will need to send fireChunkSent when we send a column
-                        // Also we need to send the columns before the cubes to do this correctly
+                        // TODO P2 :: We need to send heightmap and lighting data, which would be contained in the Column
 
-                        for(LevelCube levelCube : list) {
-                            cc_sendCube(servergamepacketlistenerimpl, serverlevel, levelCube);
+                        // We need to send the chunks first before cubes, to ensure that load order invariants are preserved
+                        for (LevelClo levelClo : list) {
+                            if(levelClo instanceof LevelChunk) {
+                                cc_sendChunk(servergamepacketlistenerimpl, serverlevel, (LevelChunk) levelClo);
+                            }
+                        }
+
+                        for (LevelClo levelClo : list) {
+                            if(levelClo instanceof LevelCube) {
+                                cc_sendCube(servergamepacketlistenerimpl, serverlevel, (LevelCube) levelClo);
+                            }
                         }
 
                         // This packet can remain the same because it is just for timing purposes in order to determine how many chunks (or cubes) the client should request
@@ -89,10 +99,23 @@ public class MixinPlayerChunkSender {
         // TODO :: Probably never (its for vanilla debug tools)
         // DebugPackets.sendPoiPacketsForChunk(level, chunkpos);
 
-        // TODO P2 :: We need our own fireCubeSent event for this
+        // TODO P3 :: We need our own fireCubeSent event for this
+        // net.neoforged.neoforge.event.EventHooks.fireChunkSent(packetListener.player, chunk, level);
+    }
+
+    @Unique
+    private static void cc_sendChunk(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelChunk chunk) {
+        PacketDistributor.PLAYER.with(packetListener.player).send(new CCClientboundLevelChunkPacket(chunk.getPos()));
+
+        // ChunkPos chunkpos = chunk.getPos();
+
+        // TODO :: Probably never (its for vanilla debug tools)
+        // DebugPackets.sendPoiPacketsForChunk(level, chunkpos);
+
+        // TODO P3 :: We need our own fireChunkSent event for this
         // net.neoforged.neoforge.event.EventHooks.fireChunkSent(packetListener.player, chunk, level);
     }
 
     @TransformFromMethod(value = @MethodSig("collectChunksToSend(Lnet/minecraft/server/level/ChunkMap;Lnet/minecraft/world/level/ChunkPos;)Ljava/util/List;"))
-    private native List<LevelCube> cc_collectChunksToSend(ChunkMap chunkMap, CubePos cubePos);
+    private native List<LevelClo> cc_collectChunksToSend(ChunkMap chunkMap, CloPos cloPos);
 }

@@ -4,17 +4,13 @@ import java.util.function.Consumer;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeSource;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
-import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
