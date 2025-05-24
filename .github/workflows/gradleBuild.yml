@@ -26,11 +26,12 @@ jobs:
           java-version: 17
 
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test -x longRunTest
       - name: Run tests
         run: ./gradlew check
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload compiled jars
+        uses: actions/upload-artifact@v4
         with:
           name: compiled-jars
           path: build/libs/*.jar

@@ -24,7 +24,7 @@ jobs:
           java-version: 17
 
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test -x longRunTest
       - name: Run tests
         run: ./gradlew check
 
