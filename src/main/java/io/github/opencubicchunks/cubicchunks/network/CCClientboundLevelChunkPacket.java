@@ -17,6 +17,10 @@ public class CCClientboundLevelChunkPacket implements CustomPacketPayload {
         this.pos = pos;
     }
 
+    public CCClientboundLevelChunkPacket(FriendlyByteBuf buffer) {
+        this.pos = new ChunkPos(buffer.readInt(), buffer.readInt());
+    }
+
     @Override public void write(FriendlyByteBuf buffer) {
         buffer.writeInt(pos.x);
         buffer.writeInt(pos.z);

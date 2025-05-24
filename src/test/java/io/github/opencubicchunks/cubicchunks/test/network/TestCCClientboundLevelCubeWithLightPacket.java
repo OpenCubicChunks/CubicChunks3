@@ -13,8 +13,10 @@ import java.util.Optional;
 import java.util.Random;
 
 import io.github.opencubicchunks.cc_core.api.CubePos;
+import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
+import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelChunkPacket;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
@@ -22,6 +24,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,15 +44,19 @@ public class TestCCClientboundLevelCubeWithLightPacket extends BaseTest {
 
         var packet1 = new CCClientboundLevelCubeWithLightPacket(cube1);
         var packet2 = new CCClientboundLevelCubeWithLightPacket(cube2);
+        var packet3 = new CCClientboundLevelChunkPacket(pos1.asChunkPos());
 
         var buf1 = new FriendlyByteBuf(Unpooled.buffer());
         var buf2 = new FriendlyByteBuf(Unpooled.buffer());
+        var buf3 = new FriendlyByteBuf(Unpooled.buffer());
 
         packet1.write(buf1);
         packet2.write(buf2);
+        packet3.write(buf3);
 
         assertDeepEquals(new CCClientboundLevelCubeWithLightPacket(buf1), packet1);
         assertDeepEquals(new CCClientboundLevelCubeWithLightPacket(buf2), packet2);
+        assertDeepEquals(new CCClientboundLevelChunkPacket(buf3), packet3);
     }
 
 
