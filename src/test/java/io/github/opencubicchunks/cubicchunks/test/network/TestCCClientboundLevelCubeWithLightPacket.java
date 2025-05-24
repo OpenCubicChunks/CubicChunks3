@@ -44,19 +44,15 @@ public class TestCCClientboundLevelCubeWithLightPacket extends BaseTest {
 
         var packet1 = new CCClientboundLevelCubeWithLightPacket(cube1);
         var packet2 = new CCClientboundLevelCubeWithLightPacket(cube2);
-        var packet3 = new CCClientboundLevelChunkPacket(pos1.asChunkPos());
 
         var buf1 = new FriendlyByteBuf(Unpooled.buffer());
         var buf2 = new FriendlyByteBuf(Unpooled.buffer());
-        var buf3 = new FriendlyByteBuf(Unpooled.buffer());
 
         packet1.write(buf1);
         packet2.write(buf2);
-        packet3.write(buf3);
 
         assertDeepEquals(new CCClientboundLevelCubeWithLightPacket(buf1), packet1);
         assertDeepEquals(new CCClientboundLevelCubeWithLightPacket(buf2), packet2);
-        assertDeepEquals(new CCClientboundLevelChunkPacket(buf3), packet3);
     }
 
 
