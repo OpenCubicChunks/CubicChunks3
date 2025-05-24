@@ -10,21 +10,18 @@ import java.util.function.IntSupplier;
 import javax.annotation.Nullable;
 
 import com.mojang.datafixers.util.Either;
-import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
-import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.InterOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
-import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
-import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
@@ -35,7 +32,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -47,29 +43,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
  */
 @RedirectSet
 public interface GlobalSet extends ForgeSet {
-    // TODO CloPos-related things should be refactored into ChunkToCloSet eventually
-    @TypeRedirect(from = @Ref(ChunkPos.class), to = @Ref(CloPos.class))
-    abstract class ChunkPos_to_CloPos_redirects {
-        @FieldRedirect(@FieldSig(type = @Ref(long.class), name = "INVALID_CHUNK_POS"))
-        static final long INVALID_CLO_POS = Long.MAX_VALUE;
-
-        @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "x"))
-        native int getX();
-
-        @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "z"))
-        native int getZ();
-
-        // Note that this relies on ChunkPos and CloPos encoding to longs in the same way
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(long.class) }))
-        static native CloPos fromLong(long cloPos);
-
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(int.class), @Ref(int.class) }))
-        static native CloPos chunk(int x, int z);
-
-        @MethodRedirect(@MethodSig("asLong(II)J"))
-        static native long chunkAsLong(int x, int z);
-    }
-
     @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CloHolder.LevelChangeListener.class))
     interface LevelChangeListenerChunkHolder_to_CloHolder_redirects {
         @MethodRedirect(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))

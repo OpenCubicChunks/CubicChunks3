@@ -23,6 +23,7 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.AddUnusedParam;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
@@ -130,7 +131,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of getCube
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;chunkAsLong(II)J"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_chunkAsLong(II)J"))
     private long cc_getCube_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
         return CloPos.cubeAsLong(pX, pY, pZ);
     }
@@ -145,7 +146,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     @Override @Nullable public native LevelCube cc_getCubeNow(int pChunkX, @AddUnusedParam int chunkY, int pChunkZ);
 
     // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of getCubeNow
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCubeNow", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;chunkAsLong(II)J"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_getCubeNow", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_chunkAsLong(II)J"))
     private long cc_getCubeNow_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
         return CloPos.cubeAsLong(pX, pY, pZ);
     }
@@ -196,18 +197,18 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     );
 
     // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of cc_getCubeFutureMainThread
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCubeFutureMainThread", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;chunk(II)Lio/github/opencubicchunks/cc_core/world/level/CloPos;"))
-    private CloPos cc_getCubeFutureMainThread_chunkPosConstruct(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
-        return CloPos.cube(pX, pY, pZ);
+    @Dynamic @Redirect(method = "cc_dasm$cc_getCubeFutureMainThread", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_fromChunkCoords(II)Lio/github/opencubicchunks/cc_core/api/CubePos;"))
+    private CubePos cc_getCubeFutureMainThread_chunkPosConstruct(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
+        return CubePos.of(pX, pY, pZ);
     }
 
     @TransformFromMethod(@MethodSig("hasChunk(II)Z"))
     public native boolean cc_hasCube(int pX, @AddUnusedParam int y, int pZ);
 
     // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of cc_hasCube
-    @Dynamic @Redirect(method = "cc_dasm$cc_hasCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;chunk(II)Lio/github/opencubicchunks/cc_core/world/level/CloPos;"))
-    private CloPos cc_hasCube_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
-        return CloPos.cube(pX, pY, pZ);
+    @Dynamic @Redirect(method = "cc_dasm$cc_hasCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_fromChunkCoords(II)Lio/github/opencubicchunks/cc_core/api/CubePos;"))
+    private CubePos cc_hasCube_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
+        return CubePos.of(pX, pY, pZ);
     }
 
     // TODO (P2) - lighting; currently unused. can probably be done with dasm and @AddUnusedParam

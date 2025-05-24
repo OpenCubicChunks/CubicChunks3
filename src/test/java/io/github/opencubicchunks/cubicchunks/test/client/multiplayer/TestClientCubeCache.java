@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Random;
 
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
@@ -36,9 +36,9 @@ public class TestClientCubeCache extends BaseTest {
         var storage = ((ClientChunkCacheTestAccess) clientChunkCache).cubeStorage();
         var emptyCube = ((ClientChunkCacheTestAccess) clientChunkCache).emptyCube();
 
-        var pos1 = CloPos.cube(1, 2, 3);
-        var pos2 = CloPos.cube(-3, -4, 1);
-        var pos3 = CloPos.cube(0, 0, 0);
+        var pos1 = CubePos.of(1, 2, 3);
+        var pos2 = CubePos.of(-3, -4, 1);
+        var pos3 = CubePos.of(0, 0, 0);
         var index1 = storage.getIndex(pos1.getX(), pos1.getY(), pos1.getZ());
         var index2 = storage.getIndex(pos2.getX(), pos2.getY(), pos2.getZ());
         var index3 = storage.getIndex(pos3.getX(), pos3.getY(), pos3.getZ());
@@ -97,8 +97,8 @@ public class TestClientCubeCache extends BaseTest {
         assertThat(clientChunkCache.cc_getCube(pos3.getX(), pos3.getY(), pos3.getZ(), true)).isSameAs(emptyCube);
 
         // Unloading cubes via cc_drop
-        clientChunkCache.cc_drop(pos1.cubePos());
-        clientChunkCache.cc_drop(pos2.cubePos());
+        clientChunkCache.cc_drop(pos1);
+        clientChunkCache.cc_drop(pos2);
         assertThat(clientChunkCache.cc_getLoadedCubeCount()).isEqualTo(0);
         assertThat(clientChunkCache.cc_getCube(pos1.getX(), pos1.getY(), pos1.getZ(), false)).isNull();
         assertThat(clientChunkCache.cc_getCube(pos2.getX(), pos2.getY(), pos2.getZ(), true)).isSameAs(emptyCube);
@@ -115,8 +115,8 @@ public class TestClientCubeCache extends BaseTest {
         var clientChunkCache = ((ClientCubeCache) new ClientChunkCache(clientLevelMock, 10));
         var emptyCube = ((ClientChunkCacheTestAccess) clientChunkCache).emptyCube();
 
-        var pos1 = CloPos.cube(-3, -2, -3);
-        var pos2 = CloPos.cube(-3, -1, -3);
+        var pos1 = CubePos.of(-3, -2, -3);
+        var pos2 = CubePos.of(-3, -1, -3);
         var cube1 = new LevelCube(clientLevelMock, pos1);
         Random random = new Random(203);
         var cube2 = generateRandomLevelCube(clientLevelMock, pos2, random);

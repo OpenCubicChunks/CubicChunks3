@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Nullable;
 
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.Vec3i;
@@ -74,7 +74,7 @@ public class Misc {
     /**
      * Generate a LevelCube filled with random stone and dirt blocks
      */
-    public static LevelCube generateRandomLevelCube(Level level, CloPos pos, Random random) {
+    public static LevelCube generateRandomLevelCube(Level level, CubePos pos, Random random) {
         var cube = new LevelCube(level, pos);
         for (int i = 0; i < CubicConstants.SECTION_COUNT; i++) {
             var section = cube.getSection(i);

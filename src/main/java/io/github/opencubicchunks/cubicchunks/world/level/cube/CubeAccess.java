@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -14,6 +13,7 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
@@ -54,11 +54,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Dasm(ChunkToCubeSet.class)
 public abstract class CubeAccess implements CloAccess {
-    // Fields copied from ChunkAccess, except ChunkPos -> CloPos
+    // Fields copied from ChunkAccess, except ChunkPos -> CubePos
     protected final ShortList[] postProcessing;
     protected volatile boolean unsaved;
     private volatile boolean isLightCorrect;
-    protected final CloPos cloPos;
+    protected final CubePos cubePos;
     private long inhabitedTime;
     @Nullable
     @Deprecated
@@ -80,7 +80,7 @@ public abstract class CubeAccess implements CloAccess {
 
     // Constructor signature matches ChunkAccess for DASM redirect purposes
     public CubeAccess(
-        CloPos cloPos,
+        CubePos cubePos,
         UpgradeData upgradeData,
         LevelHeightAccessor levelHeightAccessor,
         Registry<Biome> biomeRegistry,
@@ -88,7 +88,7 @@ public abstract class CubeAccess implements CloAccess {
         @Nullable LevelChunkSection[] chunkSections,
         @Nullable BlendingData blendingData
     ) {
-        this.cloPos = cloPos;
+        this.cubePos = cubePos;
         this.upgradeData = upgradeData;
         this.levelHeightAccessor = levelHeightAccessor;
         this.sections = new LevelChunkSection[CubicConstants.SECTION_COUNT];
@@ -176,8 +176,12 @@ public abstract class CubeAccess implements CloAccess {
     }
     // end heightmaps
 
+    public CubePos cc_getCubePos() {
+        return cubePos;
+    }
+
     @Override public CloPos cc_getCloPos() {
-        return cloPos;
+        return CloPos.cube(cubePos);
     }
 
     @TransformFromMethod(
@@ -316,7 +320,7 @@ public abstract class CubeAccess implements CloAccess {
                 for (int x = 0; x < CubicConstants.DIAMETER_IN_SECTIONS; x++) {
                     LevelChunkSection levelchunksection = this.getSection(Coords.sectionToIndex(x, y, z));
                     if (levelchunksection.maybeHas(predicate)) {
-                        BlockPos blockpos = this.cloPos.cubePos().asSectionPos().offset(x, y, z).origin();
+                        BlockPos blockpos = this.cubePos.asSectionPos().offset(x, y, z).origin();
 
                         for (int sectionLocalY = 0; sectionLocalY < SectionPos.SECTION_SIZE; ++sectionLocalY) {
                             for (int sectionLocalZ = 0; sectionLocalZ < SectionPos.SECTION_SIZE; ++sectionLocalZ) {

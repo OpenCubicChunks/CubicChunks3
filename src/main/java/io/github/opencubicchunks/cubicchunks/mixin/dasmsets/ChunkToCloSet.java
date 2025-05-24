@@ -3,10 +3,13 @@ package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 import javax.annotation.Nullable;
 
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
@@ -45,6 +48,28 @@ import net.minecraft.world.ticks.ProtoChunkTicks;
  */
 @RedirectSet
 public interface ChunkToCloSet extends GlobalSet {
+    @TypeRedirect(from = @Ref(ChunkPos.class), to = @Ref(CloPos.class))
+    abstract class ChunkPos_to_CloPos_redirects {
+        @FieldRedirect(@FieldSig(type = @Ref(long.class), name = "INVALID_CHUNK_POS"))
+        static final long INVALID_CLO_POS = Long.MAX_VALUE;
+
+        @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "x"))
+        native int getX();
+
+        @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "z"))
+        native int getZ();
+
+        // Note that this relies on ChunkPos and CloPos encoding to longs in the same way
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(long.class) }))
+        static native CloPos fromLong(long cloPos);
+
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(int.class), @Ref(int.class) }))
+        static native CloPos chunk(int x, int z);
+
+        @MethodRedirect(@MethodSig("asLong(II)J"))
+        static native long chunkAsLong(int x, int z);
+    }
+
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CloAccess.class))
     interface ChunkAccess_to_CloAccess_redirects {
         @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))

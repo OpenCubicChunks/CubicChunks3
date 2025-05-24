@@ -16,7 +16,7 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
@@ -82,13 +82,13 @@ public class LevelCube extends CubeAccess implements LevelClo {
     private final LevelChunkTicks<Fluid> fluidTicks;
 
     // Constructors mirroring vanilla signatures
-    public LevelCube(Level level, CloPos pos) {
+    public LevelCube(Level level, CubePos pos) {
         this(level, pos, UpgradeData.EMPTY, new LevelChunkTicks<>(), new LevelChunkTicks<>(), 0L, null, null, null);
     }
 
     public LevelCube(
         Level level,
-        CloPos pos,
+        CubePos pos,
         UpgradeData data,
         LevelChunkTicks<Block> blockTicks,
         LevelChunkTicks<Fluid> fluidTicks,
@@ -116,7 +116,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     public LevelCube(ServerLevel level, ProtoCube cube, @Nullable LevelClo.PostLoadProcessor postLoad) {
         this(
             level,
-            cube.cc_getCloPos(),
+            cube.cc_getCubePos(),
             cube.getUpgradeData(),
             cube.unpackBlockTicks(),
             cube.unpackFluidTicks(),

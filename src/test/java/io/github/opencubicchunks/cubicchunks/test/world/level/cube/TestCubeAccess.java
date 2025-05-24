@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
@@ -37,11 +37,11 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCubeAccess extends BaseTest {
     static class CubeAccessTestImpl extends CubeAccess {
-        public CubeAccessTestImpl(CloPos cloPos, UpgradeData upgradeData,
+        public CubeAccessTestImpl(CubePos cubePos, UpgradeData upgradeData,
                                   LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
                                   long inhabitedTime, @Nullable LevelChunkSection[] chunkSections,
                                   @Nullable BlendingData blendingData) {
-            super(cloPos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, chunkSections, blendingData);
+            super(cubePos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, chunkSections, blendingData);
         }
 
         @Override public GameEventListenerRegistry getListenerRegistry(int sectionY) {
@@ -98,12 +98,12 @@ public class TestCubeAccess extends BaseTest {
     }
 
     private void findBlocks(Random random) {
-        CloPos cubePos = CloPos.cube(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
         var cubeAccess = new CubeAccessTestImpl(cubePos, mock(), mock(), mock(), 0L, new LevelChunkSection[CubicConstants.SECTION_COUNT], mock());
         Set<BlockPos> visitedPositions = new HashSet<>();
         Set<BlockPos> expectedPositions = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
-            BlockPos pos = cubePos.cubePos().asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+            BlockPos pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             if (!visitedPositions.add(pos)) continue;
             if (random.nextBoolean()) {
                 cubeAccess.setBlockState(pos, Blocks.STONE.defaultBlockState(), false);

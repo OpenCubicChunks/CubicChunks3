@@ -1,15 +1,17 @@
 package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
+import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
@@ -35,18 +37,41 @@ import net.minecraft.world.level.chunk.ProtoChunk;
  */
 @RedirectSet
 public interface ChunkToCubeSet extends GlobalSet {
+    @TypeRedirect(from = @Ref(ChunkPos.class), to = @Ref(CubePos.class))
+    abstract class ChunkPos_to_CubePos_redirects {
+        @FieldRedirect(@FieldSig(type = @Ref(long.class), name = "INVALID_CHUNK_POS"))
+        static final long INVALID_CUBE_POS = Long.MAX_VALUE;
+
+        @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "x"))
+        native int getX();
+
+        @FieldToMethodRedirect(@FieldSig(type = @Ref(int.class), name = "z"))
+        native int getZ();
+
+        @MethodRedirect(@MethodSig("toLong()J"))
+        native long asLong();
+
+        // Dummy methods that throw errors; these should be manually redirected to the correct x,y,z methods using mixin.
+        // (See: MixinCubePos)
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(int.class), @Ref(int.class) }))
+        static native CubePos dummy_fromChunkCoords(int x, int z);
+
+        @MethodRedirect(@MethodSig("asLong(II)J"))
+        static native long dummy_chunkAsLong(int x, int z);
+    }
+
     @TypeRedirect(from = @Ref(ChunkAccess.class), to = @Ref(CubeAccess.class))
     abstract class ChunkAccess_to_CubeAccess_redirects {
-        @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CloPos cloPos;
+        @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CubePos cubePos;
 
-        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;")) public native CloPos cc_getCloPos();
+        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;")) public native CubePos cc_getCubePos();
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelCube.class))
     abstract class LevelChunk_to_LevelCube_redirects {
-        @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CloPos cloPos;
+        @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos")) protected CubePos cubePos;
 
-        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;")) public native CloPos cc_getCloPos();
+        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;")) public native CubePos cc_getCubePos();
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.PostLoadProcessor.class), to = @Ref(LevelCube.PostLoadProcessor.class))

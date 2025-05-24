@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Random;
 
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
@@ -25,8 +25,8 @@ public class TestCCClientboundLevelCubeWithLightPacket extends BaseTest {
         when(((CanBeCubic) clientLevelMock).cc_isCubic()).thenReturn(true);
         when(clientLevelMock.getHeight()).thenReturn(384);
         when(clientLevelMock.getSectionsCount()).thenReturn(24);
-        var pos1 = CloPos.cube(1, 2, 3);
-        var pos2 = CloPos.cube(0, -2, 4);
+        var pos1 = CubePos.of(1, 2, 3);
+        var pos2 = CubePos.of(0, -2, 4);
         var cube1 = new LevelCube(clientLevelMock, pos1);
         var cube2 = generateRandomLevelCube(clientLevelMock, pos2, new Random(3333));
 

@@ -30,7 +30,7 @@ import net.minecraft.world.ticks.ProtoChunkTicks;
 public interface ProtoClo extends CloAccess {
     static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
         if (cloPos.isCube()) {
-            return new ProtoCube(cloPos, upgradeData, levelHeightAccessor, biomeRegistry, blendingData);
+            return new ProtoCube(cloPos.cubePos(), upgradeData, levelHeightAccessor, biomeRegistry, blendingData);
         } else {
             return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), upgradeData, levelHeightAccessor, biomeRegistry, blendingData);
         }
@@ -47,7 +47,7 @@ public interface ProtoClo extends CloAccess {
         @Nullable BlendingData blendingData
     ) {
         if (cloPos.isCube()) {
-            return new ProtoCube(cloPos, upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
+            return new ProtoCube(cloPos.cubePos(), upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
         } else {
             return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
         }

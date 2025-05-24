@@ -5,13 +5,17 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
@@ -72,37 +76,80 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
 
     @Override
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public abstract <T> void cc_addTicket(TicketType<T> type, CloPos pos, int level, T value);
 
     @Override
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public abstract <T> void cc_removeTicket(TicketType<T> type, CloPos pos, int level, T value);
 
     @Override
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public abstract <T> void cc_addRegionTicket(TicketType<T> type, CloPos pos, int distance, T value);
 
     @Override
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
     public abstract <T> void cc_addRegionTicket(TicketType<T> type, CloPos pos, int distance, T value, boolean forceTicks);
 
     @Override
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public abstract <T> void cc_removeRegionTicket(TicketType<T> type, CloPos pos, int distance, T value);
 
     @Override
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
     public abstract <T> void cc_removeRegionTicket(TicketType<T> type, CloPos pos, int distance, T value, boolean forceTicks);
 
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
     public abstract void cc_updateCubeForced(CloPos pos, boolean add);
+
+    // CubePos equivalents that delegate to their corresponding CloPos method
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    public <T> void cc_addTicket(TicketType<T> type, CubePos pos, int level, T value) {
+        cc_addTicket(type, CloPos.cube(pos), level, value);
+    }
+
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    public <T> void cc_removeTicket(TicketType<T> type, CubePos pos, int level, T value) {
+        cc_removeTicket(type, CloPos.cube(pos), level, value);
+    }
+
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    public <T> void cc_addRegionTicket(TicketType<T> type, CubePos pos, int distance, T value) {
+        cc_addRegionTicket(type, CloPos.cube(pos), distance, value);
+    }
+
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
+    public <T> void cc_addRegionTicket(TicketType<T> type, CubePos pos, int distance, T value, boolean forceTicks) {
+        cc_addRegionTicket(type, CloPos.cube(pos), distance, value, forceTicks);
+    }
+
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    public <T> void cc_removeRegionTicket(TicketType<T> type, CubePos pos, int distance, T value) {
+        cc_removeRegionTicket(type, CloPos.cube(pos), distance, value);
+    }
+
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
+    public <T> void cc_removeRegionTicket(TicketType<T> type, CubePos pos, int distance, T value, boolean forceTicks) {
+        cc_removeRegionTicket(type, CloPos.cube(pos), distance, value, forceTicks);
+    }
+
+    @UsedFromASM
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
+    public void cc_updateCubeForced(CubePos pos, boolean add) {
+        cc_updateCubeForced(CloPos.cube(pos), add);
+    }
 
     /**
      * This function replaces a TicketType with a CubicTicketType.

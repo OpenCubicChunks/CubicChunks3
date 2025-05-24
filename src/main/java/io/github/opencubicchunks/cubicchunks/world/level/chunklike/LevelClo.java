@@ -30,7 +30,7 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 public interface LevelClo extends CloAccess {
     static LevelClo create(Level level, CloPos pos) {
         if (pos.isCube()) {
-            return new LevelCube(level, pos);
+            return new LevelCube(level, pos.cubePos());
         } else {
             return (LevelClo) new LevelChunk(level, pos.chunkPos());
         }
@@ -45,7 +45,7 @@ public interface LevelClo extends CloAccess {
                            @Nullable PostLoadProcessor postLoad,
                            @Nullable BlendingData blendingData) {
         if (pos.isCube()) {
-            return new LevelCube(level, pos, data, blockTicks, fluidTicks, inhabitedTime, sections, postLoad, blendingData);
+            return new LevelCube(level, pos.cubePos(), data, blockTicks, fluidTicks, inhabitedTime, sections, postLoad, blendingData);
         } else {
             return (LevelClo) new LevelChunk(level, pos.chunkPos(), data, blockTicks, fluidTicks, inhabitedTime, sections, PostLoadProcessor.forChunk(postLoad), blendingData);
         }

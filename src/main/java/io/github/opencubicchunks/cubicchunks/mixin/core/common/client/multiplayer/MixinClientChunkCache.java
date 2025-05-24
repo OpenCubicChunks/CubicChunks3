@@ -11,7 +11,6 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
@@ -57,7 +56,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     private void cc_onConstruct(ClientLevel level, int viewDistance, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_emptyCube = new EmptyLevelCube(
-                level, CloPos.cube(0, 0, 0), level.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
+                level, CubePos.of(0, 0, 0), level.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
             );
             cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter
@@ -132,7 +131,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
             LevelCube levelCube = this.cc_cubeStorage.chunks.get(i);
             CubePos cubePos = CubePos.of(x, y, z);
             if (!cc_isValidCube(levelCube, x, y, z)) {
-                levelCube = new LevelCube(this.level, CloPos.cube(cubePos));
+                levelCube = new LevelCube(this.level, cubePos);
                 levelCube.replaceWithPacketData(buffer, tag, consumer);
                 this.cc_cubeStorage.replace(i, levelCube);
             } else {

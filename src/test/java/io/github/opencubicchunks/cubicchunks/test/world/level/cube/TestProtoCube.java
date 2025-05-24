@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
@@ -27,7 +27,7 @@ import org.mockito.Answers;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestProtoCube extends BaseTest {
-    private ProtoCube makeProtoCube(CloPos cubePos) {
+    private ProtoCube makeProtoCube(CubePos cubePos) {
         LevelHeightAccessor heightAccessor = mock(Answers.RETURNS_DEEP_STUBS);
         when(heightAccessor.getMinBuildHeight()).thenReturn(-(1 << 24));
         when(heightAccessor.getMaxBuildHeight()).thenReturn(1 << 24);
@@ -39,11 +39,11 @@ public class TestProtoCube extends BaseTest {
     // TODO markPosForPostprocessing - need to figure out what it actually does in order to test it
 
     private void simpleGetSetBlockState(Random random) {
-        CloPos cubePos = CloPos.cube(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
         var cube = makeProtoCube(cubePos);
         Map<BlockPos, BlockState> states = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
-            var pos = cubePos.cubePos()
+            var pos = cubePos
                 .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             var state = random.nextBoolean() ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
             states.put(pos, state);
@@ -57,12 +57,12 @@ public class TestProtoCube extends BaseTest {
 
     // Mojang's fluid stuff is so jank and half-implemented
     private void fluidState(Random random) {
-        CloPos cubePos = CloPos.cube(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
         var cube = makeProtoCube(cubePos);
         Set<BlockPos> positions = new HashSet<>();
         var state = Blocks.ANDESITE_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true);
         for (int i = 0; i < 100; i++) {
-            var pos = cubePos.cubePos()
+            var pos = cubePos
                 .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             positions.add(pos);
             cube.setBlockState(pos, state, false);
