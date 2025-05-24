@@ -8,6 +8,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
+import io.github.opencubicchunks.cubicchunks.world.entity.EntityCubePosGetter;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.network.protocol.game.ClientboundChunkBatchFinishedPacket;
@@ -54,7 +55,7 @@ public class MixinPlayerChunkSender {
                 if (!this.pendingChunks.isEmpty()) {
                     ServerLevel serverlevel = player.serverLevel();
                     ChunkMap chunkmap = serverlevel.getChunkSource().chunkMap;
-                    List<LevelCube> list = this.cc_collectChunksToSend(chunkmap, player.cubePos());
+                    List<LevelCube> list = this.cc_collectChunksToSend(chunkmap, ((EntityCubePosGetter)player).cc_cubePosition());
                     if (!list.isEmpty()) {
                         ServerGamePacketListenerImpl servergamepacketlistenerimpl = player.connection;
                         ++this.unacknowledgedBatches;
