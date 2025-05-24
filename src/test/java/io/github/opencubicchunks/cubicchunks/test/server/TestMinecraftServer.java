@@ -23,6 +23,8 @@ import org.mockito.Answers;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
+
+// TODO :: These tests don't work, because mocking the minecraft server is extremely hard. If anyone can figure it out, please re-enable these tests.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestMinecraftServer extends BaseTest {
     private CloseableReference<IntegratedServer> setupServer() {
@@ -35,7 +37,6 @@ public class TestMinecraftServer extends BaseTest {
         );
     }
 
-    //TODO: This test hangs for some reason
     @Test @Disabled public void testSetInitialSpawnVanilla() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             ((MarkableAsCubic)serverLevelReference.value()).cc_setCubic();
@@ -45,8 +46,7 @@ public class TestMinecraftServer extends BaseTest {
         }
     }
 
-    // TODO: Need to mock overworld() in some way
-    @Test @Disabled public void testPrepareLevelsVanilla() throws Exception {
+    @Test @Disabled void testPrepareLevelsVanilla() throws Exception {
         try (CloseableReference<IntegratedServer> server = setupServer()) {
             ((MarkableAsCubic)server.value().overworld()).cc_setCubic();
             ((MinecraftServerTestAccess)server.value()).invoke_prepareLevels(mock(RETURNS_DEEP_STUBS));

@@ -2,7 +2,10 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
+import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -40,12 +43,12 @@ public abstract class MixinServerPlayer extends Player implements MarkableAsCubi
         if (!cc_isCubic) {
             return true;
         }
-        // TODO: Add once Cubic ServerChunkCache exists
-        //instance.addRegionTicket(type, CloPos.cube(BlockPos.containing(x, y, z)), 1, this.getId());
+
+        ((ServerCubeCache)instance).cc_addRegionTicket(type, CloPos.cube(BlockPos.containing(x, y, z)), distance, value);
         return false;
     }
 
-    // TODO: phase 3 - findDimensionEntryPoint
+    // TODO P3 :: findDimensionEntryPoint
 
-    // TODO: phase 3 - changeDimension
+    // TODO P3 :: changeDimension
 }

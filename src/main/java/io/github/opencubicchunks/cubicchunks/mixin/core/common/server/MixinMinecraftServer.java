@@ -7,8 +7,12 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
+import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.SpawnPlaceFinder;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
+import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
@@ -21,7 +25,9 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftServer.class)
@@ -33,6 +39,10 @@ public abstract class MixinMinecraftServer {
     @Shadow protected long nextTickTimeNanos;
 
     @Shadow protected abstract void waitUntilNextTick();
+
+
+    // TODO P2 :: This value is dynamic in 1.21, we will need to revisit this
+    private static final int VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS = 11;
 
     // setInitialSpawn
     // We replace the ChunkPos spawn position with a CubePos spawn position and reuse it later to get the world position.
@@ -81,26 +91,31 @@ public abstract class MixinMinecraftServer {
     private <T> boolean cc_replaceAddRegionTicketInPrepareLevels(ServerChunkCache serverChunkCache, TicketType<T> ticketType, ChunkPos chunkPos, int originalSpawnRadius, T unit,
                                                                  @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
         if (((CanBeCubic) serverChunkCache).cc_isCubic()) {
-            int spawnRadius = (int) Math.ceil(10 * (16 / (float) CubicConstants.DIAMETER_IN_BLOCKS)); //vanilla is 10, 32: 5, 64: 3
+            int spawnRadius = Coords.sectionToCube(VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS);
             spawnRadiusRef.set(spawnRadius);
-            // TODO: Fix this when ServerChunkCache exists
-            //(ServerCubeCache)serverChunkCache.addRegionTicket(CubicTicketType.START, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius + 1, unit);
+            ((ServerCubeCache)serverChunkCache).cc_addRegionTicket(ticketType, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius, unit);
             return false;
         }
+
         return true;
     }
 
-    @Inject(method = "prepareLevels", at = @At(value = "FIELD", target = "Lnet/minecraft/server/MinecraftServer;nextTickTimeNanos:J"))
-    private void cc_waitUntilCubicGenerationComplete(CallbackInfo ci, @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
-        if (((CanBeCubic) overworld().getChunkSource()).cc_isCubic()) {
-            int d = spawnRadiusRef.get() * 2 + 1;
-            // TODO: Fix this when ServerChunkCache exists
-            //while (this.isRunning() && ((ServerCubeCache) overworld().getChunkSource()).getTickingGeneratedCubes() < d * d * d) {
-            //    this.nextTickTimeNanos = Util.getMillis() + 10L;
-            //    this.waitUntilNextTick();
-            //}
+    @ModifyConstant(method = "prepareLevels", constant = @Constant(intValue = 441), require = 1)
+    private int cc_modifyExpectedNumberOfTickingGenerated(int constant, @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
+        if (((CanBeCubic) overworld()).cc_isCubic()) {
+            // We need to calculate the number of cubes + chunks in the expected radius
+            int spawnRadius = spawnRadiusRef.get();
+            int spawnDiameterCubes = spawnRadius * 2 + 1;
+            int cubesInRadius = spawnDiameterCubes * spawnDiameterCubes * spawnDiameterCubes;
+
+            int spawnDiameterChunks = Coords.cubeToSection(spawnDiameterCubes, 0);
+            int chunksInRadius = spawnDiameterChunks * spawnDiameterChunks;
+
+            return cubesInRadius + chunksInRadius;
         }
+
+        return constant;
     }
 
-    // TODO: forced cubes will need to be implemented for prepareLevels as well in the same way as above
+    // TODO P2 :: Forced cubes will need to be implemented here as well; but this includes saving logic so P2
 }
