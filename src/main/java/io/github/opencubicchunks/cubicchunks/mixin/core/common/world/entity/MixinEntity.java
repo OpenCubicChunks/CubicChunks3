@@ -7,6 +7,7 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
@@ -45,16 +46,16 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     @Shadow public abstract int getId();
 
     @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(Entity.class), field = @FieldSig(type = @Ref(ChunkPos.class), name = "chunkPosition"))
-    private CloPos cc_cubePosition = CloPos.cube(0, 0, 0);
+    private CubePos cc_cubePosition = CubePos.of(0, 0, 0);
 
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
-    public native CloPos cc_cubePosition();
+    public native CubePos cc_cubePosition();
 
     // Update cube position when blockpos changes - this is the same location as where vanilla updates the chunk position
     @Inject(method = "setPosRaw", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;", opcode = Opcodes.PUTFIELD))
     private void cc_onSetPosRaw(double x, double y, double z, CallbackInfo ci) {
         if (Coords.blockToCube(x) != cc_cubePosition.getX() || Coords.blockToCube(y) != cc_cubePosition.getY() || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
-            this.cc_cubePosition = CloPos.cube(this.blockPosition);
+            this.cc_cubePosition = CubePos.from(this.blockPosition);
         }
     }
 

@@ -9,7 +9,6 @@ import java.util.Random;
 
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.test.world.level.TestCubicLevelReader;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
@@ -36,7 +35,7 @@ public class TestEntity extends BaseTest {
         for (int i = 0; i < 1000; i++) {
             var pos = new BlockPos(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
             entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            assertEquals(CloPos.cube(pos), ((EntityCubePosGetter) entity).cc_cubePosition());
+            assertEquals(CubePos.from(pos), ((EntityCubePosGetter) entity).cc_cubePosition());
         }
     }
 
