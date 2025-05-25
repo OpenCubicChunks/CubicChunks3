@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.client.multiplayer;
 
-public interface CubicClientLevel {
+import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
+
+public interface CubicClientLevel extends CubicLevel {
 
 }
