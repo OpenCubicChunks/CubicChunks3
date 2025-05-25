@@ -29,6 +29,7 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.access.common.ChunkMapAccess;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.MixinChunkSource;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
@@ -108,8 +109,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     @Shadow protected abstract void getFullChunk(long p_8371_, Consumer<LevelChunk> p_8372_);
 
-    // TODO inject at head once we can inject at non-return locations
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    @Inject(method = "<init>", at = @At("io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
     private void cc_onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager, Executor dispatcher,
                         ChunkGenerator generator, int viewDistance, int simulationDistance, boolean sync, ChunkProgressListener progressListener,
                         ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, CallbackInfo ci) {
@@ -316,17 +316,17 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         // TODO (P2) lighting
     }
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public native <T> void cc_addRegionTicket(TicketType<T> pType, CloPos pPos, int pDistance, T pValue);
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
     public native <T> void cc_addRegionTicket(TicketType<T> p_8388_, CloPos p_8389_, int p_8390_, T p_8391_, boolean forceTicks);
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
     public native <T> void cc_removeRegionTicket(TicketType<T> pType, CloPos pPos, int pDistance, T pValue);
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
     public native <T> void cc_removeRegionTicket(TicketType<T> p_8439_, CloPos p_8440_, int p_8441_, T p_8442_, boolean forceTicks);
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
     public native void cc_updateChunkForced(CloPos pPos, boolean pAdd);
 
     // TODO should probably be implemented properly, but is low priority (debug)

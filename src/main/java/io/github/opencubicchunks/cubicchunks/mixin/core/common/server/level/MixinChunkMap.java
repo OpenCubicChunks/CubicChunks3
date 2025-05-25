@@ -486,7 +486,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     // dasm + mixin - TODO redirect for ClientboundSetChunkCacheCenterPacket construction, 2 -> 3 ints
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("applyChunkTrackingView(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ChunkTrackingView;)V"))
-    private native void cc_applyChunkTrackingView(ServerPlayer player, ChunkTrackingView chunkTrackingView);
+    private native void cc_applyChunkTrackingView(ServerPlayer player, CloTrackingView chunkTrackingView);
 
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"))

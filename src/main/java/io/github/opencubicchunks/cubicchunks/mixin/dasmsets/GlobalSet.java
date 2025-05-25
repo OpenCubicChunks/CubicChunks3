@@ -91,7 +91,7 @@ public interface GlobalSet extends ForgeSet {
     interface ChunkTrackingView_to_CloTrackingView_redirects { }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
-    interface ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects { }
+    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects { }
 
     // TODO These need to be specified explicitly for now bc of inheritance jank
     @IntraOwnerContainer(owner = @Ref(ChunkMap.DistanceManager.class))

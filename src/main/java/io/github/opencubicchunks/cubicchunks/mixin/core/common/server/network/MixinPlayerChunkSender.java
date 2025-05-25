@@ -2,6 +2,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.network;
 
 import java.util.List;
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
@@ -43,9 +44,15 @@ public class MixinPlayerChunkSender {
 
     @Shadow @Final private LongSet pendingChunks;
 
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    public native void cc_markCloPendingToSend(LevelClo clo);
+
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
+    public native void cc_dropClo(ServerPlayer player, CloPos cloPos);
+
     @Inject(method = "sendNextChunks", at = @At(value = "HEAD"), cancellable = true)
-    private void cc_sendNextChunks(ServerPlayer player, CallbackInfo ci) {
-        if(!((CanBeCubic)player).cc_isCubic()) {
+    private void cc_onSendNextChunks(ServerPlayer player, CallbackInfo ci) {
+        if (!((CanBeCubic) player.level()).cc_isCubic()) {
             return;
         }
 

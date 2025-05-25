@@ -13,11 +13,13 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -154,5 +156,10 @@ public interface ChunkToCloSet extends GlobalSet {
 
         @MethodRedirect(@MethodSig("getWrapped()Lnet/minecraft/world/level/chunk/LevelChunk;"))
         LevelClo cc_getWrappedClo();
+    }
+
+    @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
+    interface ChunkTrackingView_to_CloTrackingView_redirects {
+
     }
 }

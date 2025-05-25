@@ -41,7 +41,7 @@ public interface CloTrackingView extends ChunkTrackingView {
         return new CloTrackingView.Positioned(center, viewDistance);
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("difference(Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("difference(Lnet/minecraft/server/level/ChunkTrackingView;Lnet/minecraft/server/level/ChunkTrackingView;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
     static void cc_difference(CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker) {
         if (!oldCloTrackingView.equals(newCloTrackingView)) {
             if (oldCloTrackingView instanceof Positioned oldPositioned
