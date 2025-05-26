@@ -104,7 +104,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                            ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, int viewDistance, boolean sync, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_progressListener = ((CloProgressListener) progressListener);
-            // FIXME actually pass in a cloStatusListener - since ChunkStatusUpdateListener is passed as a parameter, not sure what the best approach is without making our own constructor
+            // TODO P2 (entities): actually pass in a cloStatusListener - since ChunkStatusUpdateListener is passed as a parameter, not sure what the best approach is without making our own constructor
             cc_cloStatusListener = (cloPos, fullChunkStatus) -> {};
             ((MarkableAsCubic) distanceManager).cc_setCubic();
         }
