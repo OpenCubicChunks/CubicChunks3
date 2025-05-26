@@ -33,6 +33,7 @@ import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.SectionPosToCubeSet;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundSetCubeCacheCenterPacket;
+import io.github.opencubicchunks.cubicchunks.server.level.CloCollectorFuture;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
@@ -177,8 +178,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
         CloPos pos = ((CloHolder) cloHolder).cc_getPos();
         if (!pos.isCube()) return;
         // The vanilla method has an early exit for radius=0 here; this is not valid for cubes because even if radius=0 we still depend on chunks that neighbor the cube
-        List<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> dependencyFutures = new ArrayList<>();
         List<ChunkHolder> cloHolders = new ArrayList<>();
+        List<ChunkStatus> expectedStatuses = new ArrayList<>();
         int middleCubeIndex = -1;
         for (int dz = -radius; dz <= radius; dz++) {
             for (int dx = -radius; dx <= radius; dx++) {
@@ -202,9 +203,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                         // getChunkRangeFuture statusByRadius returns the status that is depended on, not the actual destination status. for non-central chunks that's fine,
                         // but for the chunks intersecting the center cube, the central cube reaching the destination status depends on the intersecting chunks reaching the destination status, not its parent.
                         if (chunkDistance == 0) expectedStatus = cc_getChildStatus(expectedStatus);
-                        var future = ((CloHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
                         cloHolders.add(holder);
-                        dependencyFutures.add(future);
+                        expectedStatuses.add(expectedStatus);
                     }
                 }
                 for (int dy = -radius; dy <= radius; dy++) {
@@ -223,9 +223,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                         return;
                     }
                     ChunkStatus expectedStatus = statusByRadius.apply(Math.max(chunkDistance, Math.abs(dy)));
-                    var future = ((CloHolder) holder).cc_getOrScheduleFuture(expectedStatus, (ChunkMap) (Object) this);
                     cloHolders.add(holder);
-                    dependencyFutures.add(future);
+                    expectedStatuses.add(expectedStatus);
                 }
             }
         }
@@ -233,10 +232,20 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
         // Vanilla expects that the center chunk is in the middle of the list; this is not the case for cubes, so we manually swap the center cube to the middle
         // - this is a temporary approach, until we make our own cube+chunk list wrapper
         swap(cloHolders, middleCubeIndex, cloHolders.size() / 2);
-        swap(dependencyFutures, middleCubeIndex, cloHolders.size() / 2);
+        swap(expectedStatuses, middleCubeIndex, cloHolders.size() / 2);
 
-        var sequencedFuture = Util.sequence(dependencyFutures);
-        CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> combinedFuture = sequencedFuture.thenApply(p_183730_ -> {
+        // Vanilla gets futures for each individual ChunkHolder and uses Util.sequence to combine them;
+        // we instead use CloCollectorFuture, and add a listener to each CloHolder that notifies the collector when that CloHolder has reached the desired stage.
+        // This saves several gigabytes of CompletableFuture objects.
+        var cloCollectorFuture = new CloCollectorFuture(cloHolders.size());
+        for (int i = 0; i < cloHolders.size(); i++) {
+            var holder = cloHolders.get(i);
+            var expectedStatus = expectedStatuses.get(i);
+            final int i2 = i; // thanks java lambdas
+            ((CloHolder) holder).cc_addCloStatusListener(expectedStatus, (either, error) -> cloCollectorFuture.add(i2, either, error), (ChunkMap) (Object) this);
+        }
+
+        CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> combinedFuture = cloCollectorFuture.thenApply(p_183730_ -> {
                 List<CloAccess> list2 = Lists.newArrayList();
                 int k1 = 0;
 

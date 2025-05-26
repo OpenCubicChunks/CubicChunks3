@@ -2,6 +2,7 @@ package io.github.opencubicchunks.cubicchunks.server.level;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
@@ -26,6 +27,14 @@ public interface CloHolder {
     CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
 
     void cc_addSaveDependency(String source, CompletableFuture<?> future);
+
+    /**
+     * Add a listener that is notified when this CloHolder has reached a given ChunkStatus
+     * @param status The ChunkStatus to listen for
+     * @param consumer The listener to call once the status is reached
+     * @param chunkMap The ChunkMap that manages this CloHolder
+     */
+    void cc_addCloStatusListener(ChunkStatus status, BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> consumer, ChunkMap chunkMap);
 
     @FunctionalInterface
     interface LevelChangeListener {

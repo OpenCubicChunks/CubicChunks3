@@ -1,8 +1,11 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
 
@@ -61,6 +64,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Dasm(ChunkToCloSet.class)
 @Mixin(ChunkHolder.class)
 public abstract class MixinChunkHolder implements CloHolder {
+    @Shadow @Final private static List<ChunkStatus> CHUNK_STATUSES;
+
     private boolean cc_isCubic;
 
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
@@ -70,6 +75,11 @@ public abstract class MixinChunkHolder implements CloHolder {
     private final CloHolder.LevelChangeListener cc_onLevelChange;
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(name = "playerProvider", type = @Ref(ChunkHolder.PlayerProvider.class)))
     private final CloHolder.PlayerProvider cc_playerProvider;
+
+    /**
+     * Listeners for each ChunkStatus, that are notified when this CloHolder has reached that status
+     */
+    private AtomicReferenceArray<ArrayList<BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable>>> cc_listenerLists;
 
     @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getPos() {
@@ -104,6 +114,31 @@ public abstract class MixinChunkHolder implements CloHolder {
         // TODO redirect changedBlocksPerSection construction for chunks
         cc_isCubic = true;
         if (cloPos.isChunk()) this.pos = cloPos.chunkPos();
+        cc_listenerLists = new AtomicReferenceArray<>(CHUNK_STATUSES.size());
+    }
+
+    @Override public void cc_addCloStatusListener(ChunkStatus status, BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> consumer, ChunkMap chunkMap) {
+        CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> future = cc_getOrScheduleFuture(status, chunkMap);
+
+        if (future.isDone()) {
+            consumer.accept(future.getNow(null), null);
+        } else {
+            List<BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable>> listenerList = this.cc_listenerLists.get(status.getIndex());
+            if (listenerList == null) {
+                final ArrayList<BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable>> listeners = new ArrayList<>();
+                future.whenComplete((either, throwable) -> {
+                    for (BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> listener : listeners) {
+                        listener.accept(either, throwable);
+                    }
+                    listeners.clear();
+                    listeners.trimToSize();
+                });
+                this.cc_listenerLists.set(status.getIndex(), listeners);
+                listenerList = listeners;
+            }
+
+            listenerList.add(consumer);
+        }
     }
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
