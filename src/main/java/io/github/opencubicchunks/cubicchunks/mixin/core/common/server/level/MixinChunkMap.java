@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
@@ -229,20 +230,20 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
             }
         }
 
-        // Vanilla expects that the center chunk is in the middle of the list; this is not the case for cubes, so we manually swap the center cube to the middle
-        // - this is a temporary approach, until we make our own cube+chunk list wrapper
-        swap(cloHolders, middleCubeIndex, cloHolders.size() / 2);
-        swap(expectedStatuses, middleCubeIndex, cloHolders.size() / 2);
-
         // Vanilla gets futures for each individual ChunkHolder and uses Util.sequence to combine them;
         // we instead use CloCollectorFuture, and add a listener to each CloHolder that notifies the collector when that CloHolder has reached the desired stage.
         // This saves several gigabytes of CompletableFuture objects.
         var cloCollectorFuture = new CloCollectorFuture(cloHolders.size());
+        // Lambda created outside the loop to avoid allocating it multiple times
+        BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> cloCollectorCallback = (either, error) -> cloCollectorFuture.add(either, error, false);
         for (int i = 0; i < cloHolders.size(); i++) {
             var holder = cloHolders.get(i);
             var expectedStatus = expectedStatuses.get(i);
-            final int i2 = i; // thanks java lambdas
-            ((CloHolder) holder).cc_addCloStatusListener(expectedStatus, (either, error) -> cloCollectorFuture.add(i2, either, error), (ChunkMap) (Object) this);
+            if (i == middleCubeIndex) {
+                ((CloHolder) holder).cc_addCloStatusListener(expectedStatus, (either, error) -> cloCollectorFuture.add(either, error, true), (ChunkMap) (Object) this);
+            } else {
+                ((CloHolder) holder).cc_addCloStatusListener(expectedStatus, cloCollectorCallback, (ChunkMap) (Object) this);
+            }
         }
 
         CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> combinedFuture = cloCollectorFuture.thenApply(p_183730_ -> {
