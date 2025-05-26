@@ -29,12 +29,12 @@ jobs:
         run: ./gradlew build -x test -x longRunTest
 
       - name: Tar post-build state
-        run: tar --exclude=./post-build.tar.gz -czf post-build.tar.gz .
+        run: tar -cvzpf /tmp/post-build.tar.gz .
       - name: Upload post-build state
         uses: actions/upload-artifact@v4
         with:
           name: post-build-state
-          path: .
+          path: /tmp/post-build.tar.gz
 
       - name: Upload compiled jars
         uses: actions/upload-artifact@v4
