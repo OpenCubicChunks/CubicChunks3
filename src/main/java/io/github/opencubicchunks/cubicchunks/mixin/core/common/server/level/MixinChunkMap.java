@@ -1,7 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
-import static java.util.Collections.swap;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -419,6 +417,9 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("protoChunkToFullChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_protoChunkToFullChunk(ChunkHolder holder);
+
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("prepareEntityTickingChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
+    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareEntityTickingChunk(ChunkHolder holder);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("prepareTickingChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
     public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareTickingChunk(ChunkHolder holder);

@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
+import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
@@ -28,7 +30,9 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
+import net.minecraft.util.Unit;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -393,6 +397,20 @@ public class IntegrationTestServerCubeCache extends BaseTest {
                     }
                 }
             }
+        }
+    }
+
+    @Test public void testAddCubicRegionTicket() throws Exception {
+        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+            var serverChunkCache = serverChunkCacheRef.value();
+            var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
+            int spawnRadius = Coords.sectionToCube(11);
+            cubicServerChunkCache.cc_addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), spawnRadius, Unit.INSTANCE);
+            serverChunkCache.tick(()->true, false);
+            var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
+            assertNotNull(cubeAccess);
+            assertTrue(cubeAccess.getStatus().isOrAfter(ChunkStatus.FULL));
+            assertInstanceOf(LevelCube.class, cubeAccess);
         }
     }
 }
