@@ -1,0 +1,38 @@
+name: testJob.yml
+on:
+  workflow_call:
+    inputs:
+      name:
+        required: true
+        type: string
+      command:
+        required: true
+        type: string
+
+jobs:
+  test: # Expects the build state to be an artifact post-build-state containing a post-build.tar.gz
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Download post-build state
+        uses: actions/download-artifact@v4
+        with:
+          name: post-build-state
+          path: .
+      - name: Untar post-build state
+        run: tar -xzf post-build.tar.gz
+
+      - name: Run ${{ inputs.name }}
+        run: ${{ inputs.command }}
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-reports
+          path: build/reports/
