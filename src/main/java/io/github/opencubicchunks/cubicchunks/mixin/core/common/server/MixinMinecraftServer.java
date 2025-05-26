@@ -34,13 +34,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinMinecraftServer {
     @Shadow public abstract ServerLevel overworld();
 
-    @Shadow public abstract boolean isRunning();
-
-    @Shadow protected long nextTickTimeNanos;
-
-    @Shadow protected abstract void waitUntilNextTick();
-
-
     // TODO P2 :: This value is dynamic in 1.21, we will need to revisit this
     private static final int VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS = 11;
 
