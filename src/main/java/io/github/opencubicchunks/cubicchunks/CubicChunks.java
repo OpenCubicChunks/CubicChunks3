@@ -18,6 +18,10 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
  */
 @Mod("cubicchunks")
 public class CubicChunks extends CubicChunksBase {
+    /**
+     * true when running in a junit test, false otherwise.
+     */
+    public static boolean IS_IN_TEST = false;
     protected static CommonConfig config = null;
     // For hardcoding height in P1
     public static final int SUPERFLAT_HEIGHT = 5;

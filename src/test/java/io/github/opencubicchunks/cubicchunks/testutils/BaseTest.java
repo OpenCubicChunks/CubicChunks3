@@ -1,5 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.testutils;
 
+import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Bootstrap;
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +13,7 @@ public class BaseTest {
     @BeforeAll
     public static void setup() {
         SharedConstants.tryDetectVersion();
+        CubicChunks.IS_IN_TEST = true;
         Bootstrap.bootStrap();
         SharedConstants.IS_RUNNING_IN_IDE = true;
     }

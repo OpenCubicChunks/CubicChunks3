@@ -4,12 +4,14 @@ import java.io.File;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
+import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import net.neoforged.fml.loading.FMLPaths;
 
 public class CommonConfig extends BaseConfig {
     private static final String FILE_NAME = "cubicchunks_common.toml";
     // TODO forge/fabric-agnostic method for getting config directory
-    private static final File FILE_PATH = new File(FMLPaths.CONFIGDIR.get().toFile(), FILE_NAME);
+    // Note that this relies on IS_IN_TEST being set before this class is classloaded
+    private static final File FILE_PATH = CubicChunks.IS_IN_TEST ? null : new File(FMLPaths.CONFIGDIR.get().toFile(), FILE_NAME);
 
     private static final String KEY_GENERAL = "general";
     private static final String KEY_VERTICAL_VIEW_DISTANCE = KEY_GENERAL + ".verticalViewDistance";
@@ -60,6 +62,10 @@ public class CommonConfig extends BaseConfig {
 
     public static CommonConfig getConfig() {
         var config = createDefaultConfig();
+        if (CubicChunks.IS_IN_TEST) {
+            // Skip file access when running in a test environment; tests should manually update relevant config values before running game code.
+            return new CommonConfig(config);
+        }
         // Read existing values to the config
         if (FILE_PATH.exists()) {
             read(FILE_PATH, config);
