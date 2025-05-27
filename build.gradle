@@ -273,8 +273,8 @@ tasks.withType(ProcessResources).configureEach {
 
 // Force various tasks to run on intellij refresh
 project.tasks.matching {
-    // Using prepareKotlinBuildScriptModel instead of ideaSyncTask as it was removed
-    it.name == "prepareKotlinBuildScriptModel"
+    // Using idePostSync instead of ideaSyncTask as it was removed
+    it.name == "idePostSync"
 }.forEach {
     it.dependsOn("CubicChunksCore:assemble")
     it.dependsOn(genAll)
