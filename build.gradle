@@ -309,7 +309,9 @@ tasks.withType(Test).configureEach {
 
 test {
     minHeapSize = "512M"
-    maxHeapSize = "2048M"
+    // TODO IntegrationTestServerCubeCache.testAddCubicRegionTicket currently requires ~4GB of memory;
+    //      we should reduce maxHeapSize to a more reasonable value once chunkloading memory usage is further optimized
+    maxHeapSize = "6G"
 
     dependsOn(project.tasks.named("unzipTests"))
     useJUnitPlatform {
