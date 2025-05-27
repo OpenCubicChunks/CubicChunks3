@@ -280,7 +280,10 @@ project.tasks.matching {
     it.dependsOn(genAll)
 }
 // Ensure we always genAll on any run
-processResources.dependsOn(genAll)
+processResources.dependsOn(genAll, "CubicChunksCore:assemble")
+
+// Force core to be built before the main project
+compileJava.dependsOn("CubicChunksCore:assemble")
 
 // unzipping subproject (CubicChunksCore) tests
 tasks.register('unzipTests', Copy) {
