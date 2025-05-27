@@ -49,7 +49,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     @Shadow public abstract long getDayTime();
 
-    @Unique protected boolean cc_isCubic;
+    protected boolean cc_isCubic;
 
     @Override
     public void cc_setCubic() {

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.SwitchGrid;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,19 +14,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(targets = "net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$WorldTab", remap = false)
 public class MixinCreateWorldScreen {
 
-    @Unique private static final Component CUBIC_CHUNKS = Component.translatable("selectWorld.cubicChunks");
+    private static final Component CUBIC_CHUNKS = Component.translatable("selectWorld.cubicChunks");
 
-    @Unique private boolean cc_cubicChunks;
+    private boolean cc_cubicChunks;
 
     public MixinCreateWorldScreen(boolean ccCubicChunks) {
         cc_cubicChunks = ccCubicChunks;
     }
 
-    @Unique private boolean cc_isCubicChunks() {
+    private boolean cc_isCubicChunks() {
         return cc_cubicChunks;
     }
 
-    @Unique private void cc_setCubicChunks(boolean cubicChunks) {
+    private void cc_setCubicChunks(boolean cubicChunks) {
         this.cc_cubicChunks = cubicChunks;
         CommonConfig config = CubicChunks.config();
         config.setGenerateNewWorldsAsCC(cubicChunks);
