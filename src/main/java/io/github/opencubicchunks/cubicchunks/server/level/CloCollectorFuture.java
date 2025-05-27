@@ -24,7 +24,7 @@ public class CloCollectorFuture extends CompletableFuture<List<Either<CloAccess,
 
     private final Either<CloAccess, ChunkHolder.ChunkLoadingFailure>[] results;
     // Vanilla expects that the center chunk is in the middle of the list; this is not the case for cubes, so we manually swap the center cube to the middle
-    private AtomicInteger indexToBeSwappedWithCenterIndex = new AtomicInteger();
+    private AtomicInteger indexToBeSwappedWithCenterIndex = new AtomicInteger(-1);
 
     public CloCollectorFuture(int size) {
         this.size = size;
@@ -37,7 +37,10 @@ public class CloCollectorFuture extends CompletableFuture<List<Either<CloAccess,
         } else {
             int i = index.getAndIncrement();
             if (isCenterCube) {
-                indexToBeSwappedWithCenterIndex.set(i);
+                int oldValue = indexToBeSwappedWithCenterIndex.getAndSet(i);
+                if (oldValue != -1) {
+                    throw new IllegalStateException("Tried to set center cube when center cube was already set");
+                }
             }
             results[i] = either;
         }
@@ -49,6 +52,9 @@ public class CloCollectorFuture extends CompletableFuture<List<Either<CloAccess,
 
     private void done() {
         int i = indexToBeSwappedWithCenterIndex.get();
+        if (i == -1) {
+            throw new IllegalStateException("All Clos were received but no center cube was set");
+        }
         int j = results.length / 2;
         var results = Arrays.asList(this.results);
         Collections.swap(results, i, j);
