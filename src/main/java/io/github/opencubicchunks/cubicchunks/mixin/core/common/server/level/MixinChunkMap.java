@@ -282,21 +282,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
         }
     }
 
-    // TODO move to forge sourceset
-    /**
-     * Only call Forge hook for chunks, not cubes
-     */
-    @Dynamic @WrapWithCondition(method = "cc_dasm$cc_updateChunkScheduling", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/event/EventHooks;fireChunkTicketLevelUpdated"
-        + "(Lnet/minecraft/server/level/ServerLevel;JIILnet/minecraft/server/level/ChunkHolder;)V"))
-    private boolean cc_updateChunkScheduling_onForgeHook(ServerLevel level, long pos, int oldLevel, int newLevel, ChunkHolder holder) {
-        return CloPos.isChunk(pos);
-    }
-
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("saveAllChunks(Z)V"))
     public native void cc_saveAllChunks(boolean flush);
 
     // P4: scheduleUnload lambda we'll want to mirror the forge API for cubes
-    // FIXME remove call to forge hook in copied method
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"))
     private native void cc_scheduleUnload(long chunkPos, ChunkHolder chunkHolder);
 
@@ -415,7 +404,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getDependencyStatus(Lnet/minecraft/world/level/chunk/ChunkStatus;I)Lnet/minecraft/world/level/chunk/ChunkStatus;"))
     private native ChunkStatus cc_getDependencyStatus(ChunkStatus chunkStatus, int p_140264_);
 
-    // FIXME remove call to forge hook in copied method
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("protoChunkToFullChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_protoChunkToFullChunk(ChunkHolder holder);
 
@@ -431,7 +419,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("saveChunkIfNeeded(Lnet/minecraft/server/level/ChunkHolder;)Z"))
     private native boolean cc_saveChunkIfNeeded(ChunkHolder holder);
 
-    // FIXME remove call to forge hook in copied method
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))
     private native boolean cc_save(CloAccess cloAccess);
