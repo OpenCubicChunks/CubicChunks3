@@ -21,16 +21,20 @@ import io.github.notstirred.dasm.api.annotations.transform.Visibility;
 import io.github.opencubicchunks.cc_core.annotation.Public;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -104,6 +108,28 @@ public class MixinChunkStatus {
         }
     }
 
+    // Temporary basic sinusoidal terrain, so we can generate a simple test world
+    private static CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> generateBasicTerrain(CloAccess cloAccess) {
+        int amplitude = 20;
+        if (cloAccess instanceof CubeAccess cube) {
+            var blockPos = new BlockPos.MutableBlockPos();
+            var blockState = Blocks.SMOOTH_STONE.defaultBlockState();
+            int minY = cube.cc_getCubePos().minCubeY();
+            int maxY = Math.min(cube.cc_getCubePos().maxCubeY(), CubicChunks.SUPERFLAT_HEIGHT + amplitude);
+            int cubeX = cube.cc_getCubePos().minCubeX();
+            int cubeZ = cube.cc_getCubePos().minCubeZ();
+            for (int y = minY; y <= maxY; y++) {
+                for (int x = 0; x < CubicConstants.DIAMETER_IN_BLOCKS; x++) {
+                    for (int z = 0; z < CubicConstants.DIAMETER_IN_BLOCKS; z++) {
+                        if (y + Math.round((amplitude*(Math.sin((x+cubeX)/8.0+(z+cubeZ)/21.0)+Math.cos((z+cubeZ)/13.0)))/2.0) <= CubicChunks.SUPERFLAT_HEIGHT)
+                            cube.setBlockState(blockPos.set(x, y, z), blockState, false);
+                    }
+                }
+            }
+        }
+        return CompletableFuture.completedFuture(Either.left(cloAccess));
+    }
+
     // TODO (P2) proper generation logic; this currently ignores everything and only handles promotion from ProtoClo to LevelClo
     @AddMethodToSets(sets = { ChunkToCloSet.class }, owner = @Ref(ChunkStatus.class), method = @MethodSig("generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"))
     public CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_generate(
@@ -116,7 +142,7 @@ public class MixinChunkStatus {
         List<CloAccess> cache
     ) {
         CloAccess chunkaccess = cache.get(cache.size() / 2);
-        return ((Object) this == ChunkStatus.FULL ? task.apply(chunkaccess) : CompletableFuture.completedFuture(Either.left(chunkaccess)))
+        return ((Object) this == ChunkStatus.FULL ? task.apply(chunkaccess) : ((Object) this == ChunkStatus.NOISE) ? generateBasicTerrain(chunkaccess) : CompletableFuture.completedFuture(Either.left(chunkaccess)))
             .thenApply(
                 p_281217_ -> {
                     p_281217_.ifLeft(p_290029_ -> {
