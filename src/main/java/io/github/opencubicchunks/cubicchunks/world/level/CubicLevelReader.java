@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.chunk.ChunkStatus;
 
-public interface CubicLevelReader {
+public interface CubicLevelReader extends CubicCollisionGetter {
     @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus chunkStatus, boolean forceLoad);
 
     boolean cc_hasCube(int cubeX, int cubeY, int cubeZ);
@@ -25,8 +25,7 @@ public interface CubicLevelReader {
         return this.cc_getCube(cubeX, cubeY, cubeZ, requiredStatus, true);
     }
 
-//    @Override
-    @Nullable default BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
+    @Override @Nullable default BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
         return this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.EMPTY, false);
     }
 

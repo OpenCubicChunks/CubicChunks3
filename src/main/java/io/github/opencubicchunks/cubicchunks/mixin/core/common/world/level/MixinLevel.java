@@ -26,6 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -86,6 +87,10 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         if(CubicChunks.config().shouldGenerateNewWorldsAsCC()) {
             this.cc_setCubic();
         }
+    }
+
+    @Override @Nullable public BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
+        return this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.FULL, false);
     }
 
     // setBlock
