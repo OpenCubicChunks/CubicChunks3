@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
@@ -30,20 +31,16 @@ public class CCClientboundLevelChunkPacket implements CustomPacketPayload {
         return ID;
     }
 
-    public static class Handler implements IPlayPayloadHandler<CCClientboundLevelChunkPacket>, FriendlyByteBuf.Reader<CCClientboundLevelChunkPacket> {
-
-        @Override public CCClientboundLevelChunkPacket apply(FriendlyByteBuf friendlyByteBuf) {
-            int x = friendlyByteBuf.readInt();
-            int z = friendlyByteBuf.readInt();
-            return new CCClientboundLevelChunkPacket(new ChunkPos(x, z));
-        }
-
+    public static class Handler implements IPlayPayloadHandler<CCClientboundLevelChunkPacket> {
         @Override public void handle(CCClientboundLevelChunkPacket payload, PlayPayloadContext context) {
             int x = payload.pos.x;
             int z = payload.pos.z;
-            ChunkPos chunkPos = new ChunkPos(x, z);
-
             // TODO P2 :: This will contain heightmap data and some other stuff
+            context.workHandler().execute(() -> updateLevelChunk(context.level().get(), x, z));
+        }
+
+        private void updateLevelChunk(Level level, int x, int z) {
+
         }
     }
 }

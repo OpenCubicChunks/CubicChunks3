@@ -17,7 +17,7 @@ public class CCNetworkHandler {
         // Sets the current network version
         final IPayloadRegistrar registrar = event.registrar(CubicChunks.MODID);
 
-        registrar.play(CCClientboundLevelCubeWithLightPacket.ID, new CCClientboundLevelCubeWithLightPacket.Handler(), new CCClientboundLevelCubeWithLightPacket.Handler());
-        registrar.play(CCClientboundLevelChunkPacket.ID, new CCClientboundLevelChunkPacket.Handler(), new CCClientboundLevelChunkPacket.Handler());
+        registrar.play(CCClientboundLevelCubeWithLightPacket.ID, CCClientboundLevelCubeWithLightPacket::new, new CCClientboundLevelCubeWithLightPacket.Handler());
+        registrar.play(CCClientboundLevelChunkPacket.ID, CCClientboundLevelChunkPacket::new, new CCClientboundLevelChunkPacket.Handler());
     }
 }

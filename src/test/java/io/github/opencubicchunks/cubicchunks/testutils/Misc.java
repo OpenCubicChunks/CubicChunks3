@@ -10,6 +10,7 @@ import static org.mockito.Mockito.withSettings;
 import java.nio.file.Files;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +27,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.neoforged.neoforge.network.handling.ISynchronizedWorkHandler;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -96,5 +98,20 @@ public class Misc {
             .usingRecursiveComparison()
             .usingOverriddenEquals()
             .isEqualTo(expected);
+    }
+
+    public static class DummyWorkHandler implements ISynchronizedWorkHandler {
+        @Override public void execute(Runnable task) {
+            task.run();
+        }
+
+        @Override public CompletableFuture<Void> submitAsync(Runnable task) {
+            task.run();
+            return CompletableFuture.completedFuture(null);
+        }
+
+        @Override public <T> CompletableFuture<T> submitAsync(Supplier<T> task) {
+            return CompletableFuture.completedFuture(task.get());
+        }
     }
 }

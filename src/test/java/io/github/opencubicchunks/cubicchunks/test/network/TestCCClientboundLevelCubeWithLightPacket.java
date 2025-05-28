@@ -19,6 +19,7 @@ import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelChunkPacket;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
+import io.github.opencubicchunks.cubicchunks.testutils.Misc;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.multiplayer.ClientChunkCache;
@@ -67,6 +68,8 @@ public class TestCCClientboundLevelCubeWithLightPacket extends BaseTest {
         when(clientLevelMock.getSectionsCount()).thenReturn(24);
 
         when(payloadContextMock.level()).thenReturn(Optional.of(clientLevelMock));
+
+        when(payloadContextMock.workHandler()).thenReturn(new Misc.DummyWorkHandler());
 
         var pos = CubePos.of(10, -2, 4);
         var cube = generateRandomLevelCube(clientLevelMock, pos, new Random(3333));

@@ -46,19 +46,13 @@ public class CCClientboundLevelCubeWithLightPacket implements CustomPacketPayloa
         return chunkData;
     }
 
-    public static class Handler implements IPlayPayloadHandler<CCClientboundLevelCubeWithLightPacket>, FriendlyByteBuf.Reader<CCClientboundLevelCubeWithLightPacket> {
+    public static class Handler implements IPlayPayloadHandler<CCClientboundLevelCubeWithLightPacket> {
         @Override
         public void handle(CCClientboundLevelCubeWithLightPacket payload, PlayPayloadContext context) {
             int x = payload.pos.getX();
             int y = payload.pos.getY();
             int z = payload.pos.getZ();
-            this.updateLevelCube(context.level().get(), x, y, z, payload);
-        }
-
-        @Override
-        public CCClientboundLevelCubeWithLightPacket apply(FriendlyByteBuf friendlyByteBuf)
-        {
-            return new CCClientboundLevelCubeWithLightPacket(friendlyByteBuf);
+            context.workHandler().execute(() -> this.updateLevelCube(context.level().get(), x, y, z, payload));
         }
 
         private void updateLevelCube(Level level, int x, int y, int z, CCClientboundLevelCubeWithLightPacket payload) {
