@@ -19,5 +19,7 @@ public class CCNetworkHandler {
 
         registrar.play(CCClientboundLevelCubeWithLightPacket.ID, CCClientboundLevelCubeWithLightPacket::new, new CCClientboundLevelCubeWithLightPacket.Handler());
         registrar.play(CCClientboundLevelChunkPacket.ID, CCClientboundLevelChunkPacket::new, new CCClientboundLevelChunkPacket.Handler());
+        registrar.play(CCClientboundForgetLevelCloPacket.ID, CCClientboundForgetLevelCloPacket::new, new CCClientboundForgetLevelCloPacket.Handler());
+        registrar.play(CCClientboundSetCubeCacheCenterPacket.ID, CCClientboundSetCubeCacheCenterPacket::new, new CCClientboundSetCubeCacheCenterPacket.Handler());
     }
 }
