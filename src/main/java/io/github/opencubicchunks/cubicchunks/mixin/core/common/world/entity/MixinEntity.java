@@ -2,6 +2,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.world.entity;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
@@ -11,6 +12,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.entity.EntityCubePosGetter;
@@ -41,6 +43,7 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     @Shadow private Level level;
     @Shadow private BlockPos blockPosition;
 
+    @Shadow public abstract Level level();
     @Shadow public abstract void teleportTo(double x, double y, double z);
     @Shadow public abstract AABB getBoundingBox();
     @Shadow public abstract int getId();
@@ -50,6 +53,11 @@ public abstract class MixinEntity implements EntityCubePosGetter {
 
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     public native CubePos cc_cubePosition();
+
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(Entity.class), method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    public CloPos cc_cubePositionAsClo() {
+        return CloPos.cube(cc_cubePosition());
+    }
 
     // Update cube position when blockpos changes - this is the same location as where vanilla updates the chunk position
     @Inject(method = "setPosRaw", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;", opcode = Opcodes.PUTFIELD))

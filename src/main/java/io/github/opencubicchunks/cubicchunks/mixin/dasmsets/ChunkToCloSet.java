@@ -83,6 +83,10 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelClo.class))
     interface LevelChunk_to_LevelClo_redirects {
+        // TODO unnecessary once we have DASM redirect inheritance
+        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
+        CloPos cc_getCloPos();
+
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(Level.class), @Ref(CloPos.class) }))
         static LevelClo create(Level level, ChunkPos pos) {
             throw new IllegalStateException("this should never be called");
@@ -119,6 +123,10 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoClo.class))
     interface ProtoChunk_to_ProtoClo_redirects {
+        // TODO unnecessary once we have DASM redirect inheritance
+        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
+        CloPos cc_getCloPos();
+
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelHeightAccessor.class), @Ref(Registry.class), @Ref(BlendingData.class) }))
         static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
             throw new IllegalStateException("this should never be called");
