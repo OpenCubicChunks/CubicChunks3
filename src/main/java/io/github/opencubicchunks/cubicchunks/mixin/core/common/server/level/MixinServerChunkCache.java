@@ -3,6 +3,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -224,19 +225,19 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         return ((CubicDistanceManager) instance).cc_runAllUpdates(chunkMap);
     }
 
-    /**
-     * In cubic levels, redirect to the cubic tickChunks method
-     */
-    @WrapWithCondition(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;tickChunks()V"))
-    private boolean cc_onTickChunks(ServerChunkCache instance) {
-        if (((CanBeCubic) level).cc_isCubic()) {
-            cc_tickChunks();
-            return false;
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    private void cc_onTick(BooleanSupplier hasTimeLeft, boolean tickChunks, CallbackInfo ci) {
+        if (this.cc_isCubic) {
+            ci.cancel();
+            cc_tick(hasTimeLeft, tickChunks);
         }
-        return true;
     }
 
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("tick(Ljava/util/function/BooleanSupplier;Z)V"))
+    public native void cc_tick(BooleanSupplier hasTimeLeft, boolean tickChunks);
+
     // This could maybe be DASM, but the mixins into the copied method would likely end up being quite complex
+    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("tickChunks()V"))
     private void cc_tickChunks() {
         long i = this.level.getGameTime();
         long j = i - this.lastInhabitedUpdate;
@@ -307,6 +308,14 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         ChunkHolder chunkholder = this.getVisibleChunkIfPresent(CloPos.cubeAsLong(x, y, z));
         if (chunkholder != null) {
             chunkholder.blockChanged(pos);
+        }
+    }
+
+    @Inject(method = "onLightUpdate", at = @At("HEAD"), cancellable = true)
+    private void cc_onVanillaOnLightUpdate(LightLayer type, SectionPos pos, CallbackInfo ci) {
+        if (this.cc_isCubic) {
+            ci.cancel();
+            cc_onLightUpdate(type, pos);
         }
     }
 

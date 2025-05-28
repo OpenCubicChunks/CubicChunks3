@@ -43,8 +43,6 @@ import net.minecraft.world.ticks.ProtoChunkTicks;
  * <br/><br/>
  * Clo-related field and type redirects, and method redirects containing Clo-related types in the signature or return type should be added to this set.
  * <br/>
- * TODO: CloPos is currently an exception to this; it and things that use it are in GlobalSet instead. This should be refactored eventually.
- * <br/>
  * Other redirects may also be added to this set if they should only be applied in contexts working with both Chunks and Cubes.
  * Redirects applicable in all contexts should be added to {@link GlobalSet}.
  */

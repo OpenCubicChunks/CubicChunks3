@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
@@ -32,6 +33,7 @@ import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.storage.MixinChunkStorage;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.SectionPosToCubeSet;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundSetCubeCacheCenterPacket;
 import io.github.opencubicchunks.cubicchunks.server.level.CloCollectorFuture;
@@ -298,6 +300,14 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("saveAllChunks(Z)V"))
     public native void cc_saveAllChunks(boolean flush);
 
+    @Inject(method = "saveAllChunks", at = @At("HEAD"), cancellable = true)
+    private void cc_onSaveAllChunks(boolean flush, CallbackInfo ci) {
+        if (((CanBeCubic) level).cc_isCubic()) {
+            cc_saveAllChunks(flush);
+            ci.cancel();
+        }
+    }
+
     // P4: scheduleUnload lambda we'll want to mirror the forge API for cubes
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"))
     private native void cc_scheduleUnload(long chunkPos, ChunkHolder chunkHolder);
@@ -435,18 +445,24 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("saveChunkIfNeeded(Lnet/minecraft/server/level/ChunkHolder;)Z"))
     private native boolean cc_saveChunkIfNeeded(ChunkHolder holder);
 
-    // dasm + mixin
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))
-    private native boolean cc_save(CloAccess cloAccess);
-
-    /**
-     * Redirect error logging to log with CloPos
-     */
-    @Dynamic @Inject(method = "cc_dasm$cc_save", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;getX()I"), cancellable = true)
-    private void cc_onSave_errorLog(CloAccess cloAccess, CallbackInfoReturnable<Boolean> cir, @Local Exception exception) {
-        LOGGER.error("Failed to save chunk or cube {}", cloAccess.cc_getCloPos().toString(), exception);
-        cir.setReturnValue(false);
+    // TODO (P2): for now we just don't save (requires more things to be CC-ified to not crash)
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkMap.class), method = @MethodSig("save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))
+    private boolean cc_save(CloAccess cloAccess) {
+        return false;
     }
+
+//    // dasm + mixin
+//    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))
+//    private native boolean cc_save(CloAccess cloAccess);
+//
+//    /**
+//     * Redirect error logging to log with CloPos
+//     */
+//    @Dynamic @Inject(method = "cc_dasm$cc_save", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/world/level/CloPos;getX()I"), cancellable = true)
+//    private void cc_onSave_errorLog(CloAccess cloAccess, CallbackInfoReturnable<Boolean> cir, @Local Exception exception) {
+//        LOGGER.error("Failed to save chunk or cube {}", cloAccess.cc_getCloPos().toString(), exception);
+//        cir.setReturnValue(false);
+//    }
 
     // This calls ChunkSerializer.getChunkTypeFromTag, which could be an issue?
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("isExistingChunkFull(Lnet/minecraft/world/level/ChunkPos;)Z"))
@@ -521,8 +537,14 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     }
 
     // Replace `SectionPos.chunk()` with `SectionPos.cc_cube()` unconditionally here
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("tick()V"), useRedirectSets = { ChunkToCloSet.class, SectionPosToCubeSet.class })
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(value = @MethodSig("tick(Ljava/util/function/BooleanSupplier;)V"), useRedirectSets = { ChunkToCloSet.class, SectionPosToCubeSet.class })
+    protected native void cc_tick(BooleanSupplier hasMoreTime);
+
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(value = @MethodSig("tick()V"), useRedirectSets = { ChunkToCloSet.class, SectionPosToCubeSet.class })
     public native void cc_tick();
+
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(value = @MethodSig("processUnloads(Ljava/util/function/BooleanSupplier;)V"))
+    private native void processUnloads(BooleanSupplier hasMoreTime);
 
     // TODO resendBiomesForChunks - only used for FillBiomeCommand
 

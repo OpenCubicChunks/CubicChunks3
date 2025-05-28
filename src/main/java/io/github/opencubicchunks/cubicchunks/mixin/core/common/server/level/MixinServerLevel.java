@@ -4,6 +4,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
@@ -28,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Dasm(ChunkToCloSet.class)
 @Mixin(ServerLevel.class)
 public abstract class MixinServerLevel extends MixinLevel implements CubicServerLevel {
     @Shadow @Final private ServerChunkCache chunkSource;

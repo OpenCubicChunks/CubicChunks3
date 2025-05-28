@@ -1,18 +1,19 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server;
 
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import io.github.opencubicchunks.cc_core.api.CubePos;
-import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.SpawnPlaceFinder;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
@@ -28,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftServer.class)
@@ -86,6 +88,7 @@ public abstract class MixinMinecraftServer {
         if (((CanBeCubic) serverChunkCache).cc_isCubic()) {
             int spawnRadius = Coords.sectionToCube(VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS);
             spawnRadiusRef.set(spawnRadius);
+            spawnRadius++; // TODO there's an off-by-one error somewhere that means that we need to add one here to generate the actual correct spawn radius
             ((ServerCubeCache)serverChunkCache).cc_addRegionTicket(ticketType, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius, unit);
             return false;
         }
@@ -108,6 +111,13 @@ public abstract class MixinMinecraftServer {
         }
 
         return constant;
+    }
+
+    // Temporary hack to let us unload a world without saving
+    // TODO (P2): saving
+    @Redirect(method = "stopServer", at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;anyMatch(Ljava/util/function/Predicate;)Z"))
+    private boolean cc_onStopServer_chunkMapHasWork(Stream instance, Predicate<?> predicate) {
+        return false;
     }
 
     // TODO P2 :: Forced cubes will need to be implemented here as well; but this includes saving logic so P2
