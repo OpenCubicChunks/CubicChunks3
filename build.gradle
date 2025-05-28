@@ -301,6 +301,12 @@ tasks.register('unzipTests', Copy) {
     into(sourceSets.test.output.classesDirs.asPath)
 }
 
+tasks.withType(Test).configureEach {
+    // gradle docs suggest processors/2 which actually runs fractionally faster than just processors
+    // forking a jvm is expensive.
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+}
+
 test {
     minHeapSize = "512M"
     maxHeapSize = "2048M"
@@ -325,6 +331,7 @@ test {
 def longRunTest = tasks.register("longRunTest", Test) {
     minHeapSize = "512M"
     maxHeapSize = "2048M"
+    systemProperty("junit.jupiter.testclass.order.default", "org.junit.jupiter.api.ClassOrderer.OrderAnnotation")
 
     useJUnitPlatform {
         includeTags "longRunTest"
