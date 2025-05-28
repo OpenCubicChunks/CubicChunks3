@@ -11,16 +11,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(targets = "net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$WorldTab", remap = false)
+@Mixin(targets = "net.minecraft.client.gui.screens.worldselection.CreateWorldScreen$WorldTab")
 public class MixinCreateWorldScreen {
 
     private static final Component CUBIC_CHUNKS = Component.translatable("selectWorld.cubicChunks");
 
     private boolean cc_cubicChunks;
-
-    public MixinCreateWorldScreen(boolean ccCubicChunks) {
-        cc_cubicChunks = ccCubicChunks;
-    }
 
     private boolean cc_isCubicChunks() {
         return cc_cubicChunks;
@@ -35,7 +31,7 @@ public class MixinCreateWorldScreen {
 
     @Inject(method = "<init>", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/gui/screens/worldselection/SwitchGrid$Builder;addSwitch(Lnet/minecraft/network/chat/Component;Ljava/util/function/BooleanSupplier;Ljava/util/function/Consumer;)Lnet/minecraft/client/gui/screens/worldselection/SwitchGrid$SwitchBuilder;", ordinal = 1))
     private void cc_addCubicWorldGenButtonToCreateWorldScreen(CreateWorldScreen screen, CallbackInfo ci, @Local SwitchGrid.Builder builder) {
-        cc_cubicChunks = CommonConfig.getConfig().shouldGenerateNewWorldsAsCC();
+        cc_cubicChunks = CubicChunks.config().shouldGenerateNewWorldsAsCC();
         builder.addSwitch(CUBIC_CHUNKS, this::cc_isCubicChunks, this::cc_setCubicChunks);
     }
 }

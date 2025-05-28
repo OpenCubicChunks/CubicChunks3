@@ -13,6 +13,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransform
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.config.CommonConfig;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
@@ -80,9 +81,9 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         }
     }
 
-    @Inject(method = "<init>", at = @At(value = "TAIL"))
+    @Inject(method = "<init>", at = @At(value = "io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
     private void cc_init(CallbackInfo ci) {
-        if(CommonConfig.getConfig().shouldGenerateNewWorldsAsCC()) {
+        if(CubicChunks.config().shouldGenerateNewWorldsAsCC()) {
             this.cc_setCubic();
         }
     }
