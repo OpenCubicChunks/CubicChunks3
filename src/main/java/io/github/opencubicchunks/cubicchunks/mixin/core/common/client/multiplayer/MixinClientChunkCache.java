@@ -15,6 +15,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
+import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientLevel;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk.MixinChunkSource;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
@@ -138,7 +139,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
                 levelCube.replaceWithPacketData(buffer, tag, consumer);
             }
 
-//            ((CubicClientLevel) this.level).onCubeLoaded(cubePos); // TODO (P3) onCubeLoaded call
+            ((CubicClientLevel) this.level).cc_onCubeLoaded(cubePos);
             // TODO event hook
 //            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.level.ChunkEvent.Load(levelCube, false));
             return levelCube;

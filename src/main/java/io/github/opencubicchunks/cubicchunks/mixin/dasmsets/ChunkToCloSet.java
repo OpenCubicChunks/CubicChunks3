@@ -162,4 +162,9 @@ public interface ChunkToCloSet extends GlobalSet {
     interface ChunkTrackingView_to_CloTrackingView_redirects {
 
     }
+
+    @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
+    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects {
+
+    }
 }

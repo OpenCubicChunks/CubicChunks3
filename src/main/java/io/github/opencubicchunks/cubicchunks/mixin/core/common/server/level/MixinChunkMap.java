@@ -13,6 +13,8 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Either;
@@ -475,8 +477,14 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("move(Lnet/minecraft/server/level/ServerPlayer;)V"))
     public native void cc_move(ServerPlayer player);
 
+    // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateChunkTracking(Lnet/minecraft/server/level/ServerPlayer;)V"))
     private native void cc_updateChunkTracking(ServerPlayer player);
+
+    @Dynamic @WrapOperation(method = "cc_dasm$cc_updateChunkTracking", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;getPlayerViewDistance(Lnet/minecraft/server/level/ServerPlayer;)I"))
+    private int cc_onUpdateChunkTracking_getViewDistance(ChunkMap instance, ServerPlayer player, Operation<Integer> original) {
+        return Coords.sectionToCubeRenderDistance(original.call(instance, player));
+    }
 
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("applyChunkTrackingView(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ChunkTrackingView;)V"))

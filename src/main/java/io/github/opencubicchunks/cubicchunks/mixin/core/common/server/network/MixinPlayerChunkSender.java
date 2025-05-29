@@ -1,13 +1,19 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.network;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToIntFunction;
+
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.network.CCClientboundForgetLevelCloPacket;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelChunkPacket;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundLevelCubeWithLightPacket;
 import io.github.opencubicchunks.cubicchunks.world.entity.EntityCubePosGetter;
@@ -23,12 +29,14 @@ import net.minecraft.server.network.PlayerChunkSender;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Dasm(ChunkToCloSet.class)
@@ -47,8 +55,12 @@ public class MixinPlayerChunkSender {
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_markCloPendingToSend(LevelClo clo);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
-    public native void cc_dropClo(ServerPlayer player, CloPos cloPos);
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(PlayerChunkSender.class), method = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
+    public void cc_dropClo(ServerPlayer player, CloPos cloPos) {
+        if (!this.pendingChunks.remove(cloPos.toLong()) && player.isAlive()) {
+            PacketDistributor.PLAYER.with(player).send(new CCClientboundForgetLevelCloPacket(cloPos));
+        }
+    }
 
     @Inject(method = "sendNextChunks", at = @At(value = "HEAD"), cancellable = true)
     private void cc_onSendNextChunks(ServerPlayer player, CallbackInfo ci) {
@@ -125,4 +137,15 @@ public class MixinPlayerChunkSender {
 
     @TransformFromMethod(value = @MethodSig("collectChunksToSend(Lnet/minecraft/server/level/ChunkMap;Lnet/minecraft/world/level/ChunkPos;)Ljava/util/List;"))
     private native List<LevelClo> cc_collectChunksToSend(ChunkMap chunkMap, CloPos cloPos);
+
+    // FIXME these should probably have some kind of reasonable sort order - at the very least, chunks before cubes
+    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 0, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
+    private Comparator<Long> cc_onCollectChunksToSend_comparator1(ToIntFunction<Long> keyExtractor) {
+        return (a, b) -> 0;
+    }
+
+    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 1, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
+    private Comparator<LevelClo> cc_onCollectChunksToSend_comparator2(ToIntFunction<LevelClo> keyExtractor) {
+        return (a, b) -> 0;
+    }
 }
