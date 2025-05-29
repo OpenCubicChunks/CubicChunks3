@@ -73,7 +73,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
             serverLevelMock = mock(withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS).extraInterfaces(CanBeCubic.class));
         }
         if (!vanillaTest) {
-            var f = serverLevelMock.getClass().getSuperclass().getDeclaredField("cc_isCubic");
+            var f = serverLevelMock.getClass().getSuperclass().getSuperclass().getDeclaredField("cc_isCubic");
             f.setAccessible(true);
             f.set(serverLevelMock, true);
             when(((CanBeCubic) serverLevelMock).cc_isCubic()).thenReturn(true);

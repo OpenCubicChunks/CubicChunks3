@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
-import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.MixinLevel;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicServerLevel;
@@ -30,19 +29,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class MixinServerLevel extends MixinLevel implements CubicServerLevel, MarkableAsCubic {
+public abstract class MixinServerLevel extends MixinLevel implements CubicServerLevel {
     @Shadow @Final private ServerChunkCache chunkSource;
-    protected boolean cc_isCubic;
-
-    @Override
-    public void cc_setCubic() {
-        cc_isCubic = true;
-    }
-
-    @Override
-    public boolean cc_isCubic() {
-        return cc_isCubic;
-    }
 
     @Inject(method = "<init>", at = @At("io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
     private void cc_onInit(MinecraftServer server, Executor dispatcher, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey dimension,

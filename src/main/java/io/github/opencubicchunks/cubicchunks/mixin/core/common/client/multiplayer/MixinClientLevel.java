@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.multiplayer;
 
-import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.CubicClientLevel;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.MixinLevel;
@@ -11,16 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ClientLevel.class)
-public abstract class MixinClientLevel extends MixinLevel implements CubicClientLevel, MarkableAsCubic {
+public abstract class MixinClientLevel extends MixinLevel implements CubicClientLevel {
     @Shadow @Final private ClientChunkCache chunkSource;
-    protected boolean cc_isCubic;
-
-    @Override
-    public void cc_setCubic() { cc_isCubic = true;}
-
-    @Override public boolean cc_isCubic() {
-        return cc_isCubic;
-    }
 
     @Override public boolean cc_hasCube(int cubeX, int cubeY, int cubeZ) {
         return true;
