@@ -29,6 +29,7 @@ public record CCClientboundForgetLevelCloPacket(CloPos pos) implements CustomPac
         @Override public void handle(CCClientboundForgetLevelCloPacket payload, PlayPayloadContext context) {
             var clientChunkCache = ((ClientChunkCache) context.level().get().getChunkSource());
             context.workHandler().execute(() -> {
+                // TODO P2: queueLightRemoval - look at vanilla packet handler
                 if (payload.pos.isChunk()) {
                     clientChunkCache.drop(payload.pos.chunkPos());
                 } else {

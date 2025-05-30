@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -55,5 +56,7 @@ public class TestCCClientboundSetCubeCacheCenterPacket extends BaseTest {
         handler.handle(packet, payloadContextMock);
 
         ((ClientCubeCache) verify(clientChunkCacheMock, times(1))).cc_updateViewCenter(eq(cubePos.getX()), eq(cubePos.getY()), eq(cubePos.getZ()));
+
+        verifyNoMoreInteractions(clientChunkCacheMock);
     }
 }
