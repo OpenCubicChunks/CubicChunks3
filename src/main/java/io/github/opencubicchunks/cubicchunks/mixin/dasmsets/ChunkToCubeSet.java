@@ -106,7 +106,7 @@ public interface ChunkToCubeSet extends GlobalSet {
     @TypeRedirect(from = @Ref(RenderChunk.class), to = @Ref(RenderCube.class))
     abstract class RenderChunk_to_RenderCube_redirects { }
 
-    @TypeRedirect(from = @Ref(RenderRegionCache.ChunkInfo.class), to = @Ref(RenderRegionCacheCubeInfo.class))
+    @TypeRedirect(from = @Ref(string = "net.minecraft.client.renderer.chunk.RenderRegionCache$ChunkInfo"), to = @Ref(RenderRegionCacheCubeInfo.class))
     abstract class RenderRegionCache$ChunkInfo_to_RenderRegionCacheCubeInfo_redirects { }
 
     @TypeRedirect(

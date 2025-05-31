@@ -53,7 +53,7 @@ public class MixinRenderRegionCache implements CubicRenderRegionCache {
             for(int x = cubeStartX; x <= cubeEndX; ++x) {
                 for(int y = cubeStartY; y <= cubeEndY; ++y) {
                     for(int z = cubeStartZ; z <= cubeEndZ; ++z) {
-                        arenderchunk[x - cubeStartX][y - cubeStartY][z - cubeStartZ] = arenderregioncache$chunkinfo[x - cubeStartX][y - cubeStartY][z - cubeStartZ].renderChunk();
+                        arenderchunk[x - cubeStartX][y - cubeStartY][z - cubeStartZ] = arenderregioncache$chunkinfo[x - cubeStartX][y - cubeStartY][z - cubeStartZ].renderCube();
                     }
                 }
             }
