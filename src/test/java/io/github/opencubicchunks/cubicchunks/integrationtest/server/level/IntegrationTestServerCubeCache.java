@@ -34,7 +34,7 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
@@ -117,7 +117,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             var serverChunkCache = serverChunkCacheRef.value();
             var chunkAccess = serverChunkCache.getChunk(0, 0, status, true);
             assertNotNull(chunkAccess);
-            assertTrue(chunkAccess.getStatus().isOrAfter(status));
+            assertTrue(chunkAccess.getPersistedStatus().isOrAfter(status));
             if (status.isOrAfter(ChunkStatus.FULL)) {
                 assertInstanceOf(LevelChunk.class, chunkAccess);
             } else {
@@ -140,7 +140,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             serverChunkCache.getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
             var chunkAccess = serverChunkCache.getChunkNow(pos.x, pos.z);
             assertNotNull(chunkAccess);
-            assertSame(ChunkStatus.FULL, chunkAccess.getStatus());
+            assertSame(ChunkStatus.FULL, chunkAccess.getPersistedStatus());
             assertInstanceOf(LevelChunk.class, chunkAccess);
 
             // Neighbor chunk
@@ -185,7 +185,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             var serverChunkCache = serverChunkCacheRef.value();
             var chunkAccess = serverChunkCache.getChunk(0, 0, status, true);
             assertNotNull(chunkAccess);
-            assertTrue(chunkAccess.getStatus().isOrAfter(status));
+            assertTrue(chunkAccess.getPersistedStatus().isOrAfter(status));
             if (status.isOrAfter(ChunkStatus.FULL)) {
                 assertInstanceOf(LevelChunk.class, chunkAccess);
             } else {
@@ -210,7 +210,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             serverChunkCache.getChunk(5, -123, ChunkStatus.FULL, true);
             var chunkAccess = serverChunkCache.getChunkNow(5, -123);
             assertNotNull(chunkAccess);
-            assertSame(ChunkStatus.FULL, chunkAccess.getStatus());
+            assertSame(ChunkStatus.FULL, chunkAccess.getPersistedStatus());
             assertInstanceOf(LevelChunk.class, chunkAccess);
 
             // Neighbor chunk
@@ -252,7 +252,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             var serverChunkCache = ((ServerCubeCache) serverChunkCacheRef.value());
             var chunkAccess = serverChunkCache.cc_getCube(0, 0, 0, status, true);
             assertNotNull(chunkAccess);
-            assertTrue(chunkAccess.getStatus().isOrAfter(status));
+            assertTrue(chunkAccess.getPersistedStatus().isOrAfter(status));
             if (status.isOrAfter(ChunkStatus.FULL)) {
                 assertInstanceOf(LevelCube.class, chunkAccess);
             } else {
@@ -280,7 +280,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             cubicServerChunkCache.cc_getCube(cubePos.getX(), cubePos.getY(), cubePos.getZ(), ChunkStatus.FULL, true);
             var cubeAccess = cubicServerChunkCache.cc_getCubeNow(cubePos.getX(), cubePos.getY(), cubePos.getZ());
             assertNotNull(cubeAccess);
-            assertSame(ChunkStatus.FULL, cubeAccess.getStatus());
+            assertSame(ChunkStatus.FULL, cubeAccess.getPersistedStatus());
             assertInstanceOf(LevelCube.class, cubeAccess);
             // check its chunks
             for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
@@ -288,7 +288,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
                     var chunkPos = cubePos.asChunkPos(localChunkX, localChunkZ);
                     var chunkAccess = serverChunkCache.getChunkNow(chunkPos.x, chunkPos.z);
                     assertNotNull(chunkAccess);
-                    assertSame(ChunkStatus.FULL, chunkAccess.getStatus());
+                    assertSame(ChunkStatus.FULL, chunkAccess.getPersistedStatus());
                     assertInstanceOf(LevelChunk.class, chunkAccess);
                 }
             }
@@ -378,13 +378,13 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
             var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
             assertNotNull(cubeAccess);
-            assertTrue(cubeAccess.getStatus().isOrAfter(ChunkStatus.FULL));
+            assertTrue(cubeAccess.getPersistedStatus().isOrAfter(ChunkStatus.FULL));
             assertInstanceOf(LevelCube.class, cubeAccess);
             for (int i = 0; i < ChunkStatus.maxDistance(); i++) {
                 var expectedStatus = ChunkStatus.getStatusAroundFullChunk(i);
                 cubeAccess = cubicServerChunkCache.cc_getCube(i, -i, 0, expectedStatus, false);
                 assertNotNull(cubeAccess);
-                assertTrue(cubeAccess.getStatus().isOrAfter(expectedStatus));
+                assertTrue(cubeAccess.getPersistedStatus().isOrAfter(expectedStatus));
                 for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                     for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
                         int x = -i * CubicConstants.DIAMETER_IN_SECTIONS + dx;
@@ -393,7 +393,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
                             assertTrue(serverChunkCache.hasChunk(x, z));
                         var chunkAccess = serverChunkCache.getChunk(x, z, expectedStatus, false);
                         assertNotNull(chunkAccess);
-                        assertTrue(chunkAccess.getStatus().isOrAfter(expectedStatus));
+                        assertTrue(chunkAccess.getPersistedStatus().isOrAfter(expectedStatus));
                     }
                 }
             }
@@ -409,7 +409,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             serverChunkCache.tick(()->true, false);
             var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
             assertNotNull(cubeAccess);
-            assertTrue(cubeAccess.getStatus().isOrAfter(ChunkStatus.FULL));
+            assertTrue(cubeAccess.getPersistedStatus().isOrAfter(ChunkStatus.FULL));
             assertInstanceOf(LevelCube.class, cubeAccess);
         }
     }

@@ -8,14 +8,13 @@ import java.util.function.IntSupplier;
 
 import javax.annotation.Nullable;
 
-import com.mojang.datafixers.util.Either;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public interface CloHolder {
     CloPos cc_getPos();
@@ -24,7 +23,7 @@ public interface CloHolder {
 
     void cc_broadcastChanges(LevelClo clo);
 
-    CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
+    CompletableFuture<ChunkResult<CloAccess>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
 
     void cc_addSaveDependency(String source, CompletableFuture<?> future);
 
@@ -34,7 +33,7 @@ public interface CloHolder {
      * @param consumer The listener to call once the status is reached
      * @param chunkMap The ChunkMap that manages this CloHolder
      */
-    void cc_addCloStatusListener(ChunkStatus status, BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> consumer, ChunkMap chunkMap);
+    void cc_addCloStatusListener(ChunkStatus status, BiConsumer<ChunkResult<CloAccess>, Throwable> consumer, ChunkMap chunkMap);
 
     @FunctionalInterface
     interface LevelChangeListener {

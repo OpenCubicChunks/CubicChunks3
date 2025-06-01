@@ -42,14 +42,14 @@ public abstract class MixinViewArea implements CubicViewArea {
         this.viewDistance = renderDistanceChunks;
     }
 
-    @WrapOperation(method = "createSections", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinBuildHeight()I"))
-    private int cc_onCreateSections_getMinBuildHeight(Level instance, Operation<Integer> original) {
+    @WrapOperation(method = "createSections", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinY()I"))
+    private int cc_onCreateSections_getMinY(Level instance, Operation<Integer> original) {
         if (!((CanBeCubic) level).cc_isCubic()) return original.call(instance);
         return 0; // I don't really understand the logic here, but returning 0 makes the Y axis behave equivalently to X and Z, which *should* be what we want
     }
 
-    @WrapOperation(method = "setDirty", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinSection()I"))
-    private int cc_onSetDirty_getMinSection(Level instance, Operation<Integer> original) {
+    @WrapOperation(method = "setDirty", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinSectionY()I"))
+    private int cc_onSetDirty_getMinSectionY(Level instance, Operation<Integer> original) {
         if (!((CanBeCubic) level).cc_isCubic()) return original.call(instance);
         return 0; // As above, returning 0 makes the Y axis behave equivalently to X and Z
     }

@@ -50,6 +50,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,8 +60,9 @@ import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LightChunkGetter;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkType;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -164,8 +166,8 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
 
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getChunkRangeFuture(Lnet/minecraft/server/level/ChunkHolder;ILjava/util/function/IntFunction;)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> cc_getChunkRangeFuture(ChunkHolder cloHolder, int radius,
-                                                                                                                      IntFunction<ChunkStatus> statusByRadius);
+    private native CompletableFuture<ChunkResult<List<CloAccess>>> cc_getChunkRangeFuture(ChunkHolder cloHolder, int radius,
+                                                                                          IntFunction<ChunkStatus> statusByRadius);
     private static ChunkStatus cc_getChildStatus(ChunkStatus status) {
         int index = status.getIndex() + 1;
         return index >= cc_CHUNK_STATUSES.size() ? ChunkStatus.FULL : cc_CHUNK_STATUSES.get(index);
@@ -177,7 +179,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
      */
     @Dynamic @Inject(method = "cc_dasm$cc_getChunkRangeFuture", at = @At("HEAD"), cancellable = true)
     private void cc_onGetChunkRangeFuture(ChunkHolder cloHolder, int radius, IntFunction<ChunkStatus> statusByRadius,
-                                          CallbackInfoReturnable<CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>>> cir) {
+                                          CallbackInfoReturnable<CompletableFuture<ChunkResult<List<CloAccess>>>> cir) {
         CloPos pos = ((CloHolder) cloHolder).cc_getPos();
         if (!pos.isCube()) return;
         // The vanilla method has an early exit for radius=0 here; this is not valid for cubes because even if radius=0 we still depend on chunks that neighbor the cube
@@ -237,7 +239,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
         // This saves several gigabytes of CompletableFuture objects.
         var cloCollectorFuture = new CloCollectorFuture(cloHolders.size());
         // Lambda created outside the loop to avoid allocating it multiple times
-        BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> cloCollectorCallback = (either, error) -> cloCollectorFuture.add(either, error, false);
+        BiConsumer<ChunkResult<CloAccess>, Throwable> cloCollectorCallback = (either, error) -> cloCollectorFuture.add(either, error, false);
         for (int i = 0; i < cloHolders.size(); i++) {
             var holder = cloHolders.get(i);
             var expectedStatus = expectedStatuses.get(i);
@@ -248,11 +250,11 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
             }
         }
 
-        CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> combinedFuture = cloCollectorFuture.thenApply(p_183730_ -> {
+        CompletableFuture<ChunkResult<List<CloAccess>>> combinedFuture = cloCollectorFuture.thenApply(p_183730_ -> {
                 List<CloAccess> list2 = Lists.newArrayList();
                 int k1 = 0;
 
-                for(final Either<CloAccess, ChunkHolder.ChunkLoadingFailure> either : p_183730_) {
+                for(final ChunkResult<CloAccess> either : p_183730_) {
                     if (either == null) {
                         throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
                     }
@@ -312,12 +314,12 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"))
     private native void cc_scheduleUnload(long chunkPos, ChunkHolder chunkHolder);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("schedule(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_schedule(ChunkHolder holder, ChunkStatus status);
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("schedule(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
+    public native CompletableFuture<ChunkResult<CloAccess>> cc_schedule(ChunkHolder holder, ChunkStatus status);
 
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleChunkLoad(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkLoad(CloPos cloPos);
+    private native CompletableFuture<ChunkResult<CloAccess>> cc_scheduleChunkLoad(CloPos cloPos);
 
     /**
      * Loading cubes at EMPTY requires additional logic to ensure that the corresponding chunks are loaded first
@@ -325,11 +327,11 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
      */
     @Dynamic @Inject(method = "cc_dasm$cc_scheduleChunkLoad", at = @At("HEAD"), cancellable = true)
     private void cc_onScheduleChunkLoad(CloPos pos,
-                                          CallbackInfoReturnable<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> cir) {
+                                          CallbackInfoReturnable<CompletableFuture<ChunkResult<CloAccess>>> cir) {
         if (!pos.isCube()) return;
         // TODO this is a bit of a disaster, why did mojang ever design their code around futures of Eithers
         // Logic for loading cube-adjacent chunks first, similar to getChunkRangeFuture
-        List<CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> chunkLoadFutures = new ArrayList<>();
+        List<CompletableFuture<ChunkResult<CloAccess>>> chunkLoadFutures = new ArrayList<>();
 
         for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
             for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
@@ -346,19 +348,19 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                     return;
                 }
 
-                CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = ((CloHolder) chunkholder).cc_getOrScheduleFuture(
+                CompletableFuture<ChunkResult<CloAccess>> completablefuture = ((CloHolder) chunkholder).cc_getOrScheduleFuture(
                     ChunkStatus.EMPTY, (ChunkMap) (Object) this
                 );
                 chunkLoadFutures.add(completablefuture);
             }
         }
 
-        CompletableFuture<List<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> chunkResultsFuture = Util.sequence(chunkLoadFutures);
-        CompletableFuture<Either<List<CloAccess>, ChunkHolder.ChunkLoadingFailure>> allChunksLoadedFuture = chunkResultsFuture.thenApply(p_183730_ -> {
+        CompletableFuture<List<ChunkResult<CloAccess>>> chunkResultsFuture = Util.sequence(chunkLoadFutures);
+        CompletableFuture<ChunkResult<List<CloAccess>>> allChunksLoadedFuture = chunkResultsFuture.thenApply(p_183730_ -> {
             List<CloAccess> list2 = Lists.newArrayList();
             int index = 0;
 
-            for(final Either<CloAccess, ChunkHolder.ChunkLoadingFailure> either : p_183730_) {
+            for(final ChunkResult<CloAccess> either : p_183730_) {
                 if (either == null) {
                     throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
                 }
@@ -390,12 +392,12 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
                         LOGGER.error("Chunk file at {} is missing level data, skipping", pos);
                     }
                     return flag;
-                })).<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>thenApplyAsync(p_313584_ -> {
+                })).<ChunkResult<CloAccess>>thenApplyAsync(p_313584_ -> {
                     this.level.getProfiler().incrementCounter("chunkLoad");
                     // TODO (P2) loading save data
 //                    if (p_313584_.isPresent()) {
 //                        ChunkAccess chunkaccess = ChunkSerializer.read(this.level, this.poiManager, pos, p_313584_.get());
-//                        this.markPosition(pos, chunkaccess.getStatus().getChunkType());
+//                        this.markPosition(pos, chunkaccess.getPersistedStatus().getChunkType());
 //                        return Either.left(chunkaccess);
 //                    } else {
                         return Either.left(this.cc_createEmptyChunk(pos));
@@ -406,7 +408,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     }
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("handleChunkLoadFailure(Ljava/lang/Throwable;Lnet/minecraft/world/level/ChunkPos;)Lcom/mojang/datafixers/util/Either;"))
-    private native Either<CloAccess, ChunkHolder.ChunkLoadingFailure> cc_handleChunkLoadFailure(Throwable exception, CloPos cloPos);
+    private native ChunkResult<CloAccess> cc_handleChunkLoadFailure(Throwable exception, CloPos cloPos);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(
             value = @MethodSig("createEmptyChunk(Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
@@ -415,32 +417,32 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("markPositionReplaceable(Lnet/minecraft/world/level/ChunkPos;)V"))
     private native void cc_markPositionReplaceable(CloPos cloPos);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("markPosition(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus$ChunkType;)B"))
-    private native byte cc_markPosition(CloPos cloPos, ChunkStatus.ChunkType chunkType);
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("markPosition(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus$ChunkType;)B"))
+    private native byte cc_markPosition(CloPos cloPos, ChunkType chunkType);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleChunkGeneration(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_scheduleChunkGeneration(ChunkHolder chunkHolder, ChunkStatus chunkStatus);
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleChunkGeneration(Lnet/minecraft/server/level/ChunkHolder;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Ljava/util/concurrent/CompletableFuture;"))
+    private native CompletableFuture<ChunkResult<CloAccess>> cc_scheduleChunkGeneration(ChunkHolder chunkHolder, ChunkStatus chunkStatus);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("releaseLightTicket(Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_releaseLightTicket(CloPos cloPos);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getDependencyStatus(Lnet/minecraft/world/level/chunk/ChunkStatus;I)Lnet/minecraft/world/level/chunk/ChunkStatus;"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getDependencyStatus(Lnet/minecraft/world/level/chunk/status/ChunkStatus;I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
     private native ChunkStatus cc_getDependencyStatus(ChunkStatus chunkStatus, int p_140264_);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("protoChunkToFullChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_protoChunkToFullChunk(ChunkHolder holder);
+    private native CompletableFuture<ChunkResult<CloAccess>> cc_protoChunkToFullChunk(ChunkHolder holder);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("prepareEntityTickingChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareEntityTickingChunk(ChunkHolder holder);
+    public native CompletableFuture<ChunkResult<LevelClo>> cc_prepareEntityTickingChunk(ChunkHolder holder);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("prepareTickingChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareTickingChunk(ChunkHolder holder);
+    public native CompletableFuture<ChunkResult<LevelClo>> cc_prepareTickingChunk(ChunkHolder holder);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("onChunkReadyToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     private native void cc_onChunkReadyToSend(LevelClo cloPos);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("prepareAccessibleChunk(Lnet/minecraft/server/level/ChunkHolder;)Ljava/util/concurrent/CompletableFuture;"))
-    public native CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> cc_prepareAccessibleChunk(ChunkHolder holder);
+    public native CompletableFuture<ChunkResult<LevelClo>> cc_prepareAccessibleChunk(ChunkHolder holder);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("saveChunkIfNeeded(Lnet/minecraft/server/level/ChunkHolder;)Z"))
     private native boolean cc_saveChunkIfNeeded(ChunkHolder holder);

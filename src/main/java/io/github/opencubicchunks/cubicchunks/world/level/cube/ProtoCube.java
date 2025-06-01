@@ -30,7 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
@@ -85,10 +85,10 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
     @TransformFromMethod(
-        value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$TicksToSave;"),
+        value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;"),
         owner = @Ref(ProtoChunk.class)
     )
-    @Override public native ChunkAccess.TicksToSave getTicksForSerialization();
+    @Override public native ChunkAccess.PackedTicks getTicksForSerialization();
 
     // dasm + mixin
     @TransformFromMethod(
@@ -163,16 +163,16 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native List<CompoundTag> getEntities();
 
     @TransformFromMethod(
-        value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"),
+        value = @MethodSig("getPersistedStatus()Lnet/minecraft/world/level/chunk/status/ChunkStatus;"),
         owner = @Ref(ProtoChunk.class)
     )
-    @Override public native ChunkStatus getStatus();
+    @Override public native ChunkStatus getPersistedStatus();
 
     @TransformFromMethod(
-        value = @MethodSig("setStatus(Lnet/minecraft/world/level/chunk/ChunkStatus;)V"),
+        value = @MethodSig("setPersistedStatus(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"),
         owner = @Ref(ProtoChunk.class)
     )
-    @Override public native void setStatus(ChunkStatus status);
+    @Override public native void setPersistedStatus(ChunkStatus status);
 
     @TransformFromMethod(
         value = @MethodSig("getNoiseBiome(III)Lnet/minecraft/core/Holder;"),

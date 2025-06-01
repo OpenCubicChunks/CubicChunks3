@@ -8,7 +8,7 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -18,6 +18,6 @@ public abstract class MixinLoggerChunkProgressListener implements CloProgressLis
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
     @Override public native void cc_updateSpawnPos(CloPos center);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }

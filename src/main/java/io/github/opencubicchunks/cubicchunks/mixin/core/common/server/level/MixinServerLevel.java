@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinServerLevel extends MixinLevel implements CubicServerLevel {
     @Shadow @Final private ServerChunkCache chunkSource;
 
-    @Inject(method = "<init>", at = @At("io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
+    @Inject(method = "<init>", at = @At("CTOR_HEAD"))
     private void cc_onInit(MinecraftServer server, Executor dispatcher, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey dimension,
                            LevelStem levelStem, ChunkProgressListener progressListener, boolean isDebug, long biomeZoomSeed, List customSpawners, boolean tickTime,
                            RandomSequences randomSequences, CallbackInfo ci) {

@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.LightChunk;
 import net.minecraft.world.level.chunk.StructureAccess;
@@ -83,7 +83,7 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     boolean isUnsaved();
 
-    ChunkStatus getStatus();
+    ChunkStatus getPersistedStatus();
 
     ChunkStatus getHighestGeneratedStatus();
 
@@ -111,7 +111,7 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     TickContainerAccess<Fluid> getFluidTicks();
 
-    ChunkAccess.TicksToSave getTicksForSerialization();
+    ChunkAccess.PackedTicks getTicksForSerialization();
 
     UpgradeData getUpgradeData();
 
@@ -150,7 +150,7 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
     // TODO static methods
 //    static ShortList getOrCreateOffsetList(ShortList[] p_62096_, int p_62097_);
 //
-//    static record TicksToSave(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids);
+//    static record PackedTicks(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids);
 
     // TODO forge method
 //    @Nullable public net.minecraft.world.level.LevelAccessor getWorldForge() { return null; }

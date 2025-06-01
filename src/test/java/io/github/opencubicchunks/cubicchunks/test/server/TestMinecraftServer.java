@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 public class TestMinecraftServer extends BaseTest {
     private CloseableReference<IntegratedServer> setupServer() {
         WorldStem worldStemMock = mock(WorldStem.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-        when(worldStemMock.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)).thenReturn(true);
+        when(worldStemMock.registries().compositeAccess().lookupOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)).thenReturn(true);
         MockedConstruction<ServerFunctionManager> serverFunctionManagerMockedConstruction = Mockito.mockConstruction(ServerFunctionManager.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         return new CloseableReference<>(
            new IntegratedServer(mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), worldStemMock, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS)),

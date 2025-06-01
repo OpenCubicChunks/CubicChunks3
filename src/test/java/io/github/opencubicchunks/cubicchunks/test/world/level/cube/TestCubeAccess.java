@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
@@ -64,7 +64,7 @@ public class TestCubeAccess extends BaseTest {
 
         }
 
-        @Override public ChunkStatus getStatus() {
+        @Override public ChunkStatus getPersistedStatus() {
             return null;
         }
 
@@ -80,7 +80,7 @@ public class TestCubeAccess extends BaseTest {
             return null;
         }
 
-        @Override public ChunkAccess.TicksToSave getTicksForSerialization() {
+        @Override public ChunkAccess.PackedTicks getTicksForSerialization() {
             return null;
         }
 

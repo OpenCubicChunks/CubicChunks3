@@ -36,6 +36,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -44,8 +45,8 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
@@ -79,7 +80,7 @@ public abstract class MixinChunkHolder implements CloHolder {
     /**
      * Listeners for each ChunkStatus, that are notified when this CloHolder has reached that status
      */
-    private AtomicReferenceArray<ArrayList<BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable>>> cc_listenerLists;
+    private AtomicReferenceArray<ArrayList<BiConsumer<ChunkResult<CloAccess>, Throwable>>> cc_listenerLists;
 
     @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getPos() {
@@ -117,17 +118,17 @@ public abstract class MixinChunkHolder implements CloHolder {
         cc_listenerLists = new AtomicReferenceArray<>(CHUNK_STATUSES.size());
     }
 
-    @Override public void cc_addCloStatusListener(ChunkStatus status, BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> consumer, ChunkMap chunkMap) {
-        CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> future = cc_getOrScheduleFuture(status, chunkMap);
+    @Override public void cc_addCloStatusListener(ChunkStatus status, BiConsumer<ChunkResult<CloAccess>, Throwable> consumer, ChunkMap chunkMap) {
+        CompletableFuture<ChunkResult<CloAccess>> future = cc_getOrScheduleFuture(status, chunkMap);
 
         if (future.isDone()) {
             consumer.accept(future.getNow(null), null);
         } else {
-            List<BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable>> listenerList = this.cc_listenerLists.get(status.getIndex());
+            List<BiConsumer<ChunkResult<CloAccess>, Throwable>> listenerList = this.cc_listenerLists.get(status.getIndex());
             if (listenerList == null) {
-                final ArrayList<BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable>> listeners = new ArrayList<>();
+                final ArrayList<BiConsumer<ChunkResult<CloAccess>, Throwable>> listeners = new ArrayList<>();
                 future.whenComplete((either, throwable) -> {
-                    for (BiConsumer<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>, Throwable> listener : listeners) {
+                    for (BiConsumer<ChunkResult<CloAccess>, Throwable> listener : listeners) {
                         listener.accept(either, throwable);
                     }
                     listeners.clear();
@@ -234,8 +235,8 @@ public abstract class MixinChunkHolder implements CloHolder {
     }
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
-        value = @MethodSig("getOrScheduleFuture(Lnet/minecraft/world/level/chunk/ChunkStatus;Lnet/minecraft/server/level/ChunkMap;)Ljava/util/concurrent/CompletableFuture;"))
-    @Override public native CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
+        value = @MethodSig("getOrScheduleFuture(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/server/level/ChunkMap;)Ljava/util/concurrent/CompletableFuture;"))
+    @Override public native CompletableFuture<ChunkResult<CloAccess>> cc_getOrScheduleFuture(ChunkStatus status, ChunkMap map);
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("addSaveDependency(Ljava/lang/String;Ljava/util/concurrent/CompletableFuture;)V"))
@@ -243,12 +244,12 @@ public abstract class MixinChunkHolder implements CloHolder {
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("updateChunkToSave(Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V"))
-    private native void cc_updateChunkToSave(CompletableFuture<? extends Either<? extends CloAccess, ChunkHolder.ChunkLoadingFailure>> future, String source);
+    private native void cc_updateChunkToSave(CompletableFuture<ChunkResult<CloAccess>> future, String source);
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(
         value = @MethodSig("scheduleFullChunkPromotion(Lnet/minecraft/server/level/ChunkMap;Ljava/util/concurrent/CompletableFuture;Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/FullChunkStatus;)V"))
     private native void cc_scheduleFullChunkPromotion(
-        ChunkMap chunkMap, CompletableFuture<Either<LevelClo, ChunkHolder.ChunkLoadingFailure>> future, Executor executor, FullChunkStatus fullChunkStatus
+        ChunkMap chunkMap, CompletableFuture<ChunkResult<LevelClo>> future, Executor executor, FullChunkStatus fullChunkStatus
     );
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(

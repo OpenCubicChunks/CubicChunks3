@@ -27,7 +27,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -57,7 +57,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     private void cc_onConstruct(ClientLevel level, int viewDistance, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_emptyCube = new EmptyLevelCube(
-                level, CubePos.of(0, 0, 0), level.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
+                level, CubePos.of(0, 0, 0), level.registryAccess().lookupOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
             );
             cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter

@@ -6,7 +6,7 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public interface CubicLevelReader extends CubicCollisionGetter {
     @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus chunkStatus, boolean forceLoad);

@@ -31,12 +31,12 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -109,7 +109,7 @@ public class MixinChunkStatus {
     }
 
     // Temporary basic sinusoidal terrain, so we can generate a simple test world
-    private static CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> generateBasicTerrain(CloAccess cloAccess) {
+    private static CompletableFuture<ChunkResult<CloAccess>> generateBasicTerrain(CloAccess cloAccess) {
         int amplitude = 20;
         if (cloAccess instanceof CubeAccess cube) {
             var blockPos = new BlockPos.MutableBlockPos();
@@ -132,13 +132,13 @@ public class MixinChunkStatus {
 
     // TODO (P2) proper generation logic; this currently ignores everything and only handles promotion from ProtoClo to LevelClo
     @AddMethodToSets(sets = { ChunkToCloSet.class }, owner = @Ref(ChunkStatus.class), method = @MethodSig("generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"))
-    public CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_generate(
+    public CompletableFuture<ChunkResult<CloAccess>> cc_generate(
         Executor exectutor,
         ServerLevel level,
         ChunkGenerator chunkGenerator,
         StructureTemplateManager structureTemplateManager,
         ThreadedLevelLightEngine lightEngine,
-        Function<CloAccess, CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> task,
+        Function<CloAccess, CompletableFuture<ChunkResult<CloAccess>>> task,
         List<CloAccess> cache
     ) {
         CloAccess chunkaccess = cache.get(cache.size() / 2);
@@ -146,7 +146,7 @@ public class MixinChunkStatus {
             .thenApply(
                 p_281217_ -> {
                     p_281217_.ifLeft(p_290029_ -> {
-                        if (p_290029_ instanceof ProtoClo protochunk && !protochunk.getStatus().isOrAfter((ChunkStatus) (Object) this)) {
+                        if (p_290029_ instanceof ProtoClo protochunk && !protochunk.getPersistedStatus().isOrAfter((ChunkStatus) (Object) this)) {
                             protochunk.setStatus((ChunkStatus) (Object) this);
                         }
                     });
@@ -164,12 +164,12 @@ public class MixinChunkStatus {
         return Coords.sectionToCubeCeil(this.range);
     }
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(visibility = Visibility.PRIVATE, value = @MethodSig("getStatusAroundFullChunk(I)Lnet/minecraft/world/level/chunk/ChunkStatus;"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(visibility = Visibility.PRIVATE, value = @MethodSig("getStatusAroundFullChunk(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
     @Public private static native ChunkStatus cc_getStatusAroundFullCube(int radius);
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(visibility = Visibility.PRIVATE, value = @MethodSig("maxDistance()I"))
     @Public private static native int cc_maxDistance();
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(visibility = Visibility.PRIVATE, value = @MethodSig("getDistance(Lnet/minecraft/world/level/chunk/ChunkStatus;)I"))
+    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(visibility = Visibility.PRIVATE, value = @MethodSig("getDistance(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)I"))
     @Public private static native int cc_getDistance(ChunkStatus status);
 }

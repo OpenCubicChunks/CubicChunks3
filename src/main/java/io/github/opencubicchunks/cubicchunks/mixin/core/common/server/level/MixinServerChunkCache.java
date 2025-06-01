@@ -10,11 +10,9 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.util.Either;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
@@ -45,6 +43,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -57,9 +56,9 @@ import net.minecraft.world.level.LocalMobCapCalculator;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LightChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -110,7 +109,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     @Shadow protected abstract void getFullChunk(long p_8371_, Consumer<LevelChunk> p_8372_);
 
-    @Inject(method = "<init>", at = @At("io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
+    @Inject(method = "<init>", at = @At("CTOR_HEAD"))
     private void cc_onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager, Executor dispatcher,
                         ChunkGenerator generator, int viewDistance, int simulationDistance, boolean sync, ChunkProgressListener progressListener,
                         ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, CallbackInfo ci) {
@@ -119,10 +118,10 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("storeInCache(JLnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("storeInCache(JLnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     private native void cc_storeInCache(long pChunkPos, CubeAccess pChunk, ChunkStatus pChunkStatus);
 
-    @TransformFromMethod(@MethodSig("getChunk(IILnet/minecraft/world/level/chunk/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @TransformFromMethod(@MethodSig("getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Override @Nullable public native CubeAccess cc_getCube(int chunkX, @AddUnusedParam int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load);
 
     // mixin-into-dasm to replace call to getChunk with getCube
@@ -138,7 +137,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     // The second through fifth params are the params to the call being redirected; the next three params are the x/y/z coordinates in the params of getCube
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
     private CompletableFuture cc_getCube_getChunkFutureMainThread(ServerChunkCache instance, int chunkX, int chunkZ, ChunkStatus requiredStatus, boolean load, int chunkXRepeated, int chunkY, int chunkZRepeated) {
         return this.cc_getCubeFutureMainThread(chunkX, chunkY, chunkZ, requiredStatus, load);
     }
@@ -167,11 +166,11 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     // This method requires enough manual redirects that we just replace it entirely
     @Override
-    public CompletableFuture<Either<CubeAccess, ChunkHolder.ChunkLoadingFailure>> cc_getCubeFuture(
+    public CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFuture(
         int pX, int chunkY, int pZ, ChunkStatus pChunkStatus, boolean pLoad
     ) {
         boolean flag = Thread.currentThread() == this.mainThread;
-        CompletableFuture<Either<CubeAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture;
+        CompletableFuture<ChunkResult<CubeAccess>> completablefuture;
         if (flag) {
             completablefuture = this.cc_getCubeFutureMainThread(pX, chunkY, pZ, pChunkStatus, pLoad);
             this.mainThreadProcessor.managedBlock(completablefuture::isDone);
@@ -185,15 +184,15 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         return completablefuture;
     }
 
-    @WrapOperation(method = "getChunkFutureMainThread", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkHolder;getOrScheduleFuture(Lnet/minecraft/world/level/chunk/ChunkStatus;Lnet/minecraft/server/level/ChunkMap;)Ljava/util/concurrent/CompletableFuture;"))
-    private CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> cc_onGetChunkFutureMainThread(ChunkHolder chunkHolder, ChunkStatus status, ChunkMap chunkMap,
-                                                                                                                  Operation<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> original) {
+    @WrapOperation(method = "getChunkFutureMainThread", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkHolder;getOrScheduleFuture(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/server/level/ChunkMap;)Ljava/util/concurrent/CompletableFuture;"))
+    private CompletableFuture<ChunkResult<ChunkAccess>> cc_onGetChunkFutureMainThread(ChunkHolder chunkHolder, ChunkStatus status, ChunkMap chunkMap,
+                                                                                                                  Operation<CompletableFuture<ChunkResult<ChunkAccess>>> original) {
         if (!cc_isCubic) return original.call(chunkHolder, status, chunkMap);
         return (CompletableFuture) ((CloHolder) chunkHolder).cc_getOrScheduleFuture(status, chunkMap);
     }
 
-    @TransformFromMethod(@MethodSig("getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
-    private native CompletableFuture<Either<CubeAccess, ChunkHolder.ChunkLoadingFailure>> cc_getCubeFutureMainThread(
+    @TransformFromMethod(@MethodSig("getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
+    private native CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFutureMainThread(
         int pX, @AddUnusedParam int chunkY, int pZ, ChunkStatus pChunkStatus, boolean pLoad
     );
 

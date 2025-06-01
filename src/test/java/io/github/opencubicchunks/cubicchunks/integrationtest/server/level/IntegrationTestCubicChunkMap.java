@@ -37,7 +37,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -327,8 +327,8 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
             }
             var either = future.get();
             assertTrue(either.left().isPresent(), () -> "Full cube future Either should be successful, but was " + either.right().get());
-            assertTrue(either.left().get().getStatus().isOrAfter(ChunkStatus.FULL),
-                () -> "Cube should be at full status, but has status " + either.left().get().getStatus());
+            assertTrue(either.left().get().getPersistedStatus().isOrAfter(ChunkStatus.FULL),
+                () -> "Cube should be at full status, but has status " + either.left().get().getPersistedStatus());
             assertInstanceOf(LevelCube.class, either.left().get());
             for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
                 for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {

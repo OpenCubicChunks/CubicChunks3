@@ -9,7 +9,6 @@ import java.util.function.IntSupplier;
 
 import javax.annotation.Nullable;
 
-import com.mojang.datafixers.util.Either;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
@@ -28,13 +27,14 @@ import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.entity.CloStatusUpdateListener;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -69,13 +69,13 @@ public interface GlobalSet extends ForgeSet {
     @IntraOwnerContainer(owner = @Ref(ChunkStatus.class))
     abstract class ChunkStatus_redirects {
         @MethodRedirect(@MethodSig("generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"))
-        public abstract CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>> cc_generate(
+        public abstract CompletableFuture<ChunkResult<CloAccess>> cc_generate(
             Executor exectutor,
             ServerLevel level,
             ChunkGenerator chunkGenerator,
             StructureTemplateManager structureTemplateManager,
             ThreadedLevelLightEngine lightEngine,
-            Function<CloAccess, CompletableFuture<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> task,
+            Function<CloAccess, CompletableFuture<ChunkResult<CloAccess>>> task,
             List<CloAccess> cache
         );
     }
@@ -85,7 +85,7 @@ public interface GlobalSet extends ForgeSet {
         @MethodRedirect(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
         void cc_updateSpawnPos(CloPos center);
 
-        @MethodRedirect(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/ChunkStatus;)V"))
+        @MethodRedirect(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
         void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
     }
 

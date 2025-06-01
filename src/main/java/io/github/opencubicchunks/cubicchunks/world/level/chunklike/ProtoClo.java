@@ -15,7 +15,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.CarvingMask;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
@@ -59,7 +59,7 @@ public interface ProtoClo extends CloAccess {
 
     List<CompoundTag> getEntities();
 
-    void setStatus(ChunkStatus status);
+    void setPersistedStatus(ChunkStatus status);
 
     Map<BlockPos, CompoundTag> getBlockEntityNbts();
 

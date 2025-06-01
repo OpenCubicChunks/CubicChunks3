@@ -10,7 +10,7 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**

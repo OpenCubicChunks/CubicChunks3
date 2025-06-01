@@ -8,30 +8,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
-import com.mojang.datafixers.util.Either;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkResult;
 
 /**
  * A future for loading a list of {@link CloAccess}es, that relies on being externally notified of CloAccesses being loaded, rather than depending on futures for each CloAccess.
  * <p>
  * The future completes once every CloAccess has been added.
  */
-public class CloCollectorFuture extends CompletableFuture<List<Either<CloAccess, ChunkHolder.ChunkLoadingFailure>>> {
+public class CloCollectorFuture extends CompletableFuture<List<ChunkResult<CloAccess>>> {
     private final int size;
 
     private AtomicInteger index = new AtomicInteger();
 
-    private final Either<CloAccess, ChunkHolder.ChunkLoadingFailure>[] results;
+    private final ChunkResult<CloAccess>[] results;
     // Vanilla expects that the center chunk is in the middle of the list; this is not the case for cubes, so we manually swap the center cube to the middle
     private AtomicInteger indexToBeSwappedWithCenterIndex = new AtomicInteger(-1);
 
     public CloCollectorFuture(int size) {
         this.size = size;
-        results = new Either[size];
+        results = new ChunkResult[size];
     }
 
-    public void add(Either<CloAccess, ChunkHolder.ChunkLoadingFailure> either, @Nullable Throwable error, boolean isCenterCube) {
+    public void add(ChunkResult<CloAccess> either, @Nullable Throwable error, boolean isCenterCube) {
         if (error != null) {
             completeExceptionally(error);
         } else {

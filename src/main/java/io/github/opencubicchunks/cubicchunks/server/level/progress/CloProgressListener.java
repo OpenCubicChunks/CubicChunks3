@@ -3,7 +3,7 @@ package io.github.opencubicchunks.cubicchunks.server.level.progress;
 import javax.annotation.Nullable;
 
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public interface CloProgressListener {
     void cc_updateSpawnPos(CloPos center);

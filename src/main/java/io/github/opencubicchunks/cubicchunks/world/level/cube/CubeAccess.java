@@ -37,7 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
@@ -134,7 +134,7 @@ public abstract class CubeAccess implements CloAccess {
     }
 
     @Override public int getHighestSectionPosition() {
-        return this.getMinBuildHeight();
+        return this.getMinY();
     }
 
     @TransformFromMethod(
@@ -249,11 +249,11 @@ public abstract class CubeAccess implements CloAccess {
     )
     @Override public native boolean isUnsaved();
 
-    @Override public abstract ChunkStatus getStatus();
+    @Override public abstract ChunkStatus getPersistedStatus();
 
     @Override public ChunkStatus getHighestGeneratedStatus() {
         // In ChunkAccess this method is only used for below-zero retrogen; with no retrogen it does this
-        return this.getStatus();
+        return this.getPersistedStatus();
     }
 
     @Override public abstract void removeBlockEntity(BlockPos pos);
@@ -343,7 +343,7 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public abstract TickContainerAccess<Fluid> getFluidTicks();
 
-    @Override public abstract ChunkAccess.TicksToSave getTicksForSerialization();
+    @Override public abstract ChunkAccess.PackedTicks getTicksForSerialization();
 
     @TransformFromMethod(
         value = @MethodSig("getUpgradeData()Lnet/minecraft/world/level/chunk/UpgradeData;"),
@@ -406,10 +406,10 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native void setLightCorrect(boolean lightCorrect);
 
     @TransformFromMethod(
-        value = @MethodSig("getMinBuildHeight()I"),
+        value = @MethodSig("getMinY()I"),
         owner = @Ref(ChunkAccess.class)
     )
-    @Override public native int getMinBuildHeight();
+    @Override public native int getMinY();
 
     @TransformFromMethod(
         value = @MethodSig("getHeight()I"),

@@ -38,7 +38,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
@@ -97,7 +97,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         @Nullable LevelClo.PostLoadProcessor postLoad,
         @Nullable BlendingData blendingData
     ) {
-        super(pos, data, level, level.registryAccess().registryOrThrow(Registries.BIOME), inhabitedTime, sections, blendingData);
+        super(pos, data, level, level.registryAccess().lookupOrThrow(Registries.BIOME), inhabitedTime, sections, blendingData);
         this.level = level;
         this.gameEventListenerRegistrySections = new Int2ObjectOpenHashMap<>();
 
@@ -157,8 +157,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("getFluidTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), owner = @Ref(LevelChunk.class))
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
-    @TransformFromMethod(value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$TicksToSave;"), owner = @Ref(LevelChunk.class))
-    @Override public native ChunkAccess.TicksToSave getTicksForSerialization();
+    @TransformFromMethod(value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;"), owner = @Ref(LevelChunk.class))
+    @Override public native ChunkAccess.PackedTicks getTicksForSerialization();
 
     // TODO should this actually be dasm'd?
     @TransformFromMethod(value = @MethodSig("getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;"), owner = @Ref(LevelChunk.class))
@@ -345,8 +345,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
 //    public native void unregisterTickContainerFromLevel(ServerLevel level);
     public void unregisterTickContainerFromLevel(ServerLevel level) {}
 
-    @TransformFromMethod(value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/ChunkStatus;"), owner = @Ref(LevelChunk.class))
-    @Override public native ChunkStatus getStatus();
+    @TransformFromMethod(value = @MethodSig("getStatus()Lnet/minecraft/world/level/chunk/status/ChunkStatus;"), owner = @Ref(LevelChunk.class))
+    @Override public native ChunkStatus getPersistedStatus();
 
     @TransformFromMethod(value = @MethodSig("getFullStatus()Lnet/minecraft/server/level/FullChunkStatus;"), owner = @Ref(LevelChunk.class))
     public native FullChunkStatus getFullStatus();

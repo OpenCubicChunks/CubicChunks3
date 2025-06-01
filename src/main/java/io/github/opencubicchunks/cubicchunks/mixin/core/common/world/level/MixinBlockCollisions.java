@@ -30,7 +30,7 @@ public class MixinBlockCollisions {
     @Shadow private long cachedBlockGetterPos;
     private boolean cc_isCubic;
 
-    @Inject(method = "<init>", at = @At("io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
+    @Inject(method = "<init>", at = @At("CTOR_HEAD"))
     private void cc_onInit(CollisionGetter collisionGetter, Entity entity, AABB box, boolean onlySuffocatingBlocks, BiFunction resultProvider, CallbackInfo ci) {
         // TODO probably don't cast without an instanceof check in production - for dev it's fine since it will tell us we're missing something
         if (((CanBeCubic) collisionGetter).cc_isCubic()) cc_isCubic = true;

@@ -29,8 +29,8 @@ import org.mockito.Answers;
 public class TestProtoCube extends BaseTest {
     private ProtoCube makeProtoCube(CubePos cubePos) {
         LevelHeightAccessor heightAccessor = mock(Answers.RETURNS_DEEP_STUBS);
-        when(heightAccessor.getMinBuildHeight()).thenReturn(-(1 << 24));
-        when(heightAccessor.getMaxBuildHeight()).thenReturn(1 << 24);
+        when(heightAccessor.getMinY()).thenReturn(-(1 << 24));
+        when(heightAccessor.getMaxY()).thenReturn(1 << 24);
         when(heightAccessor.getHeight()).thenReturn(1 << 25);
         when(heightAccessor.isOutsideBuildHeight(any())).thenReturn(false);
         return new ProtoCube(cubePos, mock(Answers.RETURNS_DEEP_STUBS), heightAccessor, mock(Answers.RETURNS_DEEP_STUBS), mock(Answers.RETURNS_DEEP_STUBS));

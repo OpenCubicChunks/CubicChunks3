@@ -15,7 +15,6 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
-import io.github.opencubicchunks.cubicchunks.config.CommonConfig;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
@@ -33,12 +32,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -82,7 +80,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         }
     }
 
-    @Inject(method = "<init>", at = @At(value = "io.github.opencubicchunks.cubicchunks.ConstructorSuper"))
+    @Inject(method = "<init>", at = @At(value = "CTOR_HEAD"))
     private void cc_init(CallbackInfo ci) {
         if(CubicChunks.config().shouldGenerateNewWorldsAsCC()) {
             this.cc_setCubic();
@@ -209,7 +207,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     // loadedAndEntityCanStandOnFace
     // Uses an inject here since the entire second half of the method needs to be replaced anyways
-    @Inject(method = "loadedAndEntityCanStandOnFace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(IILnet/minecraft/world/level/chunk/ChunkStatus;Z)"
+    @Inject(method = "loadedAndEntityCanStandOnFace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)"
         + "Lnet/minecraft/world/level/chunk/ChunkAccess;"), cancellable = true)
     private void cc_replaceGetChunkAtInLoadedAndEntityCanStandOnFace(BlockPos blockPos, Entity entity, Direction direction, CallbackInfoReturnable<Boolean> cir) {
         if(cc_isCubic) {
