@@ -23,7 +23,4 @@ public interface CubicDistanceManager {
 
     @UsedFromASM
     <T> void cc_removeRegionTicket(TicketType type, CloPos pos, int distance, T value, boolean forceTicks);
-
-    @UsedFromASM
-    boolean cc_runAllUpdates(ChunkMap chunkManager);
 }

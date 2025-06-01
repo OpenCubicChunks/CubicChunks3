@@ -4,27 +4,19 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
-import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
-import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
-import io.github.notstirred.dasm.api.annotations.selector.Ref;
-import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
-import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
-import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
+import io.github.opencubicchunks.cubicchunks.world.level.CubicTicketStorage;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkMap;
-import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
-import net.minecraft.server.level.TicketType;
-import net.minecraft.server.level.TickingTracker;
+import net.minecraft.server.level.LoadingChunkTracker;
+import net.minecraft.server.level.SimulationChunkTracker;
+import net.minecraft.server.level.Ticket;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.TicketStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,127 +33,35 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(DistanceManager.class)
 public abstract class MixinDistanceManager implements CubicDistanceManager, MarkableAsCubic {
     protected boolean cc_isCubic;
-    @Shadow @Final private DistanceManager.ChunkTicketTracker ticketTracker;
+
+    @Shadow @Final private LoadingChunkTracker loadingChunkTracker;
+    @Shadow @Final private SimulationChunkTracker simulationChunkTracker;
     @Shadow @Final private DistanceManager.FixedPlayerDistanceChunkTracker naturalSpawnChunkCounter;
-    @Shadow @Final private TickingTracker tickingTicketsTracker;
     @Shadow @Final private DistanceManager.PlayerTicketTracker playerTicketManager;
-    @Shadow @Final ChunkTaskPriorityQueueSorter ticketThrottler;
 
     @Override
     public void cc_setCubic() {
         cc_isCubic = true;
-        ((MarkableAsCubic) this.ticketTracker).cc_setCubic();
+        ((MarkableAsCubic) this.loadingChunkTracker).cc_setCubic();
+        ((MarkableAsCubic) this.simulationChunkTracker).cc_setCubic();
         ((MarkableAsCubic) this.naturalSpawnChunkCounter).cc_setCubic();
-        ((MarkableAsCubic) this.tickingTicketsTracker).cc_setCubic();
         ((MarkableAsCubic) this.playerTicketManager).cc_setCubic();
-        ((MarkableAsCubic) this.ticketThrottler).cc_setCubic();
     }
 
     @Override public boolean cc_isCubic() {
         return cc_isCubic;
     }
 
-    // TODO working with chunks in CC contexts still calls these methods; is this something we want to avoid?
-//    @Inject(method = {"addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",
-//        "removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",
-//    "addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",
-//    "addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V",
-//    "removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V",
-//    "removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V",
-//    "updateChunkForced"}, at = @At("HEAD"))
-//    private void cc_onUseChunkPos(CallbackInfo ci){
-//        assert !cc_isCubic;
-//    }
-
-    @Override
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public abstract <T> void cc_addTicket(TicketType type, CloPos pos, int level, T value);
-
-    @Override
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public abstract <T> void cc_removeTicket(TicketType type, CloPos pos, int level, T value);
-
-    @Override
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public abstract <T> void cc_addRegionTicket(TicketType type, CloPos pos, int distance, T value);
-
-    @Override
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-    public abstract <T> void cc_addRegionTicket(TicketType type, CloPos pos, int distance, T value, boolean forceTicks);
-
-    @Override
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public abstract <T> void cc_removeRegionTicket(TicketType type, CloPos pos, int distance, T value);
-
-    @Override
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-    public abstract <T> void cc_removeRegionTicket(TicketType type, CloPos pos, int distance, T value, boolean forceTicks);
-
-    @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
-    public abstract void cc_updateCubeForced(CloPos pos, boolean add);
-
-    // CubePos equivalents that delegate to their corresponding CloPos method
-    // For ticket types that hold a CloPos, we additionally must convert the ticket value.
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public <T> void cc_addTicket(TicketType type, CubePos pos, int level, T value) {
-        cc_addTicket(type, CloPos.cube(pos), level, value instanceof CubePos cube ? (T) CloPos.cube(cube) : value);
-    }
-
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public <T> void cc_removeTicket(TicketType type, CubePos pos, int level, T value) {
-        cc_removeTicket(type, CloPos.cube(pos), level, value instanceof CubePos cube ? (T) CloPos.cube(cube) : value);
-    }
-
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public <T> void cc_addRegionTicket(TicketType type, CubePos pos, int distance, T value) {
-        cc_addRegionTicket(type, CloPos.cube(pos), distance, value instanceof CubePos cube ? (T) CloPos.cube(cube) : value);
-    }
-
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-    public <T> void cc_addRegionTicket(TicketType type, CubePos pos, int distance, T value, boolean forceTicks) {
-        cc_addRegionTicket(type, CloPos.cube(pos), distance, value instanceof CubePos cube ? (T) CloPos.cube(cube) : value, forceTicks);
-    }
-
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public <T> void cc_removeRegionTicket(TicketType type, CubePos pos, int distance, T value) {
-        cc_removeRegionTicket(type, CloPos.cube(pos), distance, value instanceof CubePos cube ? (T) CloPos.cube(cube) : value);
-    }
-
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-    public <T> void cc_removeRegionTicket(TicketType type, CubePos pos, int distance, T value, boolean forceTicks) {
-        cc_removeRegionTicket(type, CloPos.cube(pos), distance, value instanceof CubePos cube ? (T) CloPos.cube(cube) : value, forceTicks);
-    }
-
-    @UsedFromASM
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(DistanceManager.class), method = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
-    public void cc_updateCubeForced(CubePos pos, boolean add) {
-        cc_updateCubeForced(CloPos.cube(pos), add);
-    }
-
-
     /**
      * This function replaces the addTicket call with a cubic version instead.
      *
      * This requires replacing the ChunkPos with a CloPos.
      */
-    @WrapWithCondition(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/TickingTracker;addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_replaceTicketTypeOnAddPlayer(TickingTracker instance, TicketType type, ChunkPos chunkPos, int ticketLevel, T key, SectionPos sectionPos) {
+    @WrapWithCondition(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/TicketStorage;addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    private boolean cc_replaceTicketTypeOnAddPlayer(TicketStorage instance, Ticket ticket, ChunkPos chunkPos, SectionPos sectionPos) {
         if(!cc_isCubic) return true;
         CloPos cloPos = CloPos.section(sectionPos);
-        ((CubicTickingTracker)instance).cc_addTicket(type, cloPos, ticketLevel, cloPos);
+        ((CubicTicketStorage) instance).cc_addTicket(ticket, cloPos);
         return false;
     }
 
@@ -170,11 +70,11 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
      *
      * This requires replacing ChunkPos with a CloPos.
      */
-    @WrapWithCondition(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/TickingTracker;removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_replaceTicketTypeOnRemovePlayer(TickingTracker instance, TicketType type, ChunkPos chunkPos, int ticketLevel, T key, SectionPos sectionPos) {
+    @WrapWithCondition(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/TicketStorage;removeTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    private boolean cc_replaceTicketTypeOnRemovePlayer(TicketStorage instance, Ticket ticket, ChunkPos chunkPos, SectionPos sectionPos) {
         if(!cc_isCubic) return true;
         CloPos cloPos = CloPos.section(sectionPos);
-        ((CubicTickingTracker)instance).cc_removeTicket(type, cloPos, ticketLevel, cloPos);
+        ((CubicTicketStorage) instance).cc_removeTicket(ticket, cloPos);
         return false;
     }
 
@@ -196,10 +96,11 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
         return CloPos.section(sectionPos).toLong();
     }
 
-    @Override
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("runAllUpdates(Lnet/minecraft/server/level/ChunkMap;)Z"))
-    public native boolean cc_runAllUpdates(ChunkMap chunkManager);
+    // TODO how does hasPlayersNearby work?
 
-    // TODO: Make mixins for dumpTickets if you're feeling ambitious (I'm not, and it is debug code, so it's not a priority)
+    // TODO somehow runAllUpdates doesn't seem to need any changes anymore?
+//    @Override
+//    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("runAllUpdates(Lnet/minecraft/server/level/ChunkMap;)Z"))
+//    public native boolean cc_runAllUpdates(ChunkMap chunkManager);
 
 }
