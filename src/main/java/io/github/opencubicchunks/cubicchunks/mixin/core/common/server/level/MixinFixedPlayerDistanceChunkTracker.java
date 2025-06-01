@@ -12,6 +12,4 @@ public abstract class MixinFixedPlayerDistanceChunkTracker extends MixinChunkTra
     private void cc_onSetLevel(long sectionPos, int level, CallbackInfo ci) {
         super.cc_onSetLevel(sectionPos, level);
     }
-
-    // TODO do we care about dumpChunks?
 }

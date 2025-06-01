@@ -4,15 +4,11 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.access.common.DistanceManagerAccess;
-import io.github.opencubicchunks.cubicchunks.server.level.CloTaskPriorityQueueSorter;
-import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
+import io.github.opencubicchunks.cubicchunks.server.level.CloTaskDispatcher;
 import net.minecraft.server.level.DistanceManager;
-import net.minecraft.server.level.Ticket;
-import net.minecraft.server.level.TicketType;
+import net.minecraft.server.level.ThrottlingChunkTaskDispatcher;
 import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,26 +19,14 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceChunkTracker {
     @SuppressWarnings("target") @Shadow @Final DistanceManager this$0;
 
-
     /**
-     * This modifies the call to new Ticket to use a CloPos instead of a ChunkPos.
+     * This modifies the lambda inside Distance.this.ticketDispatcher.onLevelChange to use a CloPos instead of a ChunkPos.
      */
-    @WrapOperation(method = "onLevelChange(JIZZ)V", at = @At(value = "NEW",
-        target = "(Lnet/minecraft/server/level/TicketType;ILjava/lang/Object;)Lnet/minecraft/server/level/Ticket;"))
-    private Ticket<?> cc_onTicketConstruct(TicketType type, int ticketLevel, Object key, Operation<Ticket> original) {
-        if (!cc_isCubic)
-            return original.call(type, ticketLevel, key);
-        return original.call(type, ticketLevel, CloPos.fromLong(((ChunkPos) key).toLong()));
-    }
-
-    /**
-     * This modifies the lambda inside Distance.this.ticketThrottler.onLevelChange to use a CloPos instead of a ChunkPos.
-     */
-    @WrapWithCondition(method = "runAllUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkTaskPriorityQueueSorter;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
-    private boolean cc_onRunAllUpdates(ChunkTaskPriorityQueueSorter instance, ChunkPos chunkPos, IntSupplier p_140617_, int p_140618_, IntConsumer p_140619_) {
+    @WrapWithCondition(method = "runAllUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ThrottlingChunkTaskDispatcher;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
+    private boolean cc_onRunAllUpdates(ThrottlingChunkTaskDispatcher instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer) {
         if(!cc_isCubic) return true;
-        ((CloTaskPriorityQueueSorter)((DistanceManagerAccess)this$0).cc_ticketThrottler())
-            .cc_onLevelChange(CloPos.fromLong(chunkPos.toLong()), p_140617_, p_140618_, p_140619_);
+        ((CloTaskDispatcher)((DistanceManagerAccess)this$0).cc_ticketDispatcher())
+            .cc_onLevelChange(CloPos.fromLong(chunkPos.toLong()), intSupplier, i, intConsumer);
         return false;
     }
 }

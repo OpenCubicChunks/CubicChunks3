@@ -1,15 +1,14 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.server.level.ChunkTracker;
-import net.minecraft.server.level.DistanceManager;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.lighting.DynamicGraphMinFixedPoint;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,9 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * {@link ChunkTracker} is a class that determines the edges and as well as the values to be propagated to the edges in {@link DynamicGraphMinFixedPoint}.
  * It marks all chunks in a 1 chunk radius around the center as edges. Edge chunks have 1 level higher than the center chunk.
- * <br><br>
- * {@link DistanceManager.ChunkTicketTracker} would be the equivalent to {@link net.minecraft.server.level.TickingTracker}. Since that
- * implementation does not use {@link ChunkPos} directly, we do not need to mixin it unlike {@link net.minecraft.server.level.TickingTracker}.
  * <br><br>
  * This mixin replaces {@link ChunkPos} with {@link CloPos} and adds in logic to handle propagation for cubes.
  */
@@ -168,8 +164,13 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     /**
      * This function adds in new cubes and sorts them into the cube column map.
      * <br><br>
-     * It should be called from each onSetLevel implementation.
-     * For CC, this should only be {@link MixinTickingTracker#cc_onSetLevel(long, int)} and {@link MixinChunkTracker#cc_onSetLevel(long, int)}.
+     * It should be called from each implementation of {@link DynamicGraphMinFixedPoint#setLevel(long, int)} on a ChunkTracker subclass.
+     * For CC, this is handled by:
+     * <ul>
+     *     <li>{@link MixinFixedPlayerDistanceChunkTracker#cc_onSetLevel(long, int)}.</li>
+     *     <li>{@link MixinLoadingChunkTracker#cc_onSetLevel(long, int)}.</li>
+     *     <li>{@link MixinSimulationChunkTracker#cc_onSetLevel(long, int)}.</li>
+     * </ul>
      */
     protected void cc_onSetLevel(long pos, int level) {
         if (cc_isCubic && CloPos.isCube(pos)) {
