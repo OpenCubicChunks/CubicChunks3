@@ -22,7 +22,6 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.chunk.RenderRegionCache;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -114,6 +113,9 @@ public interface ChunkToCubeSet extends GlobalSet {
         to = @Ref(ClientCubeCache.Storage.class)
     )
     abstract class ClientChunkCache$Storage_to_ClientCubeCache$Storage_redirects { }
+
+    @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
+    interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
 
     // TODO move to a forge-specific sourceset
     // getter/setter as a workaround to forge adding a field that needs to be used as a LevelClo in some places and a LevelCube in others

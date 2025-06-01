@@ -27,12 +27,12 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
@@ -75,7 +75,7 @@ public interface ChunkToCloSet extends GlobalSet {
         @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
         CloPos cc_getCloPos();
 
-        @MethodRedirect(@MethodSig("getStatus()Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
+        @MethodRedirect(@MethodSig("getPersistedStatus()Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
         ChunkStatus getPersistedStatus();
     }
 

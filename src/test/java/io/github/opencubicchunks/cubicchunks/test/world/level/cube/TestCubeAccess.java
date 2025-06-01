@@ -13,7 +13,9 @@ import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -48,7 +50,7 @@ public class TestCubeAccess extends BaseTest {
             return null;
         }
 
-        @Override public @Nullable BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving) {
+        @Override public @Nullable BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
             int sectionIndex = Coords.blockToIndex(pos);
             int localX = Coords.blockToSectionLocal(pos.getX());
             int localY = Coords.blockToSectionLocal(pos.getY());
@@ -72,6 +74,10 @@ public class TestCubeAccess extends BaseTest {
 
         }
 
+        @Override public @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider) {
+            return null;
+        }
+
         @Override public TickContainerAccess<Block> getBlockTicks() {
             return null;
         }
@@ -80,7 +86,7 @@ public class TestCubeAccess extends BaseTest {
             return null;
         }
 
-        @Override public ChunkAccess.PackedTicks getTicksForSerialization() {
+        @Override public ChunkAccess.PackedTicks getTicksForSerialization(long todoNameThis) {
             return null;
         }
 
@@ -106,10 +112,10 @@ public class TestCubeAccess extends BaseTest {
             BlockPos pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             if (!visitedPositions.add(pos)) continue;
             if (random.nextBoolean()) {
-                cubeAccess.setBlockState(pos, Blocks.STONE.defaultBlockState(), false);
+                cubeAccess.setBlockState(pos, Blocks.STONE.defaultBlockState());
                 expectedPositions.add(pos);
             } else {
-                cubeAccess.setBlockState(pos, Blocks.DIRT.defaultBlockState(), false);
+                cubeAccess.setBlockState(pos, Blocks.DIRT.defaultBlockState());
             }
         }
         Set<BlockPos> foundPositions = new HashSet<>();

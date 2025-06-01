@@ -15,12 +15,11 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.CarvingMask;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
@@ -64,11 +63,11 @@ public interface ProtoClo extends CloAccess {
     Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
     @Nullable
-    CarvingMask getCarvingMask(GenerationStep.Carving step);
+    CarvingMask getCarvingMask();
 
-    CarvingMask getOrCreateCarvingMask(GenerationStep.Carving step);
+    CarvingMask getOrCreateCarvingMask();
 
-    void setCarvingMask(GenerationStep.Carving step, CarvingMask carvingMask);
+    void setCarvingMask(CarvingMask carvingMask);
 
     void setLightEngine(LevelLightEngine lightEngine);
 

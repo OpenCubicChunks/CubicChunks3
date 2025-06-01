@@ -47,7 +47,7 @@ public class TestProtoCube extends BaseTest {
                 .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             var state = random.nextBoolean() ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
             states.put(pos, state);
-            cube.setBlockState(pos, state, false);
+            cube.setBlockState(pos, state);
         }
 
         for (var pos : states.keySet()) {
@@ -65,7 +65,7 @@ public class TestProtoCube extends BaseTest {
             var pos = cubePos
                 .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             positions.add(pos);
-            cube.setBlockState(pos, state, false);
+            cube.setBlockState(pos, state);
         }
 
         for (var pos : positions) {

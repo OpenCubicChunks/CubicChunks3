@@ -14,16 +14,18 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
@@ -37,9 +39,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -56,7 +58,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class CubeAccess implements CloAccess {
     // Fields copied from ChunkAccess, except ChunkPos -> CubePos
     protected final ShortList[] postProcessing;
-    protected volatile boolean unsaved;
+    private volatile boolean unsaved;
     private volatile boolean isLightCorrect;
     protected final CubePos cubePos;
     private long inhabitedTime;
@@ -74,7 +76,7 @@ public abstract class CubeAccess implements CloAccess {
     private final Map<Structure, StructureStart> structureStarts = Maps.newHashMap();
     private final Map<Structure, LongSet> structuresRefences = Maps.newHashMap();
     protected final Map<BlockPos, CompoundTag> pendingBlockEntities = Maps.newHashMap();
-    protected final Map<BlockPos, BlockEntity> blockEntities = Maps.newHashMap();
+    protected final Map<BlockPos, BlockEntity> blockEntities = new Object2ObjectOpenHashMap<>();
     protected final LevelHeightAccessor levelHeightAccessor;
     protected final LevelChunkSection[] sections;
 
@@ -121,7 +123,10 @@ public abstract class CubeAccess implements CloAccess {
     )
     @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
-    @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
+    @TransformFromMethod(owner = @Ref(ChunkAccess.class), value = @MethodSig("setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;"))
+    @Override @Nullable public native BlockState setBlockState(BlockPos pos, BlockState state);
+
+    @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, int flags);
 
     @Override public abstract void setBlockEntity(BlockEntity blockEntity);
 
@@ -237,11 +242,22 @@ public abstract class CubeAccess implements CloAccess {
         return false;
     }
 
+    @Override public boolean isSectionEmpty(int sectionY) {
+        // TODO
+        return false;
+    }
+
     @TransformFromMethod(
-        value = @MethodSig("setUnsaved(Z)V"),
+        value = @MethodSig("markUnsaved()V"),
         owner = @Ref(ChunkAccess.class)
     )
-    @Override public native void setUnsaved(boolean unsaved);
+    @Override public native void markUnsaved();
+
+    @TransformFromMethod(
+        value = @MethodSig("tryMarkSaved()Z"),
+        owner = @Ref(ChunkAccess.class)
+    )
+    @Override public native boolean tryMarkSaved();
 
     @TransformFromMethod(
         value = @MethodSig("isUnsaved()Z"),
@@ -271,10 +287,10 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native ShortList[] getPostProcessing();
 
     @TransformFromMethod(
-        value = @MethodSig("addPackedPostProcess(SI)V"),
+        value = @MethodSig("addPackedPostProcess(Lit/unimi/dsi/fastutil/shorts/ShortList;I)V"),
         owner = @Ref(ChunkAccess.class)
     )
-    @Override public native void addPackedPostProcess(short packedPosition, int index);
+    @Override public native void addPackedPostProcess(ShortList offsets, int index);
 
     @TransformFromMethod(
         value = @MethodSig("setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V"),
@@ -288,11 +304,7 @@ public abstract class CubeAccess implements CloAccess {
     )
     @Override @Nullable public native CompoundTag getBlockEntityNbt(BlockPos pos);
 
-    @TransformFromMethod(
-        value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"),
-        owner = @Ref(ChunkAccess.class)
-    )
-    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
+    @Override @Nullable public abstract CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
     @TransformFromMethod(
         value = @MethodSig("findBlockLightSources(Ljava/util/function/BiConsumer;)V"),
@@ -305,12 +317,6 @@ public abstract class CubeAccess implements CloAccess {
         owner = @Ref(ChunkAccess.class)
     )
     @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
-
-    @TransformFromMethod(
-        value = @MethodSig("findBlocks(Ljava/util/function/BiPredicate;Ljava/util/function/BiConsumer;)V"),
-        owner = @Ref(ChunkAccess.class)
-    )
-    @Override public native void findBlocks(java.util.function.BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output);
 
     @Override public void findBlocks(Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
@@ -343,7 +349,13 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public abstract TickContainerAccess<Fluid> getFluidTicks();
 
-    @Override public abstract ChunkAccess.PackedTicks getTicksForSerialization();
+    @TransformFromMethod(
+        value = @MethodSig("canBeSerialized()Z"),
+        owner = @Ref(ChunkAccess.class)
+    )
+    @Override public native boolean canBeSerialized();
+
+    @Override public abstract ChunkAccess.PackedTicks getTicksForSerialization(long todoNameThis);
 
     @TransformFromMethod(
         value = @MethodSig("getUpgradeData()Lnet/minecraft/world/level/chunk/UpgradeData;"),
@@ -362,12 +374,6 @@ public abstract class CubeAccess implements CloAccess {
         owner = @Ref(ChunkAccess.class)
     )
     @Override @Nullable public native BlendingData getBlendingData();
-
-    @TransformFromMethod(
-        value = @MethodSig("setBlendingData(Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V"),
-        owner = @Ref(ChunkAccess.class)
-    )
-    @Override public native void setBlendingData(BlendingData blendingData);
 
     @TransformFromMethod(
         value = @MethodSig("getInhabitedTime()J"),

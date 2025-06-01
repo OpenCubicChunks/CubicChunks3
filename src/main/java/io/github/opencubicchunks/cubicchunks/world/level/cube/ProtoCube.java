@@ -14,9 +14,10 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
@@ -30,12 +31,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
-import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
@@ -51,7 +51,7 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     private volatile LevelLightEngine lightEngine;
     private volatile ChunkStatus status;
     private final List<CompoundTag> entities;
-    private final Map<GenerationStep.Carving, CarvingMask> carvingMasks;
+    @Nullable private CarvingMask carvingMask;
     @Nullable
     private BelowZeroRetrogen belowZeroRetrogen;
     private final ProtoChunkTicks<Block> blockTicks;
@@ -67,7 +67,6 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
         super(cubePos, upgradeData, levelHeightAccessor, biomeRegistry, 0L, sections, blendingData);
         this.status = ChunkStatus.EMPTY;
         this.entities = Lists.newArrayList();
-        this.carvingMasks = new Object2ObjectArrayMap();
         this.blockTicks = blockTicks;
         this.fluidTicks = liquidTicks;
     }
@@ -85,10 +84,10 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
     @TransformFromMethod(
-        value = @MethodSig("getTicksForSerialization()Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;"),
+        value = @MethodSig("getTicksForSerialization(J)Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;"),
         owner = @Ref(ProtoChunk.class)
     )
-    @Override public native ChunkAccess.PackedTicks getTicksForSerialization();
+    @Override public native ChunkAccess.PackedTicks getTicksForSerialization(long todoNameThis);
 
     // dasm + mixin
     @TransformFromMethod(
@@ -105,7 +104,7 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native FluidState getFluidState(BlockPos pos);
 
     @Nullable
-    @Override public BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving) {
+    @Override public BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -200,10 +199,10 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native void markPosForPostprocessing(BlockPos pos);
 
     @TransformFromMethod(
-        value = @MethodSig("addPackedPostProcess(SI)V"),
+        value = @MethodSig("addPackedPostProcess(Lit/unimi/dsi/fastutil/shorts/ShortList;I)V"),
         owner = @Ref(ProtoChunk.class)
     )
-    @Override public native void addPackedPostProcess(short packedPosition, int index);
+    @Override public native void addPackedPostProcess(ShortList offsets, int index);
 
     @TransformFromMethod(
         value = @MethodSig("getBlockEntityNbts()Ljava/util/Map;"),
@@ -212,10 +211,10 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
     @TransformFromMethod(
-        value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"),
+        value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;"),
         owner = @Ref(ProtoChunk.class)
     )
-    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
+    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
     @TransformFromMethod(
         value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"),
@@ -224,19 +223,19 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native void removeBlockEntity(BlockPos pos);
 
     @TransformFromMethod(
-        value = @MethodSig("getCarvingMask(Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;)Lnet/minecraft/world/level/chunk/CarvingMask;"),
+        value = @MethodSig("getCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;"),
         owner = @Ref(ProtoChunk.class))
-    @Override @Nullable public native CarvingMask getCarvingMask(GenerationStep.Carving step);
+    @Override @Nullable public native CarvingMask getCarvingMask();
 
     @TransformFromMethod(
-        value = @MethodSig("getOrCreateCarvingMask(Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;)Lnet/minecraft/world/level/chunk/CarvingMask;"),
+        value = @MethodSig("getOrCreateCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;"),
         owner = @Ref(ProtoChunk.class))
-    @Override public native CarvingMask getOrCreateCarvingMask(GenerationStep.Carving step);
+    @Override public native CarvingMask getOrCreateCarvingMask();
 
     @TransformFromMethod(
-        value = @MethodSig("setCarvingMask(Lnet/minecraft/world/level/levelgen/GenerationStep$Carving;Lnet/minecraft/world/level/chunk/CarvingMask;)V"),
+        value = @MethodSig("setCarvingMask(Lnet/minecraft/world/level/chunk/CarvingMask;)V"),
         owner = @Ref(ProtoChunk.class))
-    @Override public native void setCarvingMask(GenerationStep.Carving step, CarvingMask carvingMask);
+    @Override public native void setCarvingMask(CarvingMask carvingMask);
 
     @TransformFromMethod(
         value = @MethodSig("setLightEngine(Lnet/minecraft/world/level/lighting/LevelLightEngine;)V"),

@@ -147,7 +147,7 @@ public class MixinChunkStatus {
                 p_281217_ -> {
                     p_281217_.ifLeft(p_290029_ -> {
                         if (p_290029_ instanceof ProtoClo protochunk && !protochunk.getPersistedStatus().isOrAfter((ChunkStatus) (Object) this)) {
-                            protochunk.setStatus((ChunkStatus) (Object) this);
+                            protochunk.setPersistedStatus((ChunkStatus) (Object) this);
                         }
                     });
 

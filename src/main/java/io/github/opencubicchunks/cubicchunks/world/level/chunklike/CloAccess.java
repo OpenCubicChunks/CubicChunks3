@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -25,11 +26,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.LightChunk;
 import net.minecraft.world.level.chunk.StructureAccess;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
 import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -43,7 +44,9 @@ import net.minecraft.world.ticks.TickContainerAccess;
 public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, LightChunk, StructureAccess {
     GameEventListenerRegistry getListenerRegistry(int sectionY);
 
-    @Nullable BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving);
+    @Nullable BlockState setBlockState(BlockPos pos, BlockState state);
+
+    @Nullable BlockState setBlockState(BlockPos pos, BlockState state, int flags);
 
     void setBlockEntity(BlockEntity blockEntity);
 
@@ -79,7 +82,11 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     boolean isYSpaceEmpty(int startY, int endY);
 
-    void setUnsaved(boolean unsaved);
+    boolean isSectionEmpty(int sectionY);
+
+    void markUnsaved();
+
+    boolean tryMarkSaved();
 
     boolean isUnsaved();
 
@@ -93,17 +100,15 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     ShortList[] getPostProcessing();
 
-    void addPackedPostProcess(short packedPosition, int index);
+    void addPackedPostProcess(ShortList offsets, int index);
 
     void setBlockEntityNbt(CompoundTag tag);
 
     @Nullable CompoundTag getBlockEntityNbt(BlockPos pos);
 
-    @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos);
+    @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
     void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
-
-    void findBlocks(java.util.function.BiPredicate<BlockState, BlockPos> predicate, BiConsumer<BlockPos, BlockState> output);
 
     void findBlocks(Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output);
 
@@ -111,15 +116,15 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     TickContainerAccess<Fluid> getFluidTicks();
 
-    ChunkAccess.PackedTicks getTicksForSerialization();
+    boolean canBeSerialized();
+
+    ChunkAccess.PackedTicks getTicksForSerialization(long todoNameThis);
 
     UpgradeData getUpgradeData();
 
     boolean isOldNoiseGeneration();
 
     @Nullable BlendingData getBlendingData();
-
-    void setBlendingData(BlendingData blendingData);
 
     long getInhabitedTime();
 

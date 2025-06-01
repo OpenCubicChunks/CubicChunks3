@@ -10,7 +10,6 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.server.level.FullChunkStatus;
@@ -22,6 +21,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -58,6 +58,8 @@ public interface LevelClo extends CloAccess {
         }
     }
 
+    void cc_setUnsavedListener(LevelClo.UnsavedListener unsavedListener);
+
     FluidState getFluidState(int x, int y, int z);
 
     @Nullable
@@ -72,7 +74,7 @@ public interface LevelClo extends CloAccess {
     boolean isEmpty();
 
     void replaceWithPacketData(
-        FriendlyByteBuf buffer, CompoundTag tag, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
+        FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
     );
 
     void replaceBiomes(FriendlyByteBuf buffer);
@@ -83,7 +85,7 @@ public interface LevelClo extends CloAccess {
 
     Map<BlockPos, BlockEntity> getBlockEntities();
 
-    void postProcessGeneration();
+    void postProcessGeneration(ServerLevel serverLevel);
 
     void unpackTicks(long pos);
 
@@ -112,5 +114,10 @@ public interface LevelClo extends CloAccess {
         static @Nullable LevelCube.PostLoadProcessor forCube(@Nullable PostLoadProcessor postLoad) {
             return postLoad == null ? null : postLoad::run;
         }
+    }
+
+    @FunctionalInterface
+    interface UnsavedListener {
+        void setUnsaved(CloPos cloPos);
     }
 }
