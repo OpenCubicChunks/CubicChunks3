@@ -15,6 +15,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
+import io.github.opencubicchunks.cubicchunks.server.level.GeneratingCubeMap;
 import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
@@ -26,7 +27,9 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStatusT
 import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStep;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.server.level.ChunkGenerationTask;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.GeneratingChunkMap;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -139,6 +142,12 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ChunkPyramid.Builder.class), to = @Ref(CubePyramid.Builder.class))
     abstract class ChunkPyramid$Builder_to_CubePyramid$Builder_redirects { }
+
+    @IntraOwnerContainer(owner = @Ref(ChunkGenerationTask.class))
+    abstract class ChunkGenerationTask_redirects {
+        @FieldToMethodRedirect(@FieldSig(type = @Ref(GeneratingChunkMap.class), name = "chunkMap"))
+        private native GeneratingCubeMap cc_getGeneratingCubeMap();
+    }
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
