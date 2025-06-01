@@ -28,6 +28,10 @@ import net.minecraft.world.level.chunk.status.WorldGenContext;
 public record CubeStep(
     ChunkStatus targetStatus, ChunkDependencies directDependencies, ChunkDependencies accumulatedDependencies, int blockStateWriteRadius, CubeStatusTask task
 ) {
+    public int getAccumulatedRadiusOf(ChunkStatus status) {
+        throw new IllegalStateException("dasm failed to apply");
+    }
+
     public CompletableFuture<CubeAccess> apply(WorldGenContext worldGenContext, StaticCache3D<GenerationChunkHolder> cache, CubeAccess chunk) {
         throw new IllegalStateException("dasm failed to apply");
     }
