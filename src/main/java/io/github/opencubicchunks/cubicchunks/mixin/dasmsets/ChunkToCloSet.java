@@ -7,6 +7,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirec
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
@@ -19,7 +20,9 @@ import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProto
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkTrackingView;
+import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -172,5 +175,18 @@ public interface ChunkToCloSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
     abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects {
 
+    }
+
+    // TODO move to a forge-specific sourceset
+    @IntraOwnerContainer(owner = @Ref(GenerationChunkHolder.class))
+    abstract class GenerationChunkHolder_Forge_Jank_redirects {
+        @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
+        public native LevelClo cc_getCurrentlyLoading();
+    }
+    // TODO dasm inheritance
+    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    abstract class ChunkHolder_Forge_Jank_redirects {
+        @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
+        public native LevelClo cc_getCurrentlyLoading();
     }
 }

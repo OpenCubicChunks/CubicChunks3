@@ -180,7 +180,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements CubicCh
     @Dynamic @Inject(method = "cc_dasm$cc_getChunkRangeFuture", at = @At("HEAD"), cancellable = true)
     private void cc_onGetChunkRangeFuture(ChunkHolder cloHolder, int radius, IntFunction<ChunkStatus> statusByRadius,
                                           CallbackInfoReturnable<CompletableFuture<ChunkResult<List<CloAccess>>>> cir) {
-        CloPos pos = ((CloHolder) cloHolder).cc_getPos();
+        CloPos pos = ((CloHolder) cloHolder).cc_getCloPos();
         if (!pos.isCube()) return;
         // The vanilla method has an early exit for radius=0 here; this is not valid for cubes because even if radius=0 we still depend on chunks that neighbor the cube
         List<ChunkHolder> cloHolders = new ArrayList<>();

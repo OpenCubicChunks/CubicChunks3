@@ -352,7 +352,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
 
         // collect cube and chunk holders
         visibleCloMap.forEach((cloPosLong, cloHolder) -> {
-            CloPos cloPos = ((CloHolder) cloHolder).cc_getPos();
+            CloPos cloPos = ((CloHolder) cloHolder).cc_getCloPos();
             if (cloPos.isChunk()) {
                 chunksByCubeColumn.computeIfAbsent(cloPos.correspondingCubeCloPos(0), p -> new ArrayList<>())
                     .add(cloHolder);
@@ -363,7 +363,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
 
         // For each cube assert that its chunks exist and are of sufficient status
         cubes.forEach(cubeHolder -> {
-            CloPos cubeCloPos = ((CloHolder) cubeHolder).cc_getPos();
+            CloPos cubeCloPos = ((CloHolder) cubeHolder).cc_getCloPos();
             List<ChunkHolder> chunksInCubeColumn = chunksByCubeColumn.get(cubeCloPos.correspondingCubeCloPos(0));
 
             chunksInCubeColumn.forEach(chunkHolder -> assertChunkHolderValidForCubeHolder(chunkHolder, cubeHolder));
@@ -378,7 +378,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
         if (chunkStatus == null) {
             assertNull(cubeStatus,
                 () -> String.format("Chunk (%s) has status null is lower than cube (%s) at status %s",
-                    ((CloHolder) chunkHolder).cc_getPos(), ((CloHolder) cubeHolder).cc_getPos(), cubeStatus)
+                    ((CloHolder) chunkHolder).cc_getCloPos(), ((CloHolder) cubeHolder).cc_getCloPos(), cubeStatus)
             );
             return;
         }
@@ -391,7 +391,7 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
         // Neither are null, assert that statuses are valid.
         assertTrue(chunkStatus.isOrAfter(cubeStatus),
             () -> String.format("Chunk (%s) at status %s is lower than cube %s at status %s",
-                ((CloHolder) chunkHolder).cc_getPos(), chunkStatus, ((CloHolder) cubeHolder).cc_getPos(), cubeStatus)
+                ((CloHolder) chunkHolder).cc_getCloPos(), chunkStatus, ((CloHolder) cubeHolder).cc_getCloPos(), cubeStatus)
         );
     }
 }

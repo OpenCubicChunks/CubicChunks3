@@ -1,5 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
+import java.util.concurrent.CompletableFuture;
+
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
@@ -15,6 +17,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
+import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.GeneratingCubeMap;
 import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
@@ -28,7 +31,9 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStep;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.server.level.ChunkGenerationTask;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.GeneratingChunkMap;
+import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -37,6 +42,7 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.status.ChunkPyramid;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStatusTask;
 import net.minecraft.world.level.chunk.status.ChunkStep;
 
@@ -142,6 +148,21 @@ public interface ChunkToCubeSet extends GlobalSet {
     @TypeRedirect(from = @Ref(ChunkPyramid.Builder.class), to = @Ref(CubePyramid.Builder.class))
     abstract class ChunkPyramid$Builder_to_CubePyramid$Builder_redirects { }
 
+    @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CubeHolder.LevelChangeListener.class))
+    interface ChunkHolder$LevelChangeListener_to_CubeHolder$LevelChangeListener_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CubeHolder.PlayerProvider.class))
+    interface ChunkHolder$PlayerProvider_to_CubeHolder$PlayerProvider_redirects { }
+
+    @TypeRedirect(from = @Ref(GeneratingChunkMap.class), to = @Ref(GeneratingCubeMap.class))
+    interface GeneratingChunkMap_to_GeneratingCubeMap_redirects {
+        @MethodRedirect(@MethodSig("applyStep(Lnet/minecraft/server/level/GenerationChunkHolder;Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/util/StaticCache2D;)Ljava/util/concurrent/CompletableFuture;"))
+        CompletableFuture<CubeAccess> cc_applyCubeStep(GenerationChunkHolder chunk, CubeStep step, StaticCache3D<GenerationChunkHolder> cache);
+
+        @MethodRedirect(@MethodSig("scheduleGenerationTask(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
+        ChunkGenerationTask cc_scheduleGenerationTask(ChunkStatus targetStatus, CubePos pos);
+    }
+
     @IntraOwnerContainer(owner = @Ref(ChunkGenerationTask.class))
     abstract class ChunkGenerationTask_redirects {
         @FieldToMethodRedirect(@FieldSig(type = @Ref(GeneratingChunkMap.class), name = "chunkMap"))
@@ -150,4 +171,11 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
+
+    // TODO dasm inheritance
+    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    abstract class ChunkHolder_Forge_Jank_redirects {
+        @FieldRedirect(@FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)))
+        public LevelCube cc_currentlyLoadingCube;
+    }
 }

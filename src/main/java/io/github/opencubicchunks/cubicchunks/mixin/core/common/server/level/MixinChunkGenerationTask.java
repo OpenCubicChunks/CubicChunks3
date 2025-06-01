@@ -187,7 +187,7 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     @Inject(method = "scheduleChunkInLayer", at = @At("HEAD"), cancellable = true)
     private void cc_onScheduleChunkInLayer(ChunkStatus status, boolean needsGeneration, GenerationChunkHolder chunk, CallbackInfoReturnable<Boolean> cir) {
-        var cloPos = ((GenerationCloHolder) chunk).cc_getPos();
+        var cloPos = ((GenerationCloHolder) chunk).cc_getCloPos();
         if (cloPos != null && cloPos.isCube()) cir.setReturnValue(cc_scheduleCubeInLayer(status, needsGeneration, chunk));
     }
 
