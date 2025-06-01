@@ -15,20 +15,28 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
+import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.EmptyLevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubePyramid;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStatusTask;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStep;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.status.ChunkPyramid;
+import net.minecraft.world.level.chunk.status.ChunkStatusTask;
+import net.minecraft.world.level.chunk.status.ChunkStep;
 
 /**
  * Should be used for DASM transforms that work with only Cubes (as opposed to working with both Chunks and Cubes)
@@ -113,6 +121,24 @@ public interface ChunkToCubeSet extends GlobalSet {
         to = @Ref(ClientCubeCache.Storage.class)
     )
     abstract class ClientChunkCache$Storage_to_ClientCubeCache$Storage_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkStatusTask.class), to = @Ref(CubeStatusTask.class))
+    interface ChunkStatusTask_to_CubeStatusTask_redirects { }
+
+    @TypeRedirect(from = @Ref(StaticCache2D.class), to = @Ref(StaticCache3D.class))
+    abstract class StaticCache2D_to_StaticCache3D_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkStep.class), to = @Ref(CubeStep.class))
+    abstract class ChunkStep_to_CubeStep_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkStep.Builder.class), to = @Ref(CubeStep.Builder.class))
+    abstract class ChunkStep$Builder_to_CubeStep$Builder_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkPyramid.class), to = @Ref(CubePyramid.class))
+    abstract class ChunkPyramid_to_CubePyramid_redirects { }
+
+    @TypeRedirect(from = @Ref(ChunkPyramid.Builder.class), to = @Ref(CubePyramid.Builder.class))
+    abstract class ChunkPyramid$Builder_to_CubePyramid$Builder_redirects { }
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }

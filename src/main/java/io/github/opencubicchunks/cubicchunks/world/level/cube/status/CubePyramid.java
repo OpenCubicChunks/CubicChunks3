@@ -1,0 +1,59 @@
+package io.github.opencubicchunks.cubicchunks.world.level.cube.status;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.UnaryOperator;
+
+import com.google.common.collect.ImmutableList;
+import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
+import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
+import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
+import net.minecraft.world.level.chunk.status.ChunkPyramid;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+
+@Dasm(GlobalSet.class)
+public record CubePyramid(ImmutableList<CubeStep> steps) {
+    public CubeStep getStepTo(ChunkStatus status) {
+        return this.steps.get(status.getIndex());
+    }
+
+    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), field = @FieldSig(type = @Ref(ChunkPyramid.class), name = "GENERATION_PYRAMID"))
+    public static CubePyramid CC_GENERATION_PYRAMID_CUBES;
+    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), field = @FieldSig(type = @Ref(ChunkPyramid.class), name = "LOADING_PYRAMID"))
+    public static CubePyramid CC_LOADING_PYRAMID_CUBES;
+
+    @TransformFromMethod(useRedirectSets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), value = @MethodSig("<clinit>()V"))
+    static void initCubePyramids() {
+        throw new IllegalStateException("DASM failed to apply");
+    }
+
+    static {
+        initCubePyramids();
+    }
+
+    // TODO whole class redirect
+    public static class Builder {
+        private final List<CubeStep> steps = new ArrayList<>();
+
+        public CubePyramid build() {
+            return new CubePyramid(ImmutableList.copyOf(this.steps));
+        }
+
+        public CubePyramid.Builder step(ChunkStatus status, UnaryOperator<CubeStep.Builder> task) {
+            CubeStep.Builder chunkstep$builder;
+            if (this.steps.isEmpty()) {
+                chunkstep$builder = new CubeStep.Builder(status);
+            } else {
+                chunkstep$builder = new CubeStep.Builder(status, this.steps.getLast());
+            }
+
+            this.steps.add(task.apply(chunkstep$builder).build());
+            return this;
+        }
+    }
+}
