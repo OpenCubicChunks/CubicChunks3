@@ -148,17 +148,16 @@ public interface CloTrackingView extends ChunkTrackingView {
         return cc_isWithinDistance(centerCubeX, centerCubeY, centerCubeZ, viewDistanceCubes, cubeX, cubeY, cubeZ, false);
     }
 
-    static boolean cc_isWithinDistance(int centerCubeX, int centerCubeY, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeY, int cubeZ, boolean increaseRadiusByOne) {
-        // Mojang does some weird jank, but it's almost identical to just increasing the view distance by 1 - so we do that instead
-        if (increaseRadiusByOne) viewDistanceCubes++;
-        int dx = Math.max(0, Math.abs(cubeX - centerCubeX) - 1);
-        int dy = Math.max(0, Math.abs(cubeY - centerCubeY) - 1);
-        int dz = Math.max(0, Math.abs(cubeZ - centerCubeZ) - 1);
+    static boolean cc_isWithinDistance(int centerCubeX, int centerCubeY, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeY, int cubeZ, boolean includeOuterChunksAdjacentToViewBorder) {
+        int i = includeOuterChunksAdjacentToViewBorder ? 2 : 1;
+        int dx = Math.max(0, Math.abs(cubeX - centerCubeX) - i);
+        int dy = Math.max(0, Math.abs(cubeY - centerCubeY) - i);
+        int dz = Math.max(0, Math.abs(cubeZ - centerCubeZ) - i);
         return dx*dx + dy*dy + dz*dz < viewDistanceCubes * viewDistanceCubes;
     }
 
-    static boolean cc_isWithinDistanceCubeColumn(int centerCubeX, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeZ, boolean increaseRadiusByOne) {
-        return cc_isWithinDistance(centerCubeX, 0, centerCubeZ, viewDistanceCubes, cubeX, 0, cubeZ, increaseRadiusByOne);
+    static boolean cc_isWithinDistanceCubeColumn(int centerCubeX, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeZ, boolean includeOuterChunksAdjacentToViewBorder) {
+        return cc_isWithinDistance(centerCubeX, 0, centerCubeZ, viewDistanceCubes, cubeX, 0, cubeZ, includeOuterChunksAdjacentToViewBorder);
     }
 
     @Dasm(ChunkToCloSet.class)
