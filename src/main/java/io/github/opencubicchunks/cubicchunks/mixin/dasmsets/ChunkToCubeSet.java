@@ -28,7 +28,6 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStep;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.server.level.ChunkGenerationTask;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.GeneratingChunkMap;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
@@ -151,12 +150,4 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
-
-    // TODO move to a forge-specific sourceset
-    // getter/setter as a workaround to forge adding a field that needs to be used as a LevelClo in some places and a LevelCube in others
-    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
-    abstract class ChunkHolder_Forge_Jank_redirects {
-        @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
-        native LevelCube cc_getCurrentlyLoading();
-    }
 }
