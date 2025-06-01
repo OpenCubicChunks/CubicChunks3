@@ -8,7 +8,6 @@ import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
-import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
 import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,6 +34,6 @@ public abstract class MixinChunkTaskPriorityQueue implements MarkableAsCubic {
     }
 
     @UsedFromASM
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_resortCubicTasks(int queueLevel, CloPos cloPos, int ticketLevel);
 }
