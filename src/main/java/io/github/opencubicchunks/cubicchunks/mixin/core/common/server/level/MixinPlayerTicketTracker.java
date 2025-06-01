@@ -9,7 +9,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.access.common.DistanceManagerAccess;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTaskPriorityQueueSorter;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.Ticket;
@@ -26,14 +25,14 @@ public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceC
 
 
     /**
-     * This modifies the call to new Ticket to use a CloPos and CubicTicketType instead of a ChunkPos and TicketType.
+     * This modifies the call to new Ticket to use a CloPos instead of a ChunkPos.
      */
     @WrapOperation(method = "onLevelChange(JIZZ)V", at = @At(value = "NEW",
         target = "(Lnet/minecraft/server/level/TicketType;ILjava/lang/Object;)Lnet/minecraft/server/level/Ticket;"))
-    private Ticket<?> cc_onTicketConstruct(TicketType<?> type, int ticketLevel, Object key, Operation<Ticket> original) {
+    private Ticket<?> cc_onTicketConstruct(TicketType type, int ticketLevel, Object key, Operation<Ticket> original) {
         if (!cc_isCubic)
             return original.call(type, ticketLevel, key);
-        return original.call(CubicTicketType.PLAYER, ticketLevel, CloPos.fromLong(((ChunkPos) key).toLong()));
+        return original.call(type, ticketLevel, CloPos.fromLong(((ChunkPos) key).toLong()));
     }
 
     /**

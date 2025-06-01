@@ -325,14 +325,14 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public native <T> void cc_addRegionTicket(TicketType<T> pType, CloPos pPos, int pDistance, T pValue);
+    public native <T> void cc_addRegionTicket(TicketType pType, CloPos pPos, int pDistance, T pValue);
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-    public native <T> void cc_addRegionTicket(TicketType<T> p_8388_, CloPos p_8389_, int p_8390_, T p_8391_, boolean forceTicks);
+    public native <T> void cc_addRegionTicket(TicketType p_8388_, CloPos p_8389_, int p_8390_, T p_8391_, boolean forceTicks);
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public native <T> void cc_removeRegionTicket(TicketType<T> pType, CloPos pPos, int pDistance, T pValue);
+    public native <T> void cc_removeRegionTicket(TicketType pType, CloPos pPos, int pDistance, T pValue);
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-    public native <T> void cc_removeRegionTicket(TicketType<T> p_8439_, CloPos p_8440_, int p_8441_, T p_8442_, boolean forceTicks);
+    public native <T> void cc_removeRegionTicket(TicketType p_8439_, CloPos p_8440_, int p_8441_, T p_8442_, boolean forceTicks);
 
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
     public native void cc_updateChunkForced(CloPos pPos, boolean pAdd);

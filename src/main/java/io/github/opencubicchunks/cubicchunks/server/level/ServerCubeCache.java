@@ -22,11 +22,11 @@ public interface ServerCubeCache extends CubeSource {
     void cc_blockChanged(BlockPos pos);
     void cc_onLightUpdate(LightLayer pType, SectionPos pPos);
 
-    <T> void cc_addRegionTicket(TicketType<T> pType, CloPos pPos, int pDistance, T pValue);
-    <T> void cc_addRegionTicket(TicketType<T> p_8388_, CloPos p_8389_, int p_8390_, T p_8391_, boolean forceTicks);
+    <T> void cc_addRegionTicket(TicketType pType, CloPos pPos, int pDistance, T pValue);
+    <T> void cc_addRegionTicket(TicketType p_8388_, CloPos p_8389_, int p_8390_, T p_8391_, boolean forceTicks);
 
-    <T> void cc_removeRegionTicket(TicketType<T> pType, CloPos pPos, int pDistance, T pValue);
-    <T> void cc_removeRegionTicket(TicketType<T> p_8439_, CloPos p_8440_, int p_8441_, T p_8442_, boolean forceTicks);
+    <T> void cc_removeRegionTicket(TicketType pType, CloPos pPos, int pDistance, T pValue);
+    <T> void cc_removeRegionTicket(TicketType p_8439_, CloPos p_8440_, int p_8441_, T p_8442_, boolean forceTicks);
 
     // Stored on this interface since we can't add inner records in mixins
     record CloAndHolder(LevelClo chunk, ChunkHolder holder) {}

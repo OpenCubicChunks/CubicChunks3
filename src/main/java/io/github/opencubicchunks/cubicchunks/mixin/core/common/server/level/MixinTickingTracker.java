@@ -1,15 +1,12 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicTickingTracker;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.TicketType;
@@ -53,28 +50,19 @@ public abstract class MixinTickingTracker extends MixinChunkTracker implements C
      */
     @WrapWithCondition(method = "replacePlayerTicketsLevel", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/server/level/TickingTracker;addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_onReplacePlayerTicketsLevel(TickingTracker instance, TicketType<T> type, ChunkPos chunkPos, int ticketLevel, T key) {
+    private <T> boolean cc_onReplacePlayerTicketsLevel(TickingTracker instance, TicketType type, ChunkPos chunkPos, int ticketLevel, T key) {
         if (!cc_isCubic) return true;
-        // if isCubic then we expect tickets to be TicketType<CloPos> not TicketType<ChunkPos>
+        // if isCubic then we expect tickets to be TicketType not TicketType
         var cloPos = CloPos.fromLong(chunkPos.toLong());
-        this.cc_addTicket((TicketType<CloPos>) type, cloPos, ticketLevel, cloPos);
+        this.cc_addTicket((TicketType) type, cloPos, ticketLevel, cloPos);
         return false;
     }
 
-    /**
-     * We need to replace the reference to {@link TicketType#PLAYER} with {@link CubicTicketType#PLAYER} in {@link TickingTracker#replacePlayerTicketsLevel(int)}.
-     */
-    @WrapOperation(method = "replacePlayerTicketsLevel", at = @At(value = "FIELD", target = "Lnet/minecraft/server/level/TicketType;PLAYER:Lnet/minecraft/server/level/TicketType;"))
-    private TicketType<?> cc_replaceTicketType(Operation<TicketType<ChunkPos>> original) {
-        if(!cc_isCubic) return original.call();
-        return CubicTicketType.PLAYER;
-    }
-
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public abstract <T> void cc_addTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
+    public abstract <T> void cc_addTicket(TicketType type, CloPos cloPos, int ticketLevel, T key);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public abstract <T> void cc_removeTicket(TicketType<T> type, CloPos cloPos, int ticketLevel, T key);
+    public abstract <T> void cc_removeTicket(TicketType type, CloPos cloPos, int ticketLevel, T key);
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getLevel(Lnet/minecraft/world/level/ChunkPos;)I"))
     public abstract int cc_getLevel(CloPos cloPos);

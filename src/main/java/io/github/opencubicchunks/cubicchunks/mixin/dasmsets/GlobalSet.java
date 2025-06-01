@@ -21,7 +21,6 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicTicketType;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.entity.CloStatusUpdateListener;
@@ -53,18 +52,6 @@ public interface GlobalSet extends ForgeSet {
 
     @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CloHolder.PlayerProvider.class))
     interface PlayerProviderChunkHolder_to_CloHolder_redirects { }
-
-    @InterOwnerContainer(owner = @Ref(TicketType.class), newOwner = @Ref(CubicTicketType.class))
-    abstract class ChunkTicketType_to_CloTicketType_redirects {
-        @FieldRedirect(@FieldSig(type = @Ref(TicketType.class), name = "PLAYER"))
-        public static TicketType<CloPos> PLAYER;
-        @FieldRedirect(@FieldSig(type = @Ref(TicketType.class), name = "FORCED"))
-        public static TicketType<CloPos> FORCED;
-        @FieldRedirect(@FieldSig(type = @Ref(TicketType.class), name = "LIGHT"))
-        public static TicketType<CloPos> LIGHT;
-        @FieldRedirect(@FieldSig(type = @Ref(TicketType.class), name = "UNKNOWN"))
-        public static TicketType<CloPos> UNKNOWN;
-    }
 
     @IntraOwnerContainer(owner = @Ref(ChunkStatus.class))
     abstract class ChunkStatus_redirects {
@@ -102,22 +89,22 @@ public interface GlobalSet extends ForgeSet {
     @IntraOwnerContainer(owner = @Ref(ChunkMap.DistanceManager.class))
     abstract class ChunkMap$DistanceManager_redirects {
         @MethodRedirect(@MethodSig("addTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-        public abstract <T> void cc_addTicket(TicketType<T> type, CloPos pos, int level, T value);
+        public abstract <T> void cc_addTicket(TicketType type, CloPos pos, int level, T value);
 
         @MethodRedirect(@MethodSig("removeTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-        public abstract <T> void cc_removeTicket(TicketType<T> type, CloPos pos, int level, T value);
+        public abstract <T> void cc_removeTicket(TicketType type, CloPos pos, int level, T value);
 
         @MethodRedirect(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-        public abstract <T> void cc_addRegionTicket(TicketType<T> type, CloPos pos, int distance, T value);
+        public abstract <T> void cc_addRegionTicket(TicketType type, CloPos pos, int distance, T value);
 
         @MethodRedirect(@MethodSig("addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-        public abstract <T> void cc_addRegionTicket(TicketType<T> type, CloPos pos, int distance, T value, boolean forceTicks);
+        public abstract <T> void cc_addRegionTicket(TicketType type, CloPos pos, int distance, T value, boolean forceTicks);
 
         @MethodRedirect(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-        public abstract <T> void cc_removeRegionTicket(TicketType<T> type, CloPos pos, int distance, T value);
+        public abstract <T> void cc_removeRegionTicket(TicketType type, CloPos pos, int distance, T value);
 
         @MethodRedirect(@MethodSig("removeRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;Z)V"))
-        public abstract <T> void cc_removeRegionTicket(TicketType<T> type, CloPos pos, int distance, T value, boolean forceTicks);
+        public abstract <T> void cc_removeRegionTicket(TicketType type, CloPos pos, int distance, T value, boolean forceTicks);
 
         @MethodRedirect(@MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)V"))
         protected abstract void updateCubeForced(CloPos pos, boolean add);

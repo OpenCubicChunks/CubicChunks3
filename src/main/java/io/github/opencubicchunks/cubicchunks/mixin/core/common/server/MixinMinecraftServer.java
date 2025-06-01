@@ -83,7 +83,7 @@ public abstract class MixinMinecraftServer {
     // This mixin is copied from CC2. It fills in a spawnRadiusRef that is used to determine how many cubes we need to generate for spawn to be ready.
     @WrapWithCondition(method = "prepareLevels", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/server/level/ServerChunkCache;addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_replaceAddRegionTicketInPrepareLevels(ServerChunkCache serverChunkCache, TicketType<T> ticketType, ChunkPos chunkPos, int originalSpawnRadius, T unit,
+    private <T> boolean cc_replaceAddRegionTicketInPrepareLevels(ServerChunkCache serverChunkCache, TicketType ticketType, ChunkPos chunkPos, int originalSpawnRadius, T unit,
                                                                  @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
         if (((CanBeCubic) serverChunkCache).cc_isCubic()) {
             int spawnRadius = Coords.sectionToCube(VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS);
