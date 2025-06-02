@@ -1,53 +1,18 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.renderer;
 
-import javax.annotation.Nullable;
-
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
-import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.client.renderer.CubicLevelRenderer;
-import io.github.opencubicchunks.cubicchunks.client.renderer.CubicViewArea;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.ViewArea;
-import net.minecraft.world.entity.Entity;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
 
 @Dasm(ChunkToCubeSet.class)
 @Mixin(LevelRenderer.class)
 public abstract class MixinLevelRenderer implements CubicLevelRenderer {
-    @Shadow @Nullable private ClientLevel level;
-    @Shadow @Final private Minecraft minecraft;
-
-    @WrapOperation(method = "allChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ViewArea;repositionCamera(DD)V"))
-    private void cc_onAllChanged_repositionCamera(ViewArea viewArea, double x, double z, Operation<Void> original, @Local Entity cameraEntity) {
-        if (level == null || !((CanBeCubic) level).cc_isCubic()) {
-            original.call(viewArea, x, z);
-            return;
-        }
-        ((CubicViewArea) viewArea).cc_repositionCamera(cameraEntity.getX(), cameraEntity.getY(), cameraEntity.getZ());
-    }
-
-    @WrapOperation(method = "setupRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ViewArea;repositionCamera(DD)V"))
-    private void cc_onSetupRender_repositionCamera(ViewArea viewArea, double x, double z, Operation<Void> original) {
-        if (level == null || !((CanBeCubic) level).cc_isCubic()) {
-            original.call(viewArea, x, z);
-            return;
-        }
-        ((CubicViewArea) viewArea).cc_repositionCamera(this.minecraft.player.getX(), this.minecraft.player.getY(), this.minecraft.player.getZ());
-    }
-
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("onChunkLoaded(Lnet/minecraft/world/level/ChunkPos;)V"))
-    public native void cc_onCubeLoaded(CubePos cubePos);
+    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V"))
+    public native void cc_onCubeReadyToRender(CubePos cubePos);
 }
