@@ -3,6 +3,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.multiplay
 import static io.github.opencubicchunks.cc_core.CubicChunksBase.LOGGER;
 import static io.github.opencubicchunks.cc_core.utils.Coords.cubeToSection;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
@@ -28,6 +29,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -57,7 +59,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     private void cc_onConstruct(ClientLevel level, int viewDistance, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_emptyCube = new EmptyLevelCube(
-                level, CubePos.of(0, 0, 0), level.registryAccess().lookupOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
+                level, CubePos.of(0, 0, 0), level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)
             );
             cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter
@@ -82,7 +84,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
             if (cc_isValidCube(levelCube, chunkPos.getX(), chunkPos.getY(), chunkPos.getZ())) {
                 // TODO event hook
 //                net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.level.ChunkEvent.Unload(levelCube));
-                this.cc_cubeStorage.replace(i, levelCube, null);
+                this.cc_cubeStorage.drop(i, levelCube);
             }
         }
     }
@@ -121,7 +123,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         int y,
         int z,
         FriendlyByteBuf buffer,
-        CompoundTag tag,
+        Map<Heightmap.Types, long[]> map,
         Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         if (!this.cc_cubeStorage.inRange(x, y, z)) {
@@ -133,10 +135,11 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
             CubePos cubePos = CubePos.of(x, y, z);
             if (!cc_isValidCube(levelCube, x, y, z)) {
                 levelCube = new LevelCube(this.level, cubePos);
-                levelCube.replaceWithPacketData(buffer, tag, consumer);
+                levelCube.replaceWithPacketData(buffer, map, consumer);
                 this.cc_cubeStorage.replace(i, levelCube);
             } else {
-                levelCube.replaceWithPacketData(buffer, tag, consumer);
+                levelCube.replaceWithPacketData(buffer, map, consumer);
+                this.cc_cubeStorage.refreshEmptySections(levelCube);
             }
 
             ((CubicClientLevel) this.level).cc_onCubeLoaded(cubePos);
