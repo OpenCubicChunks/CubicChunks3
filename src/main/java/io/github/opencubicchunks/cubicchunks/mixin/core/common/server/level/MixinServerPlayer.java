@@ -45,23 +45,6 @@ public abstract class MixinServerPlayer extends MixinEntity {
         return super.cc_cubePositionAsClo();
     }
 
-    /**
-     * This mixin steals the x/y/z coordinates from a call to ChunkPos and replaces the ChunkPos in the addRegionTicketCall with a CloPos instead.
-     */
-    @WrapWithCondition(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level"
-        + "/ServerChunkCache;addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    public <T> boolean cc_wrapAddRegionTicket(ServerChunkCache instance, TicketType type, ChunkPos pos, int distance, T value,
-                                              @Local(ordinal = 0, argsOnly = true)double x,
-                                              @Local(ordinal = 1, argsOnly = true)double y,
-                                              @Local(ordinal = 2, argsOnly = true)double z) {
-        if (!((CanBeCubic) this.level()).cc_isCubic()) {
-            return true;
-        }
-
-        ((ServerCubeCache)instance).cc_addRegionTicket(type, CloPos.cube(BlockPos.containing(x, y, z)), distance, value);
-        return false;
-    }
-
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getChunkTrackingView()Lnet/minecraft/server/level/ChunkTrackingView;"))
     public native CloTrackingView cc_getCloTrackingView();
 
@@ -71,4 +54,6 @@ public abstract class MixinServerPlayer extends MixinEntity {
     // TODO P3 :: findDimensionEntryPoint
 
     // TODO P3 :: changeDimension
+
+    // FIXME teleportation code needs CC changes
 }
