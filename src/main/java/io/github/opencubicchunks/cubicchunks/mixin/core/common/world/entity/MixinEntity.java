@@ -14,13 +14,9 @@ import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
-import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.entity.EntityCubePosGetter;
-import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevelReader;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -67,19 +63,6 @@ public abstract class MixinEntity implements EntityCubePosGetter {
         }
     }
 
-    // In cubic levels, force-load the destination cube instead of chunk
-    @Inject(method = "teleportToWithTicket", at = @At("HEAD"), cancellable = true)
-    private void cc_onTeleportToWithTicket(double x, double y, double z, CallbackInfo ci) {
-        if (!((CanBeCubic) this.level).cc_isCubic()) return;
-        ci.cancel();
-        if (this.level instanceof ServerLevel) {
-            CloPos cubePos = CloPos.cube(BlockPos.containing(x, y, z));
-            ((ServerCubeCache) ((ServerLevel) this.level).getChunkSource()).cc_addRegionTicket(TicketType.POST_TELEPORT, cubePos, 0, this.getId());
-            ((CubicLevel) this.level).cc_getCube(cubePos.getX(), cubePos.getY(), cubePos.getZ());
-            this.teleportTo(x, y, z);
-        }
-    }
-
     // In cubic levels, check for unloaded cubes instead of chunks
     @Inject(method = "touchingUnloadedChunk", at = @At("HEAD"), cancellable = true)
     private void cc_onTouchingUnloadedChunk(CallbackInfoReturnable<Boolean> cir) {
@@ -93,4 +76,6 @@ public abstract class MixinEntity implements EntityCubePosGetter {
         int maxZ = Mth.ceil(aabb.maxZ);
         cir.setReturnValue(!((CubicLevelReader) this.level).cc_hasCubesAt(minX, minY, minZ, maxX, maxY, maxZ));
     }
+
+    // FIXME teleportation code needs CC changes
 }
