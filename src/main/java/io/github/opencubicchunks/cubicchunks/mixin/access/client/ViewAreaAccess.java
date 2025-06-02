@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ViewArea.class)
 public interface ViewAreaAccess {
-    @Invoker("getRenderSectionAt") SectionRenderDispatcher.RenderSection cc_invokeGetRenderSectionAt(BlockPos pos);
+    @Invoker("getRenderSection") SectionRenderDispatcher.RenderSection cc_invokeGetRenderSection(long sectionPosLong);
 }
