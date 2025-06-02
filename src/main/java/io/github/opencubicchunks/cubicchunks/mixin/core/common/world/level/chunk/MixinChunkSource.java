@@ -47,5 +47,7 @@ public abstract class MixinChunkSource implements CubeSource, MarkableAsCubic {
 
     public abstract int cc_getLoadedCubeCount();
 
-    public void cc_updateCubeForced(CubePos cubePos, boolean forced) {}
+    public boolean cc_updateCubeForced(CubePos cubePos, boolean forced) {
+        return false;
+    }
 }

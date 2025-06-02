@@ -18,5 +18,5 @@ public interface CubeSource {
 
     int cc_getLoadedCubeCount();
 
-    void cc_updateCubeForced(CubePos cubePos, boolean forced);
+    boolean cc_updateCubeForced(CubePos cubePos, boolean forced);
 }
