@@ -42,6 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Dasm(GlobalSet.class)
 @Mixin(ChunkGenerationTask.class)
 public abstract class MixinChunkGenerationTask implements CloGenerationTask {
+    @Shadow @Final private ChunkPos pos;
     @Shadow @Final private GeneratingChunkMap chunkMap;
     @Shadow @Final public ChunkStatus targetStatus;
     @Shadow private volatile boolean markedForCancellation;
@@ -53,6 +54,13 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     private GeneratingCubeMap cc_getGeneratingCubeMap() {
         return ((GeneratingCubeMap) chunkMap);
+    }
+
+    @Override public CloPos cc_getCloPos() {
+        if (cc_cubePos != null) {
+            return CloPos.cube(cc_cubePos);
+        }
+        return CloPos.chunk(pos);
     }
 
     @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkGenerationTask.class), method = @MethodSig("create(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
