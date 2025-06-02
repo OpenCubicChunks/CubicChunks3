@@ -1,14 +1,26 @@
 package io.github.opencubicchunks.cubicchunks.network;
 
+import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 
 // TODO block entities - see ClientboundLevelChunkPacketData
 public class CCClientboundLevelCubePacketData {
     private final byte[] buffer;
+
+    public static final StreamCodec<FriendlyByteBuf, CCClientboundLevelCubePacketData> STREAM_CODEC = new StreamCodec<>() {
+        public CCClientboundLevelCubePacketData decode(FriendlyByteBuf buffer) {
+            return new CCClientboundLevelCubePacketData(buffer);
+        }
+
+        public void encode(FriendlyByteBuf buffer, CCClientboundLevelCubePacketData data) {
+            data.write(buffer);
+        }
+    };
 
     public CCClientboundLevelCubePacketData(LevelCube cube) {
         buffer = new byte[calculateChunkSize(cube)];

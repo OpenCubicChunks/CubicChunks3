@@ -58,7 +58,7 @@ public class MixinPlayerChunkSender {
     @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(PlayerChunkSender.class), method = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
     public void cc_dropClo(ServerPlayer player, CloPos cloPos) {
         if (!this.pendingChunks.remove(cloPos.toLong()) && player.isAlive()) {
-            PacketDistributor.PLAYER.with(player).send(new CCClientboundForgetLevelCloPacket(cloPos));
+            PacketDistributor.sendToPlayer(player, new CCClientboundForgetLevelCloPacket(cloPos));
         }
     }
 
@@ -83,7 +83,7 @@ public class MixinPlayerChunkSender {
                         ++this.unacknowledgedBatches;
 
                         // This packet can remain the same because it is just for timing purposes in order to determine how many chunks (or cubes) the client should request
-                        servergamepacketlistenerimpl.send(new ClientboundChunkBatchStartPacket());
+                        servergamepacketlistenerimpl.send(ClientboundChunkBatchStartPacket.INSTANCE);
 
                         // TODO P2 :: We need to send heightmap and lighting data, which would be contained in the Column
 
@@ -111,7 +111,7 @@ public class MixinPlayerChunkSender {
 
     @Unique
     private static void cc_sendCube(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelCube cube) {
-        PacketDistributor.PLAYER.with(packetListener.player).send(new CCClientboundLevelCubeWithLightPacket(cube));
+        PacketDistributor.sendToPlayer(packetListener.player, new CCClientboundLevelCubeWithLightPacket(cube));
 
         // ChunkPos chunkpos = chunk.getPos();
 
@@ -124,7 +124,7 @@ public class MixinPlayerChunkSender {
 
     @Unique
     private static void cc_sendChunk(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelChunk chunk) {
-        PacketDistributor.PLAYER.with(packetListener.player).send(new CCClientboundLevelChunkPacket(chunk.getPos()));
+        PacketDistributor.sendToPlayer(packetListener.player, new CCClientboundLevelChunkPacket(chunk.getPos()));
 
         // ChunkPos chunkpos = chunk.getPos();
 

@@ -1,63 +1,56 @@
 package io.github.opencubicchunks.cubicchunks.network;
 
+import static io.github.opencubicchunks.cubicchunks.network.MiscStreamCodecs.CUBE_POS_STREAM_CODEC;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
+
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 // TODO (P2) the name is currently a lie; no light data :)
-public class CCClientboundLevelCubeWithLightPacket implements CustomPacketPayload {
-    public static final ResourceLocation ID = new ResourceLocation(CubicChunks.MODID, "level_cube_with_light");
+public record CCClientboundLevelCubeWithLightPacket(CubePos pos, CCClientboundLevelCubePacketData cubeData) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<CCClientboundLevelCubeWithLightPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(CubicChunks.MODID, "level_cube_with_light"));
 
-    private final CubePos pos;
-    private final CCClientboundLevelCubePacketData chunkData;
+    public static final StreamCodec<FriendlyByteBuf, CCClientboundLevelCubeWithLightPacket> STREAM_CODEC = StreamCodec.composite(
+        CUBE_POS_STREAM_CODEC, CCClientboundLevelCubeWithLightPacket::pos,
+        CCClientboundLevelCubePacketData.STREAM_CODEC, CCClientboundLevelCubeWithLightPacket::cubeData,
+        CCClientboundLevelCubeWithLightPacket::new
+    );
+
+    @Override public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 
     public CCClientboundLevelCubeWithLightPacket(LevelCube cube) {
-        pos = cube.cc_getCloPos().cubePos();
-        chunkData = new CCClientboundLevelCubePacketData(cube);
+        this(cube.cc_getCloPos().cubePos(), new CCClientboundLevelCubePacketData(cube));
     }
 
-    public CCClientboundLevelCubeWithLightPacket(final FriendlyByteBuf buffer) {
-        pos = CubePos.of(buffer.readInt(), buffer.readInt(), buffer.readInt());
-        chunkData = new CCClientboundLevelCubePacketData(buffer);
-    }
-
-    @Override public void write(final FriendlyByteBuf buffer) {
-        buffer.writeInt(pos.getX());
-        buffer.writeInt(pos.getY());
-        buffer.writeInt(pos.getZ());
-        chunkData.write(buffer);
-    }
-
-    @Override public ResourceLocation id() {
-        return ID;
-    }
-
-    public CCClientboundLevelCubePacketData getChunkData() {
-        return chunkData;
-    }
-
-    public static class Handler implements IPlayPayloadHandler<CCClientboundLevelCubeWithLightPacket> {
+    public static class Handler implements IPayloadHandler<CCClientboundLevelCubeWithLightPacket> {
         @Override
-        public void handle(CCClientboundLevelCubeWithLightPacket payload, PlayPayloadContext context) {
+        public void handle(CCClientboundLevelCubeWithLightPacket payload, IPayloadContext context) {
             int x = payload.pos.getX();
             int y = payload.pos.getY();
             int z = payload.pos.getZ();
-            context.workHandler().execute(() -> this.updateLevelCube(context.level().get(), x, y, z, payload));
+            this.updateLevelCube(context.player().level(), x, y, z, payload);
         }
 
         private void updateLevelCube(Level level, int x, int y, int z, CCClientboundLevelCubeWithLightPacket payload) {
-            // TODO P2 :: The empty compound tag should become a heightmap
-            CompoundTag heightmap = new CompoundTag();
+            // TODO P2 :: The empty map should contain heightmap data
+            Map<Heightmap.Types, long[]> heightmaps = new HashMap<>();
 
             // TODO P2 :: No block entity tags consumer
             Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> entityTagConsumer = (a) -> {};
@@ -65,7 +58,7 @@ public class CCClientboundLevelCubeWithLightPacket implements CustomPacketPayloa
             ((ClientCubeCache)(level
                 .getChunkSource()))
                 .cc_replaceWithPacketData(
-                    x, y, z, payload.chunkData.getReadBuffer(), heightmap, entityTagConsumer);
+                    x, y, z, payload.cubeData.getReadBuffer(), heightmaps, entityTagConsumer);
 
             // TODO P2 :: Vanilla does light updates at this point
         }

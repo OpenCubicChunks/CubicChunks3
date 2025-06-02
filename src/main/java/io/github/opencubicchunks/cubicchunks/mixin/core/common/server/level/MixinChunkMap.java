@@ -515,7 +515,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
 
     @Dynamic @Redirect(method = "cc_dasm$cc_applyChunkTrackingView", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"))
     private void cc_onApplyChunkTrackingView_setChunkCacheCenterPacket(ServerGamePacketListenerImpl instance, Packet packet, ServerPlayer player, CloTrackingView cloTrackingView) {
-        PacketDistributor.PLAYER.with(player).send(new CCClientboundSetCubeCacheCenterPacket(((CloTrackingView.Positioned) cloTrackingView).center().cubePos()));
+        PacketDistributor.sendToPlayer(player, new CCClientboundSetCubeCacheCenterPacket(((CloTrackingView.Positioned) cloTrackingView).center().cubePos()));
     }
 
     // dasm + mixin
