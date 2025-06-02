@@ -32,6 +32,8 @@ public abstract class MixinClientLevel extends MixinLevel implements CubicClient
         return ((ClientCubeCache) this.chunkSource);
     }
 
+    // TODO: comments below don't account for 1.20.4->1.21.5 changes; will need to check for other methods that need CC changes
+
     // unload
     // TODO: Phase 2 - this interacts with the lighting engine and will need to change to support cubes
 
