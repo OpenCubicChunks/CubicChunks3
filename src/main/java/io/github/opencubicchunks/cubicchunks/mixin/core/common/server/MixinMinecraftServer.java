@@ -3,24 +3,21 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import io.github.opencubicchunks.cc_core.api.CubePos;
+import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.SpawnPlaceFinder;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,8 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinMinecraftServer {
     @Shadow public abstract ServerLevel overworld();
 
-    // TODO P2 :: This value is dynamic in 1.21, we will need to revisit this
-    private static final int VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS = 11;
+    @Shadow public abstract GameRules getGameRules();
 
     // setInitialSpawn
     // We replace the ChunkPos spawn position with a CubePos spawn position and reuse it later to get the world position.
@@ -79,38 +75,15 @@ public abstract class MixinMinecraftServer {
         return original.call(serverLevel, heightmapType, x, z);
     }
 
-    // prepareLevels
-    // This mixin is copied from CC2. It fills in a spawnRadiusRef that is used to determine how many cubes we need to generate for spawn to be ready.
-    @WrapWithCondition(method = "prepareLevels", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/server/level/ServerChunkCache;addRegionTicket(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;ILjava/lang/Object;)V"))
-    private <T> boolean cc_replaceAddRegionTicketInPrepareLevels(ServerChunkCache serverChunkCache, TicketType ticketType, ChunkPos chunkPos, int originalSpawnRadius, T unit,
-                                                                 @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
-        if (((CanBeCubic) serverChunkCache).cc_isCubic()) {
-            int spawnRadius = Coords.sectionToCube(VANILLA_DEFAULT_SPAWN_CHUNK_RADIUS);
-            spawnRadiusRef.set(spawnRadius);
-            spawnRadius++; // TODO there's an off-by-one error somewhere that means that we need to add one here to generate the actual correct spawn radius
-            ((ServerCubeCache)serverChunkCache).cc_addRegionTicket(ticketType, CloPos.cube(overworld().getSharedSpawnPos()), spawnRadius, unit);
-            return false;
+    @WrapOperation(method = "prepareLevels", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;square(I)I"))
+    private int cc_onPrepareLevels_computeTickingGeneratedCount(int value, Operation<Integer> original) {
+        if (!((CanBeCubic) overworld()).cc_isCubic()) {
+            return original.call(value);
         }
-
-        return true;
-    }
-
-    @ModifyConstant(method = "prepareLevels", constant = @Constant(intValue = 441), require = 1)
-    private int cc_modifyExpectedNumberOfTickingGenerated(int constant, @Share("spawnRadius") LocalRef<Integer> spawnRadiusRef) {
-        if (((CanBeCubic) overworld()).cc_isCubic()) {
-            // We need to calculate the number of cubes + chunks in the expected radius
-            int spawnRadius = spawnRadiusRef.get();
-            int spawnDiameterCubes = spawnRadius * 2 + 1;
-            int cubesInRadius = spawnDiameterCubes * spawnDiameterCubes * spawnDiameterCubes;
-
-            int spawnDiameterChunks = Coords.cubeToSection(spawnDiameterCubes, 0);
-            int chunksInRadius = spawnDiameterChunks * spawnDiameterChunks;
-
-            return cubesInRadius + chunksInRadius;
-        }
-
-        return constant;
+        int cubeRadius = Coords.sectionToCubeCeil(this.getGameRules().getInt(GameRules.RULE_SPAWN_CHUNK_RADIUS));
+        int cubeDiameter = cubeRadius * 2 + 1;
+        int chunkDiameter = cubeDiameter * CubicConstants.DIAMETER_IN_SECTIONS;
+        return cubeDiameter * cubeDiameter * cubeDiameter + chunkDiameter * chunkDiameter;
     }
 
     // Temporary hack to let us unload a world without saving
