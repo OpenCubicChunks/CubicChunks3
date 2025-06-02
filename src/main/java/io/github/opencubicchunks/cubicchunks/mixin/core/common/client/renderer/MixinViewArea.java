@@ -4,11 +4,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import io.github.opencubicchunks.cubicchunks.client.renderer.CubicViewArea;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,13 +18,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ViewArea.class)
-public abstract class MixinViewArea implements CubicViewArea {
+public abstract class MixinViewArea {
     @Shadow @Final protected Level level;
     @Shadow protected int sectionGridSizeY;
     @Shadow protected int sectionGridSizeX;
     @Shadow protected int sectionGridSizeZ;
     @Shadow private int viewDistance;
     @Shadow public SectionRenderDispatcher.RenderSection[] sections;
+    @Shadow private SectionPos cameraSectionPos;
+    @Shadow @Final protected LevelRenderer levelRenderer;
 
     @Shadow protected abstract int getSectionIndex(int x, int y, int z);
 
@@ -42,57 +43,59 @@ public abstract class MixinViewArea implements CubicViewArea {
         this.viewDistance = renderDistanceChunks;
     }
 
-    @WrapOperation(method = "createSections", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinY()I"))
+    @WrapOperation(method = "createSections", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinSectionY()I"))
     private int cc_onCreateSections_getMinY(Level instance, Operation<Integer> original) {
         if (!((CanBeCubic) level).cc_isCubic()) return original.call(instance);
         return 0; // I don't really understand the logic here, but returning 0 makes the Y axis behave equivalently to X and Z, which *should* be what we want
     }
 
-    @WrapOperation(method = "setDirty", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinSectionY()I"))
-    private int cc_onSetDirty_getMinSectionY(Level instance, Operation<Integer> original) {
-        if (!((CanBeCubic) level).cc_isCubic()) return original.call(instance);
-        return 0; // As above, returning 0 makes the Y axis behave equivalently to X and Z
-    }
-
     // TODO can we do this without fully overwriting the method?
-    @Inject(method = "getRenderSectionAt", at = @At("HEAD"), cancellable = true)
-    private void cc_onGetRenderSectionAt(BlockPos pos, CallbackInfoReturnable<SectionRenderDispatcher.RenderSection> cir) {
+    @Inject(method = "getRenderSection(III)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;", at = @At("HEAD"), cancellable = true)
+    private void cc_onGetRenderSection(int sectionX, int sectionY, int sectionZ, CallbackInfoReturnable<SectionRenderDispatcher.RenderSection> cir) {
         if (!((CanBeCubic) level).cc_isCubic()) return;
-        int x = Mth.positiveModulo(Mth.floorDiv(pos.getX(), 16), this.sectionGridSizeX);
-        int y = Mth.positiveModulo(Mth.floorDiv(pos.getY(), 16), this.sectionGridSizeY);
-        int z = Mth.positiveModulo(Mth.floorDiv(pos.getZ(), 16), this.sectionGridSizeZ);
+        if (!this.cc_containsSection(sectionX, sectionY, sectionZ)) {
+            cir.setReturnValue(null);
+            return;
+        }
+        int x = Math.floorMod(sectionX, this.sectionGridSizeX);
+        int y = Math.floorMod(sectionY, this.sectionGridSizeY);
+        int z = Math.floorMod(sectionZ, this.sectionGridSizeZ);
         cir.setReturnValue(this.sections[this.getSectionIndex(x, y, z)]);
     }
 
     // TODO can we do this with dasm + mixin? probably too messy
     // I don't really understand the coordinate maths here, but we replicate it for the Y axis
-    @Override public void cc_repositionCamera(double viewEntityX, double viewEntityY, double viewEntityZ) {
-        int ceilX = Mth.ceil(viewEntityX);
-        int ceilY = Mth.ceil(viewEntityY);
-        int ceilZ = Mth.ceil(viewEntityZ);
+    @Inject(method = "repositionCamera", at = @At("HEAD"), cancellable = true)
+    private void cc_onRepositionCamera(SectionPos newSectionPos, CallbackInfo ci) {
+        if (!((CanBeCubic) level).cc_isCubic()) return;
+        ci.cancel();
+        for (int sectionX = 0; sectionX < this.sectionGridSizeX; sectionX++) {
+            int i1 = newSectionPos.x() - this.viewDistance;
+            int originX = i1 + Math.floorMod(sectionX - i1, this.sectionGridSizeX);
 
-        for(int sectionX = 0; sectionX < this.sectionGridSizeX; ++sectionX) {
-            int maxX = this.sectionGridSizeX * 16;
-            int i1 = ceilX - 8 - maxX / 2;
-            int originX = i1 + Math.floorMod(sectionX * 16 - i1, maxX);
+            for (int sectionZ = 0; sectionZ < this.sectionGridSizeZ; sectionZ++) {
+                int i2 = newSectionPos.z() - this.viewDistance;
+                int originZ = i2 + Math.floorMod(sectionZ - i2, this.sectionGridSizeZ);
 
-            for(int sectionZ = 0; sectionZ < this.sectionGridSizeZ; ++sectionZ) {
-                int maxZ = this.sectionGridSizeZ * 16;
-                int i2 = ceilZ - 8 - maxZ / 2;
-                int originZ = i2 + Math.floorMod(sectionZ * 16 - i2, maxZ);
-
-                for(int sectionY = 0; sectionY < this.sectionGridSizeY; ++sectionY) {
-                    int maxY = this.sectionGridSizeY * 16;
-                    int i3 = ceilY - 8 - maxY / 2;
-                    int originY = i3 + Math.floorMod(sectionY * 16 - i3, maxY);
-
-                    SectionRenderDispatcher.RenderSection sectionrenderdispatcher$rendersection = this.sections[this.getSectionIndex(sectionX, sectionY, sectionZ)];
-                    BlockPos blockpos = sectionrenderdispatcher$rendersection.getOrigin();
-                    if (originX != blockpos.getX() || originY != blockpos.getY() || originZ != blockpos.getZ()) {
-                        sectionrenderdispatcher$rendersection.setOrigin(originX, originY, originZ);
+                for (int sectionY = 0; sectionY < this.sectionGridSizeY; sectionY++) {
+                    int i3 = newSectionPos.y() - this.viewDistance;
+                    int originY = i3 + Math.floorMod(sectionY - i3, this.sectionGridSizeY);
+                    SectionRenderDispatcher.RenderSection renderSection = this.sections[this.getSectionIndex(sectionX, sectionY, sectionZ)];
+                    long oldSectionNode = renderSection.getSectionNode();
+                    if (oldSectionNode != SectionPos.asLong(originX, originY, originZ)) {
+                        renderSection.setSectionNode(SectionPos.asLong(originX, originY, originZ));
                     }
                 }
             }
         }
+
+        this.cameraSectionPos = newSectionPos;
+        this.levelRenderer.getSectionOcclusionGraph().invalidate();
+    }
+
+    private boolean cc_containsSection(int x, int y, int z) {
+        return x >= this.cameraSectionPos.x() - this.viewDistance && x <= this.cameraSectionPos.x() + this.viewDistance
+            && y >= this.cameraSectionPos.y() - this.viewDistance && y <= this.cameraSectionPos.y() + this.viewDistance
+            && z >= this.cameraSectionPos.z() - this.viewDistance && z <= this.cameraSectionPos.z() + this.viewDistance;
     }
 }
