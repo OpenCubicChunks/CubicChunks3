@@ -11,7 +11,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.184'
+    id 'net.neoforged.moddev' version '2.0.90'
     id("io.github.opencubicchunks.javaheaders").version("1.2.8")
     id("io.github.opencubicchunks.gradle.mcGitVersion")
     id("io.github.opencubicchunks.gradle.mixingen")
@@ -147,68 +147,94 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+neoForge {
+    version = project.neo_version
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+    validateAccessTransformers = true
+
+    runs {
+        def args = [
+                "-XX:+IgnoreUnrecognizedVMOptions",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+AllowEnhancedClassRedefinition",
+                "-XX:-OmitStackTraceInFastThrow",
+                "-XX:+UseG1GC",
+                "-XX:G1NewSizePercent=20",
+                "-XX:G1ReservePercent=20",
+                "-XX:MaxGCPauseMillis=50",
+                "-XX:G1HeapRegionSize=32M",
+                "-Dmixin.debug.verbose=true",
+                "-Dmixin.debug.export=true",
+                "-Dmixin.checks.interfaces=true",
+                "-Dcubicchunks.debug=false",
+                "-Dcubicchunks.debug.loadorder=false",
+                "-Dcubicchunks.debug.window=false",
+                "-Dcubicchunks.debug.statusrenderer=false",
+                "-Dcubicchunks.debug.heightmaprenderer=false",
+                "-Dcubicchunks.debug.heightmaprenderer.server=false",
+                "-Dcubicchunks.debug.heightmaprenderer.render_lightmap=false",
+                "-Dcubicchunks.debug.heightmaprenderer.radius=2",
+                "-Dcubicchunks.debug.heightmapverification=false",
+                "-Dcubicchunks.debug.heightmapverification.frequency=1",
+                "-Dcubicchunks.debug.biomes=false",
+                "-ea"
+        ]
+        // applies to all the run configs below
+        configureEach {
+            jvmArguments = args
+            // systemProperty 'forge.logging.markers', 'REGISTRIES'
+            systemProperty 'forge.logging.console.level', 'debug'
+        }
+
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+            programArgument '--nogui'
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        clientData {
+            clientData()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            // FIXME should be forge but things don't inherit properly currently
+            sourceSet(sourceSets.main)
+        }
+    }
+
+    unitTest {
+        // Enable JUnit support in the moddev plugin
+        enable()
+        // Configure which mod is being tested.
+        // This allows NeoForge to load the test/ classes and resources as belonging to the mod.
+         testedMod = mods.cubicchunks // <mod name> must match the name in the mods { } block.
+                // Configure which mods are loaded in the test environment, if the default (all declared mods) is not appropriate.
+                // This must contain testedMod, and can include other mods as well.
+                // loadedMods = [mods.<mod name >, mods.<mod name 2>]
+    }
+}
 
 configurations {
     libraries {}
     implementation.extendsFrom libraries
+    additionalRuntimeClasspath.extendsFrom libraries
     extraTests
-}
-
-runs {
-    def args = [
-            "-XX:+IgnoreUnrecognizedVMOptions",
-            "-XX:+UnlockExperimentalVMOptions",
-            "-XX:+AllowEnhancedClassRedefinition",
-            "-XX:-OmitStackTraceInFastThrow",
-            "-XX:+UseG1GC",
-            "-XX:G1NewSizePercent=20",
-            "-XX:G1ReservePercent=20",
-            "-XX:MaxGCPauseMillis=50",
-            "-XX:G1HeapRegionSize=32M",
-            "-Dmixin.debug.verbose=true",
-            "-Dmixin.debug.export=true",
-            "-Dmixin.checks.interfaces=true",
-            "-Dcubicchunks.debug=false",
-            "-Dcubicchunks.debug.loadorder=false",
-            "-Dcubicchunks.debug.window=false",
-            "-Dcubicchunks.debug.statusrenderer=false",
-            "-Dcubicchunks.debug.heightmaprenderer=false",
-            "-Dcubicchunks.debug.heightmaprenderer.server=false",
-            "-Dcubicchunks.debug.heightmaprenderer.render_lightmap=false",
-            "-Dcubicchunks.debug.heightmaprenderer.radius=2",
-            "-Dcubicchunks.debug.heightmapverification=false",
-            "-Dcubicchunks.debug.heightmapverification.frequency=1",
-            "-Dcubicchunks.debug.biomes=false",
-            "-ea"
-    ]
-    // applies to all the run configs below
-    configureEach {
-        jvmArguments args
-        // systemProperty 'forge.logging.markers', 'REGISTRIES'
-        systemProperty 'forge.logging.console.level', 'debug'
-        modSource project.sourceSets.forge
-        dependencies {
-            runtime project.configurations.libraries
-        }
-    }
-
-    client {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-    }
-
-    server {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-        programArgument '--nogui'
-    }
-
-    gameTestServer {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-    }
-
-    clientData {
-        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-    }
 }
 
 // Include resources generated by data generators.
@@ -225,8 +251,6 @@ repositories {
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${neo_version}"
-
     implementation(project(":CubicChunksCore")) {
         attributes {
             attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR))
@@ -243,8 +267,6 @@ dependencies {
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")
     libraries("org.spongepowered:noise:2.0.0-SNAPSHOT")
 
-    // NeoForge does not yet support JUnit tests, so we use fabric loader for this instead.
-    testImplementation("net.fabricmc:fabric-loader-junit:0.15.3") // required for bootstrapping in unit tests
     testImplementation("org.assertj:assertj-core:3.25.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
@@ -253,6 +275,8 @@ dependencies {
 
     testImplementation("org.hamcrest:hamcrest-junit:2.0.0.0")
     testImplementation("org.hamcrest:hamcrest:2.2")
+
+    testImplementation "net.neoforged:testframework:${neo_version}" // Needed for EphemeralTestServerProvider
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -271,12 +295,9 @@ tasks.withType(ProcessResources).configureEach {
 }
 
 // Force various tasks to run on intellij refresh
-project.tasks.matching {
-    // Using idePostSync instead of ideaSyncTask as it was removed
-    it.name == "idePostSync"
-}.forEach {
-    it.dependsOn("CubicChunksCore:assemble")
-    it.dependsOn(genAll)
+neoForge {
+    ideSyncTask project("CubicChunksCore").getTasksByName("assemble", false)[0]
+    ideSyncTask genAll
 }
 // Ensure we always genAll on any run
 processResources.dependsOn(genAll, "CubicChunksCore:assemble")
