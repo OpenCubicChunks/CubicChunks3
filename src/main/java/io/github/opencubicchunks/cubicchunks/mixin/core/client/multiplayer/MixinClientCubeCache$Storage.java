@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.multiplayer;
+package io.github.opencubicchunks.cubicchunks.mixin.core.client.multiplayer;
 
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import org.spongepowered.asm.mixin.Mixin;

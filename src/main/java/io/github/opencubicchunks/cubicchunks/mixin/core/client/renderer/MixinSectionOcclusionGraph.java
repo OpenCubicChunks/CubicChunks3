@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.renderer;
+package io.github.opencubicchunks.cubicchunks.mixin.core.client.renderer;
 
 import javax.annotation.Nullable;
 

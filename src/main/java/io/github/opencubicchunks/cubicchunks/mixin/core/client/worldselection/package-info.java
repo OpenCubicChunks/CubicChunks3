@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.multiplayer;
+package io.github.opencubicchunks.cubicchunks.mixin.core.client.worldselection;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

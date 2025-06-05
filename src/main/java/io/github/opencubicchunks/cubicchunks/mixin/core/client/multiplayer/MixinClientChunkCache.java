@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.multiplayer;
+package io.github.opencubicchunks.cubicchunks.mixin.core.client.multiplayer;
 
 import static io.github.opencubicchunks.cc_core.CubicChunksBase.LOGGER;
 import static io.github.opencubicchunks.cc_core.utils.Coords.cubeToSection;

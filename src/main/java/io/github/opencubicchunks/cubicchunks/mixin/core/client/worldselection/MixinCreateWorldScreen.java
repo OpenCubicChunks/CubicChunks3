@@ -1,4 +1,4 @@
-package io.github.opencubicchunks.cubicchunks.mixin.core.common.client.gui.screens.worldselection;
+package io.github.opencubicchunks.cubicchunks.mixin.core.client.worldselection;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
