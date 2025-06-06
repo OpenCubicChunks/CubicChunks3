@@ -7,6 +7,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirec
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.sets.InterOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
@@ -14,11 +15,13 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.EventConstructorDelegates;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ImposterProtoClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkTrackingView;
@@ -40,6 +43,8 @@ import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
  * Should be used for DASM transforms that work with Clos (i.e. work with both Chunks and Cubes)
@@ -176,8 +181,24 @@ public interface ChunkToCloSet extends GlobalSet {
     abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects {
 
     }
-
+    // Forge stuff
     // TODO move to a forge-specific sourceset
+    @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
+    abstract class ChunkEvent$Load_to_Event_redirects { }
+    @InterOwnerContainer(owner = @Ref(ChunkEvent.Load.class), newOwner = @Ref(EventConstructorDelegates.class))
+    abstract class ChunkEvent$Load_delegateConstruction {
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class) }))
+        static native Event create_ChunkEvent$Load(LevelCube levelCube, boolean newChunk);
+    }
+
+    @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
+    abstract class ChunkEvent$Unload_to_Event_redirects { }
+    @InterOwnerContainer(owner = @Ref(ChunkEvent.Unload.class), newOwner = @Ref(EventConstructorDelegates.class))
+    abstract class ChunkEvent$Unload_delegateConstruction {
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
+        static native Event create_ChunkEvent$Unload(LevelCube levelCube);
+    }
+
     @IntraOwnerContainer(owner = @Ref(GenerationChunkHolder.class))
     abstract class GenerationChunkHolder_Forge_Jank_redirects {
         @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")

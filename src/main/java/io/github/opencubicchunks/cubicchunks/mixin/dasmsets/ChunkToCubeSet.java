@@ -7,6 +7,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirec
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldToMethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
+import io.github.notstirred.dasm.api.annotations.redirect.sets.InterOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
 import io.github.notstirred.dasm.api.annotations.selector.ConstructorMethodSig;
@@ -17,6 +18,7 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
+import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.EventConstructorDelegates;
 import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.GeneratingCubeMap;
 import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
@@ -45,6 +47,8 @@ import net.minecraft.world.level.chunk.status.ChunkPyramid;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStatusTask;
 import net.minecraft.world.level.chunk.status.ChunkStep;
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
  * Should be used for DASM transforms that work with only Cubes (as opposed to working with both Chunks and Cubes)
@@ -171,6 +175,24 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
+
+    // Forge stuff
+    // TODO move to a forge-specific sourceset
+    @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
+    abstract class ChunkEvent$Load_to_Event_redirects { }
+    @InterOwnerContainer(owner = @Ref(ChunkEvent.Load.class), newOwner = @Ref(EventConstructorDelegates.class))
+    abstract class ChunkEvent$Load_delegateConstruction {
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class) }))
+        static native Event create_ChunkEvent$Load(LevelCube levelCube, boolean newChunk);
+    }
+
+    @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
+    abstract class ChunkEvent$Unload_to_Event_redirects { }
+    @InterOwnerContainer(owner = @Ref(ChunkEvent.Unload.class), newOwner = @Ref(EventConstructorDelegates.class))
+    abstract class ChunkEvent$Unload_delegateConstruction {
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
+        static native Event create_ChunkEvent$Unload(LevelCube levelCube);
+    }
 
     // TODO dasm inheritance
     @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
