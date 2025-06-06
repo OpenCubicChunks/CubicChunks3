@@ -9,8 +9,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.DataFixer;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
@@ -29,9 +27,9 @@ import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.chunk
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
+import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -47,6 +45,7 @@ import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -206,14 +205,6 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    @WrapOperation(method = "runDistanceManagerUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/DistanceManager;runAllUpdates(Lnet/minecraft/server/level/ChunkMap;)Z"))
-    private boolean cc_onRunDistanceManagerUpdates(DistanceManager instance, ChunkMap chunkMap, Operation<Boolean> original) {
-        if (!((CanBeCubic) level).cc_isCubic()) {
-            return original.call(instance, chunkMap);
-        }
-        return ((CubicDistanceManager) instance).cc_runAllUpdates(chunkMap);
-    }
-
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void cc_onTick(BooleanSupplier hasTimeLeft, boolean tickChunks, CallbackInfo ci) {
         if (this.cc_isCubic) {
@@ -245,6 +236,11 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
             ci.cancel();
             cc_tickClos(profiler, timeInhabited);
         }
+    }
+
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("tickSpawningChunk(Lnet/minecraft/world/level/chunk/LevelChunk;JLjava/util/List;Lnet/minecraft/world/level/NaturalSpawner$SpawnState;)V"))
+    private void cc_tickSpawningClo(LevelClo levelClo, long timeInhabited, List<MobCategory> spawnCategories, NaturalSpawner.SpawnState spawnState) {
+        // TODO (P2)
     }
 
     // TODO just inject and do this in vanilla method?
@@ -284,14 +280,31 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_removeTicketWithRadius(TicketType ticket, CloPos cloPos, int radius);
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
     public native boolean cc_updateCloForced(CloPos pPos, boolean pAdd);
 
+    // Cube-specific methods that delegate to the corresponding Clo methods
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    public void cc_addTicket(Ticket ticket, CubePos cubePos) {
+        cc_addTicket(ticket, CloPos.cube(cubePos));
+    }
+
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    public void cc_addTicketWithRadius(TicketType ticket, CubePos cubePos, int radius) {
+        cc_addTicketWithRadius(ticket, CloPos.cube(cubePos), radius);
+    }
+
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    public void cc_removeTicketWithRadius(TicketType ticket, CubePos cubePos, int radius) {
+        cc_removeTicketWithRadius(ticket, CloPos.cube(cubePos), radius);
+    }
+
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z\""))
     @Override public boolean cc_updateCubeForced(CubePos cubePos, boolean forced) {
         return cc_updateCloForced(CloPos.cube(cubePos), forced);
     }
 
     // TODO should probably be implemented properly, but is low priority (debug)
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("getChunkDebugData(Lnet/minecraft/world/level/ChunkPos;)Ljava/lang/String;"))
+    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getChunkDebugData(Lnet/minecraft/world/level/ChunkPos;)Ljava/lang/String;"))
     public native String cc_getChunkDebugData(CloPos pChunkPos);
 }

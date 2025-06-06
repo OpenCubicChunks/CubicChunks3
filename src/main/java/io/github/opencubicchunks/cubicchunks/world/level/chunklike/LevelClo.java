@@ -45,14 +45,14 @@ public interface LevelClo extends CloAccess {
                            @Nullable PostLoadProcessor postLoad,
                            @Nullable BlendingData blendingData) {
         if (pos.isCube()) {
-            return new LevelCube(level, pos.cubePos(), data, blockTicks, fluidTicks, inhabitedTime, sections, postLoad, blendingData);
+            return new LevelCube(level, pos.cubePos(), data, blockTicks, fluidTicks, inhabitedTime, sections, PostLoadProcessor.forCube(postLoad), blendingData);
         } else {
             return (LevelClo) new LevelChunk(level, pos.chunkPos(), data, blockTicks, fluidTicks, inhabitedTime, sections, PostLoadProcessor.forChunk(postLoad), blendingData);
         }
     }
     static LevelClo create(ServerLevel level, ProtoClo clo, @Nullable PostLoadProcessor postLoad) {
         if (clo instanceof ProtoCube cube) {
-            return new LevelCube(level, cube, postLoad);
+            return new LevelCube(level, cube, PostLoadProcessor.forCube(postLoad));
         } else {
             return (LevelClo) new LevelChunk(level, ((ProtoChunk) clo), PostLoadProcessor.forChunk(postLoad));
         }

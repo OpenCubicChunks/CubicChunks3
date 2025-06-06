@@ -101,7 +101,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         LevelChunkTicks<Fluid> fluidTicks,
         long inhabitedTime,
         @Nullable LevelChunkSection[] sections,
-        @Nullable LevelClo.PostLoadProcessor postLoad,
+        @Nullable LevelCube.PostLoadProcessor postLoad,
         @Nullable BlendingData blendingData
     ) {
         super(pos, data, level, level.registryAccess().lookupOrThrow(Registries.BIOME), inhabitedTime, sections, blendingData);
@@ -115,12 +115,12 @@ public class LevelCube extends CubeAccess implements LevelClo {
             }
         }
 
-        this.postLoad = LevelClo.PostLoadProcessor.forCube(postLoad);
+        this.postLoad = postLoad;
         this.blockTicks = blockTicks;
         this.fluidTicks = fluidTicks;
     }
 
-    public LevelCube(ServerLevel level, ProtoCube cube, @Nullable LevelClo.PostLoadProcessor postLoad) {
+    public LevelCube(ServerLevel level, ProtoCube cube, @Nullable LevelCube.PostLoadProcessor postLoad) {
         this(
             level,
             cube.cc_getCubePos(),

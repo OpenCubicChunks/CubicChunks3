@@ -7,15 +7,19 @@ import java.util.concurrent.Executor;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.MixinLevel;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
+import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicServerLevel;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -72,13 +76,25 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         }
     }
 
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerLevel.class), method = @MethodSig("tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V"))
+    public void cc_tickClo(LevelClo levelClo, int randomTickSpeed) {
+        if (levelClo instanceof LevelCube levelCube) {
+            cc_tickCube(levelCube, randomTickSpeed);
+        } {
+            // TODO (P2) chunk ticking for anything that still needs to happen on chunks (probably just the forge event for mods?)
+        }
+    }
+
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerLevel.class), method = @MethodSig("tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V"))
+    public void cc_tickCube(LevelCube levelCube, int randomTickSpeed) {
+        // TODO (P2) cube ticking
+    }
+
     // TODO: comments below don't account for 1.20.4->1.21.5 changes; will need to check for other methods that need CC changes
 
     // TODO: phase 3 - isNaturalSpawningAllowed
 
     // TODO: phase 3 - invalidateCapabilites, neoforge api
-
-    // TODO: phase 2 - tickCube - new function
 
     // TODO: phase 4 - setCubeForced - new function
 

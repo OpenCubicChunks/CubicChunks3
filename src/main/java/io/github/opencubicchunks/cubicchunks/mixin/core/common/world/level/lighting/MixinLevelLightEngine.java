@@ -18,8 +18,8 @@ public class MixinLevelLightEngine {
 
     // TODO (P2) lighting
 
-    @Inject(method = "lightOnInSection", at = @At("HEAD"), cancellable = true)
-    private void cc_onLightOnInSection(SectionPos sectionPos, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "lightOnInColumn", at = @At("HEAD"), cancellable = true)
+    private void cc_onLightOnInColumn(long columnPos, CallbackInfoReturnable<Boolean> cir) {
         if (((CanBeCubic) this.levelHeightAccessor).cc_isCubic()) cir.setReturnValue(true);
     }
 
