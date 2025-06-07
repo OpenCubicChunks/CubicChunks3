@@ -10,7 +10,6 @@ import static org.mockito.Mockito.withSettings;
 import java.nio.file.Files;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +26,6 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.neoforged.neoforge.network.handling.ISynchronizedWorkHandler;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -44,8 +42,8 @@ public class Misc {
     public static CloseableReference<ServerLevel> setupServerLevel() {
         MockedStatic<RandomState> randomStateMockedStatic = Mockito.mockStatic(RandomState.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         ChunkGenerator noiseBasedChunkGeneratorMock = mock(ChunkGenerator.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-        when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
-        when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
+        when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
+        when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
         LevelStem levelStemMock = mock(Mockito.RETURNS_DEEP_STUBS);
         when(levelStemMock.type().value().height()).thenReturn(384);
         LevelStorageSource.LevelStorageAccess levelStorageAccessMock = mock(Mockito.RETURNS_DEEP_STUBS);
@@ -98,20 +96,5 @@ public class Misc {
             .usingRecursiveComparison()
             .usingOverriddenEquals()
             .isEqualTo(expected);
-    }
-
-    public static class DummyWorkHandler implements ISynchronizedWorkHandler {
-        @Override public void execute(Runnable task) {
-            task.run();
-        }
-
-        @Override public CompletableFuture<Void> submitAsync(Runnable task) {
-            task.run();
-            return CompletableFuture.completedFuture(null);
-        }
-
-        @Override public <T> CompletableFuture<T> submitAsync(Supplier<T> task) {
-            return CompletableFuture.completedFuture(task.get());
-        }
     }
 }
