@@ -24,11 +24,9 @@ public interface ChunkMapTestAccess {
 
     @Invoker @Nullable ChunkHolder invokeUpdateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
 
-    @Invoker CompletableFuture<ChunkResult<List<ChunkAccess>>> invokeGetChunkRangeFuture(ChunkHolder chunkHolder, int range, IntFunction<ChunkStatus> statusGetter);
-
-    @Invoker ChunkStatus invokeGetDependencyStatus(ChunkStatus chunkStatus, int p_140264_);
-
-    @Dynamic @Invoker @Nullable ChunkHolder invokeCc_UpdateChunkScheduling(long cloPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
-
-    @Dynamic @Invoker CompletableFuture<ChunkResult<List<CloAccess>>> invokeCc_GetChunkRangeFuture(ChunkHolder chunkHolder, int range, IntFunction<ChunkStatus> statusGetter);
+//    @Invoker CompletableFuture<ChunkResult<List<ChunkAccess>>> invokeGetChunkRangeFuture(ChunkHolder chunkHolder, int range, IntFunction<ChunkStatus> statusGetter);
+//
+//    @Dynamic @Invoker @Nullable ChunkHolder invokeCc_UpdateChunkScheduling(long cloPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
+//
+//    @Dynamic @Invoker CompletableFuture<ChunkResult<List<CloAccess>>> invokeCc_GetChunkRangeFuture(ChunkHolder chunkHolder, int range, IntFunction<ChunkStatus> statusGetter);
 }
