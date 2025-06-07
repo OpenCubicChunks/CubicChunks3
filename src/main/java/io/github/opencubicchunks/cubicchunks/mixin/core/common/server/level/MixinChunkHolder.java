@@ -33,9 +33,11 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -161,5 +163,10 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getCloPos() {
         return super.cc_getCloPos();
+    }
+
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @Nullable public CubeAccess cc_getCubeIfPresent(ChunkStatus status) {
+        return super.cc_getCubeIfPresent(status);
     }
 }

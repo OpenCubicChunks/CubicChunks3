@@ -21,6 +21,7 @@ import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
+import io.github.opencubicchunks.cubicchunks.server.level.CubeLevel;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.testutils.CloseableReference;
@@ -32,11 +33,10 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
-import net.minecraft.util.Unit;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -65,8 +65,8 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         when(noiseBasedChunkGeneratorMock.generatorSettings()).thenReturn(mock());
         if (vanillaTest) {
             // These methods are currently only called when running vanilla tests
-            when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
-            when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
+            when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
+            when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
         }
 
         ServerLevel serverLevelMock;
@@ -380,8 +380,8 @@ public class IntegrationTestServerCubeCache extends BaseTest {
             assertNotNull(cubeAccess);
             assertTrue(cubeAccess.getPersistedStatus().isOrAfter(ChunkStatus.FULL));
             assertInstanceOf(LevelCube.class, cubeAccess);
-            for (int i = 0; i < ChunkStatus.maxDistance(); i++) {
-                var expectedStatus = ChunkStatus.getStatusAroundFullChunk(i);
+            for (int i = 0; i < CubeLevel.RADIUS_AROUND_FULL_CUBE; i++) {
+                var expectedStatus = CubeLevel.getStatusAroundFullCube(i);
                 cubeAccess = cubicServerChunkCache.cc_getCube(i, -i, 0, expectedStatus, false);
                 assertNotNull(cubeAccess);
                 assertTrue(cubeAccess.getPersistedStatus().isOrAfter(expectedStatus));
@@ -400,12 +400,12 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         }
     }
 
-    @Test public void testAddCubicRegionTicket() throws Exception {
+    @Test public void testAddCubicTicketWithRadius() throws Exception {
         try(var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
             int spawnRadius = Coords.sectionToCube(11);
-            cubicServerChunkCache.cc_addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), spawnRadius, Unit.INSTANCE);
+            cubicServerChunkCache.cc_addTicketWithRadius(TicketType.START, CloPos.cube(0, 0, 0), spawnRadius);
             serverChunkCache.tick(()->true, false);
             var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
             assertNotNull(cubeAccess);
