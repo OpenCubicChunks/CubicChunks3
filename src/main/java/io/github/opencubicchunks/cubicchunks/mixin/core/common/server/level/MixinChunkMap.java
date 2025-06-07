@@ -325,32 +325,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         return CompletableFuture.completedFuture(null);
     }
 
-//    // FIXME is this still needed with the new chunkloading logic after porting 1.20.4->1.21.5?
-//    /**
-//     * Loading cubes at EMPTY requires additional logic to ensure that the corresponding chunks are loaded first
-//     * (Unlike other statuses, this dependency is not handled in {@link ChunkMap#getChunkRangeFuture})
-//     */
-//    @Dynamic @WrapMethod(method = "cc_dasm$cc_scheduleChunkLoad")
-//    private CompletableFuture<CloAccess> cc_onScheduleChunkLoad(CloPos pos, Operation<CompletableFuture<CloAccess>> original) {
-//        if (!pos.isCube()) return original.call(pos);
-//        // Logic for loading cube-adjacent chunks first, similar to getChunkRangeFuture
-//        int futureCount = Mth.square(CubicConstants.DIAMETER_IN_SECTIONS);
-//        List<CompletableFuture<CloAccess>> futures = new ArrayList<>(futureCount);
-//
-//        for (int sectionZ = 0; sectionZ < CubicConstants.DIAMETER_IN_SECTIONS; sectionZ++) {
-//            for (int sectionX = 0; sectionX < CubicConstants.DIAMETER_IN_SECTIONS; sectionX++) {
-//                CloPos chunkPos = CloPos.chunk(Coords.cubeToSection(pos.getX(), sectionX), Coords.cubeToSection(pos.getZ(), sectionZ));
-//                futures.add(this.cc_scheduleChunkLoad(chunkPos));
-//            }
-//        }
-//
-//        CompletableFuture<List<CloAccess>> allChunksLoadedFuture = Util.sequence(futures);
-//        // Wait for adjacent chunks to load, and then load the cube
-//        // TODO allChunksLoadedFuture and cc_readChunk could (and probably should) run in parallel, it just makes this future logic a bit more complex
-//        // FIXME does this work? can we capture an Operation in a lambda?
-//        return allChunksLoadedFuture.thenCompose((a) -> original.call(pos));
-//    }
-
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("handleChunkLoadFailure(Ljava/lang/Throwable;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     private native ChunkResult<CloAccess> cc_handleChunkLoadFailure(Throwable exception, CloPos cloPos);
 
