@@ -11,7 +11,6 @@ import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicTicketStorage;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.TicketStorage;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -19,7 +18,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Dasm(ChunkToCloSet.class)
 @Mixin(TicketStorage.class)
 public class MixinTicketStorage implements CubicTicketStorage {
-    // TODO codec nonsense for save/load
+    // TODO (P2) codec nonsense for save/load
 
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_addTicketWithRadius(TicketType ticketType, CloPos cloPos, int radius);

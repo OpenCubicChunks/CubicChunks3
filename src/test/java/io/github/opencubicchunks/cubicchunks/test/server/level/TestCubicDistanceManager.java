@@ -1,5 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -13,29 +14,31 @@ import javax.annotation.Nullable;
 
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
+import io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinDistanceManager;
+import io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinPlayerTicketTracker;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.CubicDistanceManagerTestAccess;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
+import io.github.opencubicchunks.cubicchunks.world.level.CubicTicketStorage;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
-import net.minecraft.util.Unit;
+import net.minecraft.util.TriState;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.TicketStorage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 /**
- * Tests for {@link io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinDistanceManager} and {@link io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinPlayerTicketTracker}
+ * Tests for {@link MixinDistanceManager} and {@link MixinPlayerTicketTracker}
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCubicDistanceManager extends BaseTest {
     static class TestDistanceManager extends DistanceManager {
-        public TestDistanceManager(Executor executor, Executor executor2) {
-            super(executor, executor2);
+        public TestDistanceManager(TicketStorage ticketStorage, Executor executor, Executor executor2) {
+            super(ticketStorage, executor, executor2);
         }
 
         @Override
@@ -61,12 +64,12 @@ public class TestCubicDistanceManager extends BaseTest {
         }
     }
 
-    private DistanceManager setupDistanceManager() {
+    private DistanceManager setupDistanceManager(TicketStorage ticketStorage) {
         var mainThread = Thread.currentThread();
         var mainThreadExecutor = // Based on ServerChunkCache.MainThreadExecutor
             new BlockableEventLoop<>("test_event_loop") {
                 @Override
-                protected Runnable wrapRunnable(Runnable runnable) {
+                public Runnable wrapRunnable(Runnable runnable) {
                     return runnable;
                 }
 
@@ -87,21 +90,23 @@ public class TestCubicDistanceManager extends BaseTest {
             };
         // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
         // (which occurs when using RETURNS_DEEP_STUBS)
-        DistanceManager distanceManager = new TestDistanceManager(Runnable::run, mainThreadExecutor);
+        DistanceManager distanceManager = new TestDistanceManager(ticketStorage, Runnable::run, mainThreadExecutor);
         return distanceManager;
     }
 
     @Test public void testUpdateChunkForcedVanilla() {
-        DistanceManager distanceManager = setupDistanceManager();
-        ((CubicDistanceManagerTestAccess) distanceManager).invoke_updateChunkForced(ChunkPos.ZERO, true);
+        var ticketStorage = new TicketStorage();
+        DistanceManager distanceManager = setupDistanceManager(ticketStorage);
+        ticketStorage.updateChunkForced(ChunkPos.ZERO, true);
         distanceManager.runAllUpdates(mock(ChunkMap.class));
         assertTrue(distanceManager.inEntityTickingRange(ChunkPos.ZERO.toLong()), "ChunkPos.ZERO is not in entity ticking range");
     }
 
     @Test public void testUpdateChunkForced() {
-        DistanceManager distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        DistanceManager distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManagerTestAccess)distanceManager).invoke_updateCubeForced(CloPos.cube(0, 0, 0), true);
+        ((CubicTicketStorage) ticketStorage).cc_updateChunkForced(CloPos.cube(0, 0, 0), true);
         distanceManager.runAllUpdates(mock(ChunkMap.class));
         assertTrue(distanceManager.inEntityTickingRange(CloPos.cube(0, 0, 0).toLong()), "CloPos.ZERO is not in entity ticking range");
     }
@@ -117,7 +122,7 @@ public class TestCubicDistanceManager extends BaseTest {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertTrue(distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
+            assertEquals(TriState.TRUE, distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
         }
     }
 
@@ -135,7 +140,7 @@ public class TestCubicDistanceManager extends BaseTest {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertTrue(distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
+            assertEquals(TriState.TRUE, distanceManager.hasPlayersNearby(player.pos.chunk().toLong()), player.pos.chunk().toLong() + " has no players nearby");
         }
     }
 
@@ -163,7 +168,7 @@ public class TestCubicDistanceManager extends BaseTest {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertTrue(distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
+            assertEquals(TriState.TRUE, distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
         }
     }
 
@@ -181,7 +186,7 @@ public class TestCubicDistanceManager extends BaseTest {
         }
 
         for (ServerPlayerAndPosition player : players) {
-            assertTrue(distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
+            assertEquals(TriState.TRUE, distanceManager.hasPlayersNearby(CloPos.section(player.pos).toLong()), CloPos.section(player.pos).toLong() + " has no players nearby");
         }
     }
 
@@ -199,107 +204,85 @@ public class TestCubicDistanceManager extends BaseTest {
     }
 
     @Test public void testSinglePlayerVanilla() {
-        testAddAndRemoveVanilla(setupDistanceManager(), 2, 1, 0.0f);
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
+        testAddAndRemoveVanilla(distanceManager, 2, 1, 0.0f);
     }
 
     @Test public void testMultiplePlayersVanilla() {
-        testAddAndRemoveVanilla(setupDistanceManager(), 100, 200, 0.5f);
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
+        testAddAndRemoveVanilla(distanceManager, 100, 200, 0.5f);
     }
 
     @Test public void testSinglePlayer() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         testAddAndRemove(distanceManager, 2, 1, 0.0f);
     }
 
     @Test public void testMultiplePlayers() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         testAddAndRemove(distanceManager, 50, 50, 0.5f);
     }
 
-    @Test public void testRemoveTicketsOnClosingVanilla() {
-        var distanceManager = setupDistanceManager();
-        distanceManager.addTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
-        assertTrue(distanceManager.hasTickets());
-        distanceManager.removeTicketsOnClosing();
-        assertFalse(distanceManager.hasTickets());
-    }
-
-    @Test public void testRemoveTicketsOnClosing() {
-        var distanceManager = setupDistanceManager();
-        ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManager)distanceManager).cc_addTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
-        assertTrue(distanceManager.hasTickets());
-        distanceManager.removeTicketsOnClosing();
-        assertFalse(distanceManager.hasTickets());
-    }
-
     @Test public void testAddRemoveTicketsVanilla() {
-        var distanceManager = setupDistanceManager();
-        distanceManager.addTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
+        ticketStorage.addTicket(new Ticket(TicketType.START, 0), new ChunkPos(0, 0));
         assertTrue(distanceManager.hasTickets());
-        distanceManager.removeTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        ticketStorage.removeTicket(new Ticket(TicketType.START, 0), new ChunkPos(0, 0));
         assertFalse(distanceManager.hasTickets());
-        distanceManager.addRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        ticketStorage.addTicketWithRadius(TicketType.START, new ChunkPos(0, 0), 5);
         assertTrue(distanceManager.hasTickets());
-        distanceManager.removeRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE);
+        ticketStorage.removeTicketWithRadius(TicketType.START, new ChunkPos(0, 0), 5);
         assertFalse(distanceManager.hasTickets());
     }
 
     @Test public void testAddRemoveTickets() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManager)distanceManager).cc_addTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicTicketStorage) ticketStorage).cc_addTicket(new Ticket(TicketType.START, 0), CloPos.cube(0, 0, 0));
         assertTrue(distanceManager.hasTickets());
-        ((CubicDistanceManager)distanceManager).cc_removeTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicTicketStorage) ticketStorage).cc_removeTicket(new Ticket(TicketType.START, 0), CloPos.cube(0, 0, 0));
         assertFalse(distanceManager.hasTickets());
-        ((CubicDistanceManager)distanceManager).cc_addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicTicketStorage) ticketStorage).cc_addTicketWithRadius(TicketType.START, CloPos.cube(0, 0, 0), 5);
         assertTrue(distanceManager.hasTickets());
-        ((CubicDistanceManager)distanceManager).cc_removeRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE);
+        ((CubicTicketStorage) ticketStorage).cc_removeTicketWithRadius(TicketType.START, CloPos.cube(0, 0, 0), 5);
         assertFalse(distanceManager.hasTickets());
-    }
-
-    @Test public void testShouldForceTicksVanilla() {
-        var distanceManager = setupDistanceManager();
-        distanceManager.addRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE, true);
-        assertTrue(distanceManager.shouldForceTicks(ChunkPos.asLong(0, 0)));
-        distanceManager.removeRegionTicket(TicketType.START, new ChunkPos(0, 0), 0,  Unit.INSTANCE, true);
-        assertFalse(distanceManager.shouldForceTicks(ChunkPos.asLong(0, 0)));
-    }
-
-    @Test public void testShouldForceTicks() {
-        var distanceManager = setupDistanceManager();
-        ((MarkableAsCubic) distanceManager).cc_setCubic();
-        ((CubicDistanceManager)distanceManager).cc_addRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
-        assertTrue(distanceManager.shouldForceTicks(CloPos.cubeAsLong(0, 0, 0)));
-        ((CubicDistanceManager)distanceManager).cc_removeRegionTicket(TicketType.START, CloPos.cube(0, 0, 0), 0,  Unit.INSTANCE, true);
-        assertFalse(distanceManager.shouldForceTicks(CloPos.cubeAsLong(0, 0, 0)));
     }
 
     // Tests for PlayerTicketTracker
     // TODO: The two functions being tested are complex and confusing, and I don't know how to test them at this moment beyond verifying they don't crash anything.
 
     @Test public void testOnLevelChangeVanilla() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         // Update view distance calls onLevelChange
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().updateViewDistance(10);
     }
 
     @Test public void testRunAllUpdatesVanilla() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().runAllUpdates();
     }
 
     @Test public void testOnLevelChange() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         // Update view distance calls onLevelChange
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().updateViewDistance(10);
     }
 
     @Test public void testRunAllUpdates() {
-        var distanceManager = setupDistanceManager();
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().runAllUpdates();
     }
