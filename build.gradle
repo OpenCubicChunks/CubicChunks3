@@ -306,20 +306,21 @@ processResources.dependsOn(genAll, "CubicChunksCore:assemble")
 compileJava.dependsOn("CubicChunksCore:assemble")
 
 // unzipping subproject (CubicChunksCore) tests
-tasks.register('unzipTests', Copy) {
-    outputs.upToDateWhen {
-        false
-    }
-    dependsOn(configurations.named("extraTests"))
-    from(configurations.named("extraTests"))
-    doFirst {
-        //noinspection ConfigurationAvoidance, we actually do want to resolve here
-        var testsFile = configurations["extraTests"].resolve().iterator().next()
-        from(zipTree(testsFile))
-        exclude(testsFile.name)
-    }
-    into(sourceSets.test.output.classesDirs.asPath)
-}
+// TODO disabled until we figure out how to fix java modules complaining
+//tasks.register('unzipTests', Copy) {
+//    outputs.upToDateWhen {
+//        false
+//    }
+//    dependsOn(configurations.named("extraTests"))
+//    from(configurations.named("extraTests"))
+//    doFirst {
+//        //noinspection ConfigurationAvoidance, we actually do want to resolve here
+//        var testsFile = configurations["extraTests"].resolve().iterator().next()
+//        from(zipTree(testsFile))
+//        exclude(testsFile.name)
+//    }
+//    into(sourceSets.test.output.classesDirs.asPath)
+//}
 
 tasks.withType(Test).configureEach {
     // gradle docs suggest processors/2 which actually runs fractionally faster than just processors
@@ -333,7 +334,7 @@ test {
     //      we should reduce maxHeapSize to a more reasonable value once chunkloading memory usage is further optimized
     maxHeapSize = "6G"
 
-    dependsOn(project.tasks.named("unzipTests"))
+//    dependsOn(project.tasks.named("unzipTests"))
     useJUnitPlatform {
         excludeTags "longRunTest"
     }
@@ -371,7 +372,7 @@ def longRunTest = tasks.register("longRunTest", Test) {
     exclude "**/mixin*"
 
     group = "Verification"
-    mustRunAfter project.tasks.named("unzipTests")
+//    mustRunAfter project.tasks.named("unzipTests")
     shouldRunAfter project.tasks.named("test")
 }
 
