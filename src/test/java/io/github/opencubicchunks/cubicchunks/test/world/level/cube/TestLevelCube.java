@@ -79,16 +79,16 @@ public class TestLevelCube extends BaseTest {
         BlockState state1 = spy(Blocks.FURNACE.defaultBlockState());
         BlockState state2 = spy(Blocks.STONE.defaultBlockState());
 
-        cube.setBlockState(pos, state1);
+        var prevState1 = cube.setBlockState(pos, state1);
+        assertEquals(Blocks.AIR.defaultBlockState(), prevState1);
         verify(state1, times(1)).onPlace(any(), eq(pos), eq(Blocks.AIR.defaultBlockState()), eq(false));
         assertNotNull(cube.getBlockEntity(pos));
 
-        cube.setBlockState(pos, state2);
+        var prevState2 = cube.setBlockState(pos, state2);
+        assertEquals(state1, prevState2);
         // FIXME need a new way to verify that block entity was removed
 //        verify(state1, times(1)).onRemove(any(), eq(pos), eq(state2), eq(false));
         verify(state2, times(1)).onPlace(any(), eq(pos), eq(state1), eq(false));
-        // We don't check block entity is gone, since this requires more complex mocking of the Level,
-        // and it is handled by BlockState.onRemove, which we check is called
     }
 
     @Test public void testGetSetBlockStateAndFluidState() {

@@ -227,14 +227,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
                     // TODO (P2) lighting - see vanilla equivalent to this method
                 }
 
-                boolean flag4 = !state.is(block);
+                boolean flag4 = !previousState.is(block);
                 boolean flag2 = (flags & 64) != 0;
                 boolean flag3 = (flags & 256) == 0;
-                if (flag4 && state.hasBlockEntity()) {
+                if (flag4 && previousState.hasBlockEntity()) {
                     if (!this.level.isClientSide && flag3) {
                         BlockEntity blockentity = this.level.getBlockEntity(pos);
                         if (blockentity != null) {
-                            blockentity.preRemoveSideEffects(pos, state);
+                            blockentity.preRemoveSideEffects(pos, previousState);
                         }
                     }
 
@@ -242,14 +242,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
                 }
 
                 if ((flag4 || block instanceof BaseRailBlock) && this.level instanceof ServerLevel serverlevel && ((flags & 1) != 0 || flag2)) {
-                    state.affectNeighborsAfterRemoval(serverlevel, pos, flag2);
+                    previousState.affectNeighborsAfterRemoval(serverlevel, pos, flag2);
                 }
 
                 if (!chunkSection.getBlockState(sectionLocalX, sectionLocalY, sectionLocalZ).is(block)) {
                     return null;
                 } else {
                     if (!this.level.isClientSide && !this.level.captureBlockSnapshots && (flags & 512) == 0) {
-                        state.onPlace(this.level, pos, state, flag2);
+                        state.onPlace(this.level, pos, previousState, flag2);
                     }
 
                     if (state.hasBlockEntity()) {
@@ -277,7 +277,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
                     }
 
                     this.markUnsaved();
-                    return state;
+                    return previousState;
                 }
             }
         }
