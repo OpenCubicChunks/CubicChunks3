@@ -22,7 +22,7 @@ public class TestCubicServerLevel extends BaseTest {
     // TODO: Phase 3 - This needs a more rigorous test down the line when we actually care about entities
     @Test public void testVanillaSpawningAllowed() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
-            assertFalse(serverLevelReference.value().isNaturalSpawningAllowed(new ChunkPos(0, 0)));
+            assertFalse(serverLevelReference.value().areEntitiesActuallyLoadedAndTicking(new ChunkPos(0, 0)));
         }
     }
 

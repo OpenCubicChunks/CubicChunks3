@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -24,19 +25,25 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.TickRateManager;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkSource;
@@ -47,12 +54,14 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
+import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -73,61 +82,60 @@ public class TestCubicLevel extends BaseTest {
         ChunkSource mockChunkSource = mock(ChunkSource.class, RETURNS_DEEP_STUBS);
 
         public TestLevel(
-            WritableLevelData p_270739_,
-            ResourceKey<Level> p_270683_,
-            RegistryAccess p_270200_,
-            Holder<DimensionType> p_270240_,
-            Supplier<ProfilerFiller> p_270692_,
-            boolean p_270904_,
-            boolean p_270470_,
-            long p_270248_,
-            int p_270466_
+            WritableLevelData levelData,
+            ResourceKey<Level> dimension,
+            RegistryAccess registryAccess,
+            Holder<DimensionType> dimensionTypeRegistration,
+            boolean isClientSide,
+            boolean isDebug,
+            long biomeZoomSeed,
+            int maxChainedNeighborUpdates
         ) {
-            super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
+            super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
             when(((CubeSource)mockChunkSource).cc_getCube(anyInt(), anyInt(), anyInt(), anyBoolean())).thenReturn(mock(LevelCube.class));
             when(((CubeSource)mockChunkSource).cc_getCube(anyInt(), anyInt(), anyInt(), any(), anyBoolean())).thenReturn(mock(LevelCube.class));
         }
 
-        @Override public void sendBlockUpdated(BlockPos p_46612_, BlockState p_46613_, BlockState p_46614_, int p_46615_) {
+        @Override public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+
+        }
+
+        @Override public void playSeededSound(@Nullable Entity entity, double x, double y, double z, Holder<SoundEvent> sound, SoundSource source, float volume, float pitch, long seed) {
+
+        }
+
+        @Override public void playSeededSound(@Nullable Entity entity, Entity sourceEntity, Holder<SoundEvent> sound, SoundSource source, float volume, float pitch, long seed) {
 
         }
 
         @Override
-        public void playSeededSound(@Nullable Player p_262953_, double p_263004_, double p_263398_, double p_263376_, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_,
-                                    float p_262914_, long p_262991_) {
-
-        }
-
-        @Override
-        public void playSeededSound(@Nullable Player p_220372_, Entity p_220373_, Holder<SoundEvent> p_263500_, SoundSource p_220375_, float p_220376_, float p_220377_, long p_220378_) {
+        public void explode(@Nullable Entity source, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator damageCalculator, double x, double y, double z, float radius,
+                            boolean fire, ExplosionInteraction explosionInteraction, ParticleOptions smallExplosionParticles, ParticleOptions largeExplosionParticles,
+                            Holder<SoundEvent> explosionSound) {
 
         }
 
         @Override public String gatherChunkSourceStats() {
+            return "";
+        }
+
+        @Override public @Nullable Entity getEntity(int id) {
             return null;
         }
 
-        @Nullable @Override public Entity getEntity(int p_46492_) {
-            return null;
+        @Override public Collection<PartEntity<?>> dragonParts() {
+            return List.of();
         }
 
         @Override public TickRateManager tickRateManager() {
             return null;
         }
 
-        @Nullable @Override public MapItemSavedData getMapData(String p_46650_) {
+        @Override public @Nullable MapItemSavedData getMapData(MapId mapId) {
             return null;
         }
 
-        @Override public void setMapData(String p_151533_, MapItemSavedData p_151534_) {
-
-        }
-
-        @Override public int getFreeMapId() {
-            return 0;
-        }
-
-        @Override public void destroyBlockProgress(int p_46506_, BlockPos p_46507_, int p_46508_) {
+        @Override public void destroyBlockProgress(int breakerId, BlockPos pos, int progress) {
 
         }
 
@@ -135,7 +143,7 @@ public class TestCubicLevel extends BaseTest {
             return null;
         }
 
-        @Override public RecipeManager getRecipeManager() {
+        @Override public RecipeAccess recipeAccess() {
             return null;
         }
 
@@ -143,39 +151,67 @@ public class TestCubicLevel extends BaseTest {
             return null;
         }
 
-        @Override public LevelTickAccess<Block> getBlockTicks() {
+        @Override public PotionBrewing potionBrewing() {
             return null;
         }
 
-        @Override public LevelTickAccess<Fluid> getFluidTicks() {
+        @Override public FuelValues fuelValues() {
             return null;
+        }
+
+        @Override public void setDayTimeFraction(float dayTimeFraction) {
+
+        }
+
+        @Override public float getDayTimeFraction() {
+            return 0;
+        }
+
+        @Override public float getDayTimePerTick() {
+            return 0;
+        }
+
+        @Override public void setDayTimePerTick(float dayTimePerTick) {
+
         }
 
         @Override public ChunkSource getChunkSource() {
             return mockChunkSource;
         }
 
-        @Override public void levelEvent(@Nullable Player p_46771_, int p_46772_, BlockPos p_46773_, int p_46774_) {
+        @Override public void levelEvent(@Nullable Entity entity, int type, BlockPos pos, int data) {
 
         }
 
-        @Override public void gameEvent(GameEvent p_220404_, Vec3 p_220405_, GameEvent.Context p_220406_) {
+        @Override public void gameEvent(Holder<GameEvent> gameEvent, Vec3 pos, GameEvent.Context context) {
 
-        }
-
-        @Override public float getShade(Direction p_45522_, boolean p_45523_) {
-            return 0;
         }
 
         @Override public List<? extends Player> players() {
+            return List.of();
+        }
+
+        @Override public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z) {
             return null;
         }
 
-        @Override public Holder<Biome> getUncachedNoiseBiome(int p_204159_, int p_204160_, int p_204161_) {
-            return null;
+        @Override public int getSeaLevel() {
+            return 0;
         }
 
         @Override public FeatureFlagSet enabledFeatures() {
+            return null;
+        }
+
+        @Override public float getShade(Direction direction, boolean shade) {
+            return 0;
+        }
+
+        @Override public LevelTickAccess<Block> getBlockTicks() {
+            return null;
+        }
+
+        @Override public LevelTickAccess<Fluid> getFluidTicks() {
             return null;
         }
 
@@ -188,8 +224,8 @@ public class TestCubicLevel extends BaseTest {
     private CloseableReference<TestLevel> setupTestLevel() {
         MockedStatic<RandomState> randomStateMockedStatic = Mockito.mockStatic(RandomState.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         ChunkGenerator noiseBasedChunkGeneratorMock = mock(ChunkGenerator.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-        when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
-        when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
+        when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
+        when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
         LevelStem levelStemMock = mock(RETURNS_DEEP_STUBS);
         when(levelStemMock.type().value().height()).thenReturn(384);
         LevelStorageSource.LevelStorageAccess levelStorageAccessMock = mock(RETURNS_DEEP_STUBS);
@@ -206,7 +242,6 @@ public class TestCubicLevel extends BaseTest {
                 mock(RETURNS_DEEP_STUBS),
                 mock(RETURNS_DEEP_STUBS),
                 holderMock,
-                mock(RETURNS_DEEP_STUBS),
                 false,
                 false,
                 0,

@@ -1,5 +1,8 @@
 package io.github.opencubicchunks.cubicchunks.network;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.netty.buffer.ByteBuf;
@@ -67,5 +70,16 @@ public class CCClientboundLevelCubePacketData {
 
     public FriendlyByteBuf getReadBuffer() {
         return new FriendlyByteBuf(Unpooled.wrappedBuffer(this.buffer));
+    }
+
+    // Implement .equals for unit testing
+    @Override public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CCClientboundLevelCubePacketData that = (CCClientboundLevelCubePacketData) o;
+        return Objects.deepEquals(buffer, that.buffer);
+    }
+
+    @Override public int hashCode() {
+        return Arrays.hashCode(buffer);
     }
 }

@@ -119,7 +119,7 @@ public class TestCubeAccess extends BaseTest {
             }
         }
         Set<BlockPos> foundPositions = new HashSet<>();
-        cubeAccess.findBlocks((state, pos) -> state == Blocks.STONE.defaultBlockState(), (pos, state) -> foundPositions.add(new BlockPos(pos)));
+        cubeAccess.findBlocks(state -> state == Blocks.STONE.defaultBlockState(), (pos, state) -> foundPositions.add(new BlockPos(pos)));
         assertEquals(expectedPositions, foundPositions);
     }
 

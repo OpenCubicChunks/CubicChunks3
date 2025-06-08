@@ -14,6 +14,7 @@ import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -62,7 +63,7 @@ public class TestBlockCollisions extends BaseTest {
             // We don't generate positions on the edge of the cube here since BlockCollisions tries to reach into neighboring cubes in that case
             var blockPos = cubePos.asBlockPos(random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS-1), random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS-1), random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS-1));
             int[] c = new int[] { 0 };
-            var blockCollisions = new BlockCollisions<Void>(level, null, AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ())).inflate(-0.2), false, (pos, voxelShape) -> {
+            var blockCollisions = new BlockCollisions<Void>(level, (Entity) null, AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ())).inflate(-0.2), false, (pos, voxelShape) -> {
                 assertEquals(blockPos, pos);
                 c[0]++;
                 return null;
@@ -88,7 +89,7 @@ public class TestBlockCollisions extends BaseTest {
         // AABB that reaches across the corner between 8 cubes
         var aabb = AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX()+0.5, blockPos.getY()+0.5, blockPos.getZ()+0.5)).inflate(-0.2);
         int[] c = new int[] { 0 };
-        var blockCollisions = new BlockCollisions<Void>(level, null, aabb, false, (pos, voxelShape) -> {
+        var blockCollisions = new BlockCollisions<Void>(level, (Entity) null, aabb, false, (pos, voxelShape) -> {
             var collidedCubePos = CubePos.from(pos);
             System.out.println(pos + " " + collidedCubePos);
             assertEquals(1, ((collidedCubePos.getX() + collidedCubePos.getY() + collidedCubePos.getZ()) & 1), "should only collide with positions in solid cubes");

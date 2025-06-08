@@ -8,21 +8,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundForgetLevelCloPacket;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
-import io.github.opencubicchunks.cubicchunks.testutils.Misc;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.ChunkPos;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -31,18 +29,19 @@ public class TestCCClientboundForgetLevelCloPacket extends BaseTest {
     public void serdeTest() {
         var packet = new CCClientboundForgetLevelCloPacket(CloPos.chunk(3, -1));
         var buf = new FriendlyByteBuf(Unpooled.buffer());
-        packet.write(buf);
-        assertDeepEquals(new CCClientboundForgetLevelCloPacket(buf), packet);
+        CCClientboundForgetLevelCloPacket.STREAM_CODEC.encode(buf, packet);
+        assertDeepEquals(CCClientboundForgetLevelCloPacket.STREAM_CODEC.decode(buf), packet);
 
         packet = new CCClientboundForgetLevelCloPacket(CloPos.cube(5, -3, -4));
         buf = new FriendlyByteBuf(Unpooled.buffer());
-        packet.write(buf);
-        assertDeepEquals(new CCClientboundForgetLevelCloPacket(buf), packet);
+        CCClientboundForgetLevelCloPacket.STREAM_CODEC.encode(buf, packet);
+        assertDeepEquals(CCClientboundForgetLevelCloPacket.STREAM_CODEC.decode(buf), packet);
     }
 
+    @Disabled // TODO disabled until we can apply client-side mixins in tests properly
     @Test
     public void handlerTest() {
-        PlayPayloadContext payloadContextMock = mock();
+        IPayloadContext payloadContextMock = mock(Mockito.RETURNS_DEEP_STUBS);
         ClientLevel clientLevelMock = mock(Mockito.RETURNS_DEEP_STUBS);
         ClientChunkCache clientChunkCacheMock = mock(ClientChunkCache.class);
         when(clientLevelMock.getChunkSource()).thenReturn(clientChunkCacheMock);
@@ -50,9 +49,7 @@ public class TestCCClientboundForgetLevelCloPacket extends BaseTest {
         when(clientLevelMock.getHeight()).thenReturn(384);
         when(clientLevelMock.getSectionsCount()).thenReturn(24);
 
-        when(payloadContextMock.level()).thenReturn(Optional.of(clientLevelMock));
-
-        when(payloadContextMock.workHandler()).thenReturn(new Misc.DummyWorkHandler());
+        when(payloadContextMock.player().level()).thenReturn(clientLevelMock);
 
         var cubePos = CubePos.of(0, -22, 41);
         var chunkPos = new ChunkPos(-999, 1);

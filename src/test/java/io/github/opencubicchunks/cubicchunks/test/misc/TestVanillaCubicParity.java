@@ -17,6 +17,7 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ImposterProtoCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -112,10 +113,10 @@ public class TestVanillaCubicParity extends BaseTest {
             Stream.concat(Stream.of(
                     ChunkAccess.class.getMethod("getPos"),
                     // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getMethod("getWorldForge"),
-                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
-                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder")
+                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
+                    ChunkAccess.class.getDeclaredMethod("getLevel")
             ), Arrays.stream(IAttachmentHolder.class.getMethods()))
         );
         testStaticParity(
@@ -131,12 +132,11 @@ public class TestVanillaCubicParity extends BaseTest {
             Stream.concat(Stream.of(
                     ChunkAccess.class.getMethod("getPos"),
                     // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getMethod("getWorldForge"),
-                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
-                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
+                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
                     ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
-                    LevelChunk.class.getMethod("getWorldForge"),
-                    LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class)
+                    LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class),
+                    LevelChunk.class.getMethod("setUnsavedListener", LevelChunk.UnsavedListener.class)
             ), Arrays.stream(IAttachmentHolder.class.getMethods()))
         );
         testStaticParity(
@@ -152,10 +152,10 @@ public class TestVanillaCubicParity extends BaseTest {
             Stream.concat(Stream.of(
                     ChunkAccess.class.getMethod("getPos"),
                     // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getMethod("getWorldForge"),
-                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
-                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder")
+                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
+                    ChunkAccess.class.getDeclaredMethod("getLevel")
             ), Arrays.stream(IAttachmentHolder.class.getMethods()))
 //                IAttachmentHolder.class.getMethods()
         );
@@ -173,10 +173,10 @@ public class TestVanillaCubicParity extends BaseTest {
                     ChunkAccess.class.getMethod("getPos"),
                     ImposterProtoChunk.class.getMethod("getWrapped"),
                     // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getMethod("getWorldForge"),
-                    ChunkAccess.class.getMethod("readAttachmentsFromNBT", CompoundTag.class),
-                    ChunkAccess.class.getMethod("writeAttachmentsToNBT"),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder")
+                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
+                    ChunkAccess.class.getDeclaredMethod("getLevel")
             ), Arrays.stream(IAttachmentHolder.class.getMethods()))
         );
         testStaticParity(

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
@@ -65,7 +66,7 @@ public class Misc {
                 Mockito.<LoggerChunkProgressListener>mock(RETURNS_DEEP_STUBS),
                 false,
                 0,
-                mock(RETURNS_DEEP_STUBS),
+                List.of(),
                 false,
                 mock(RETURNS_DEEP_STUBS)),
             randomStateMockedStatic);

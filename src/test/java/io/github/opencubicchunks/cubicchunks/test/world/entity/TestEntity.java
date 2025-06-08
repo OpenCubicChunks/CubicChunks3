@@ -16,6 +16,7 @@ import io.github.opencubicchunks.cubicchunks.world.entity.EntityCubePosGetter;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevelReader;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.Level;
@@ -30,7 +31,7 @@ public class TestEntity extends BaseTest {
         when(((CanBeCubic) level).cc_isCubic()).thenReturn(true);
         when(level.enabledFeatures()).thenReturn(FeatureFlags.DEFAULT_FLAGS);
         // We use a giant for testing because it's funny
-        var entity = EntityType.GIANT.create(level);
+        var entity = EntityType.GIANT.create(level, EntitySpawnReason.MOB_SUMMONED);
         var random = new Random(742);
         for (int i = 0; i < 1000; i++) {
             var pos = new BlockPos(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
@@ -39,7 +40,7 @@ public class TestEntity extends BaseTest {
         }
     }
 
-    // TODO (P2) test teleportToWithTicket
+    // TODO (P2) test teleport methods
 
     // Not really a unit test since it depends on CubicLevelReader, but touchingUnloadedChunk is essentially just a wrapper around LevelReader.hasChunksAt anyway
     @Test public void testTouchingUnloadedChunk() {
@@ -59,7 +60,7 @@ public class TestEntity extends BaseTest {
         when(((CanBeCubic) level).cc_isCubic()).thenReturn(true);
         when(level.enabledFeatures()).thenReturn(FeatureFlags.DEFAULT_FLAGS);
         when(((CubicLevelReader) level).cc_hasCubesAt(anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).then(AdditionalAnswers.delegatesTo(levelReader));
-        var entity = EntityType.GIANT.create(level);
+        var entity = EntityType.GIANT.create(level, EntitySpawnReason.MOB_SUMMONED);
         for (int i = 0; i < 500; i++) {
             var cubePos = CubePos.of(random.nextInt(10)-5, random.nextInt(10)-5, random.nextInt(10)-5);
             // Horizontal center of cube, at bottom

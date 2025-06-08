@@ -10,12 +10,11 @@ import net.minecraft.world.level.ChunkPos;
 import org.junit.jupiter.api.Test;
 
 public class TestCCClientboundLevelChunkPacket extends BaseTest {
-
     @Test
     public void serdeTest() {
         var packet = new CCClientboundLevelChunkPacket(new ChunkPos(2, 4));
         var buf = new FriendlyByteBuf(Unpooled.buffer());
-        packet.write(buf);
-        assertDeepEquals(new CCClientboundLevelChunkPacket(buf), packet);
+        CCClientboundLevelChunkPacket.STREAM_CODEC.encode(buf, packet);
+        assertDeepEquals(CCClientboundLevelChunkPacket.STREAM_CODEC.decode(buf), packet);
     }
 }
