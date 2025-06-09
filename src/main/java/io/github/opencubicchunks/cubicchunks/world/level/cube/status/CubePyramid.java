@@ -10,6 +10,7 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSe
 import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
+import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
@@ -40,24 +41,7 @@ public record CubePyramid(ImmutableList<CubeStep> steps) {
         initCubePyramids();
     }
 
-    // TODO whole class redirect
-    public static class Builder {
-        private final List<CubeStep> steps = new ArrayList<>();
-
-        public CubePyramid build() {
-            return new CubePyramid(ImmutableList.copyOf(this.steps));
-        }
-
-        public CubePyramid.Builder step(ChunkStatus status, UnaryOperator<CubeStep.Builder> task) {
-            CubeStep.Builder chunkstep$builder;
-            if (this.steps.isEmpty()) {
-                chunkstep$builder = new CubeStep.Builder(status);
-            } else {
-                chunkstep$builder = new CubeStep.Builder(status, this.steps.getLast());
-            }
-
-            this.steps.add(task.apply(chunkstep$builder).build());
-            return this;
-        }
-    }
+    @Dasm(ChunkToCubeSet.class)
+    @TransformFromClass(sets = ChunkToCubeSet.class, value = @Ref(ChunkPyramid.Builder.class))
+    public static class Builder {}
 }

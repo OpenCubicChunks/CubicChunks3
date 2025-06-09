@@ -7,7 +7,6 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
-import io.github.opencubicchunks.cubicchunks.server.level.CubicDistanceManager;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicTicketStorage;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkMap;
@@ -31,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Dasm(ChunkToCloSet.class)
 @Mixin(DistanceManager.class)
-public abstract class MixinDistanceManager implements CubicDistanceManager, MarkableAsCubic {
+public abstract class MixinDistanceManager implements MarkableAsCubic {
     protected boolean cc_isCubic;
 
     @Shadow @Final private LoadingChunkTracker loadingChunkTracker;
@@ -97,10 +96,4 @@ public abstract class MixinDistanceManager implements CubicDistanceManager, Mark
     }
 
     // TODO how does hasPlayersNearby work?
-
-    // TODO somehow runAllUpdates doesn't seem to need any changes anymore?
-//    @Override
-//    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("runAllUpdates(Lnet/minecraft/server/level/ChunkMap;)Z"))
-//    public native boolean cc_runAllUpdates(ChunkMap chunkManager);
-
 }

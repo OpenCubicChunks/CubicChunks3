@@ -36,8 +36,7 @@ public class CubeStatusTasks {
     public static CompletableFuture<CubeAccess> passThrough(
         WorldGenContext worldGenContext, CubeStep step, StaticCache3D<GenerationChunkHolder> cache, CubeAccess cube
     ) {
-//        return CompletableFuture.completedFuture(cube);
-        return CompletableFuture.supplyAsync(() -> cube);
+        return CompletableFuture.completedFuture(cube);
     }
 
     // TODO (P3) we skip cube generation steps for now by delegating to passThrough

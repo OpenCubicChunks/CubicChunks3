@@ -30,7 +30,7 @@ public abstract class MixinViewArea {
 
     @Shadow protected abstract int getSectionIndex(int x, int y, int z);
 
-    // FIXME inject properly instead of overwriting the method
+    // This could be multiple more specific injects, but overwriting the method is probably cleaner
     @Inject(method = "setViewDistance", at = @At("HEAD"), cancellable = true)
     private void cc_onSetViewDistance(int renderDistanceChunks, CallbackInfo ci) {
         if (!((CanBeCubic) level).cc_isCubic()) return;

@@ -77,5 +77,5 @@ public abstract class MixinEntity implements EntityCubePosGetter {
         cir.setReturnValue(!((CubicLevelReader) this.level).cc_hasCubesAt(minX, minY, minZ, maxX, maxY, maxZ));
     }
 
-    // FIXME teleportation code needs CC changes
+    // TODO (P2) teleportation code needs CC changes
 }

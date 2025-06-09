@@ -161,7 +161,6 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     /**
      * When loading a cube, check cube dependencies as well when determining if generation is required
      */
-    // TODO validate this ever returns actually returns true (aside from when targetStatus is EMPTY)
     @Inject(method = "canLoadWithoutGeneration", at = @At("HEAD"), cancellable = true)
     private void cc_onCanLoadWithoutGeneration(CallbackInfoReturnable<Boolean> cir) {
         if (cc_cubePos == null) {
