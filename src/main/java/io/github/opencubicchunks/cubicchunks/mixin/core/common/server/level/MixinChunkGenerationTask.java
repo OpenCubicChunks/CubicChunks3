@@ -136,6 +136,7 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         GenerationChunkHolder generationchunkholder = this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ());
         ((GenerationChunkHolderAccess) generationchunkholder).cc_invokeRemoveTask(((ChunkGenerationTask) (Object) this));
         this.cache.forEach(this.chunkMap::releaseGeneration);
+        this.cc_cubeCache.forEach(this.chunkMap::releaseGeneration);
     }
 
     // TODO validate this ever returns actually returns true (aside from when targetStatus is EMPTY)
