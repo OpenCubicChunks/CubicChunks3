@@ -236,23 +236,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         // - this is a """temporary""" approach, that we may or may not actually fix later.
         Collections.swap(futures, middleCubeIndex, futures.size() / 2);
 
-        // FIXME reintroduce CloCollectorFuture if necessary
-//        // Vanilla gets futures for each individual ChunkHolder and uses Util.sequence to combine them;
-//        // we instead use CloCollectorFuture, and add a listener to each CloHolder that notifies the collector when that CloHolder has reached the desired stage.
-//        // This saves several gigabytes of CompletableFuture objects.
-//        var cloCollectorFuture = new CloCollectorFuture(cloHolders.size());
-//        // Lambda created outside the loop to avoid allocating it multiple times
-//        BiConsumer<ChunkResult<CloAccess>, Throwable> cloCollectorCallback = (either, error) -> cloCollectorFuture.add(either, error, false);
-//        for (int i = 0; i < cloHolders.size(); i++) {
-//            var holder = cloHolders.get(i);
-//            var expectedStatus = expectedStatuses.get(i);
-//            if (i == middleCubeIndex) {
-//                ((CloHolder) holder).cc_addCloStatusListener(expectedStatus, (either, error) -> cloCollectorFuture.add(either, error, true), (ChunkMap) (Object) this);
-//            } else {
-//                ((CloHolder) holder).cc_addCloStatusListener(expectedStatus, cloCollectorCallback, (ChunkMap) (Object) this);
-//            }
-//        }
-
         cir.setReturnValue(Util.sequence(futures).thenApply(resultList -> {
             List<CloAccess> outputList = new ArrayList<>(resultList.size());
 
