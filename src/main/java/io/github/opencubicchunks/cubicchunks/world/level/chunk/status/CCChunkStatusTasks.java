@@ -10,6 +10,7 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkInCubicContextSet;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStatusTasks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -20,9 +21,9 @@ import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.chunk.status.WorldGenContext;
 
 /**
- * Equivalent of {@link net.minecraft.world.level.chunk.status.ChunkStatusTasks} for chunks in cubic worlds.
+ * Equivalent of {@link ChunkStatusTasks} for chunks in cubic worlds.
  * <p/>
- * See also: TODO
+ * See also: {@link CubeStatusTasks} for cube generation tasks.
  */
 @Dasm(ChunkInCubicContextSet.class)
 public class CCChunkStatusTasks {

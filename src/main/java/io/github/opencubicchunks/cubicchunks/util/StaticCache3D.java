@@ -5,7 +5,11 @@ import java.util.function.Consumer;
 
 // TODO move to cc core? - sharing between versions is a bit awkward if vanilla changes it though
 // A lot of code duplication here but dasm would be awkward
-// FIXME tests
+// FIXME tests? - low priority since it gets hit plenty in integration tests
+
+/**
+ * 3D equivalent of vanilla's {@link net.minecraft.util.StaticCache2D}.
+ */
 public class StaticCache3D<T> {
     private final int minX;
     private final int minY;

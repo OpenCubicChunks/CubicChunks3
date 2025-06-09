@@ -42,6 +42,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * The vanilla {@link GenerationChunkHolder} class wraps completable futures for different statuses (load levels) of a single chunk and handles logic for scheduling generation of that chunk.
+ * This mixin adds cubic chunks equivalents for methods where necessary, to allow GenerationChunkHolder to dynamically wrap either a chunk or a cube (i.e. a CLO).
+ */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(GenerationChunkHolder.class)
 public abstract class MixinGenerationChunkHolder implements GenerationCloHolder {

@@ -23,6 +23,17 @@ import net.minecraft.world.level.chunk.status.ChunkStatusTask;
 import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.chunk.status.WorldGenContext;
 
+/**
+ * {@link ChunkStep} represents a single step in either chunk loading or chunk generation.
+ * This class represents a single step in cube loading or generation. It is identical to {@code ChunkStep}, but stores a {@link CubeStatusTask} instead of a {@link ChunkStatusTask}.
+ * @param targetStatus The status that this step corresponds to.
+ * @param directDependencies The dependencies of this individual step, by radius.
+ * Always includes the parent status at radius zero (except for EMPTY, which has no parent), and may have additional dependencies.
+ * @param accumulatedDependencies All dependencies needed to reach this step from unloaded, by radius.
+ * Effectively a combination of the directDependencies of this step and all previous steps.
+ * @param blockStateWriteRadius The radius of chunks that can receive blockstate writes. 0 if only the center chunk can; -1 if there are no blockstate writes. Always -1 for chunk loading.
+ * @param task The chunk loading or generation task for this step.
+ */
 @Dasm(ChunkToCubeSet.class)
 @TransformFromClass(sets = ChunkToCubeSet.class, value = @Ref(ChunkStep.class))
 public record CubeStep(

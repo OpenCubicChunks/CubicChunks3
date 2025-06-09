@@ -15,6 +15,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * When in a cubic level, we redirect to the corresponding methods on {@link CCChunkStatusTasks}.
+ */
 @Mixin(ChunkStatusTasks.class)
 public class MixinChunkStatusTasks {
     @Inject(method = "generateStructureStarts", at = @At("HEAD"), cancellable = true)

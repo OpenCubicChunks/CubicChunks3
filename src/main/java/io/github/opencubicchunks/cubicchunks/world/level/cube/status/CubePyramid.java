@@ -15,7 +15,11 @@ import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import net.minecraft.world.level.chunk.status.ChunkPyramid;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStep;
 
+/**
+ * {@link ChunkPyramid} represents a chain of {@link ChunkStep}s for either generating or loading a chunk. This class is the equivalent for cubes.
+ */
 @Dasm(GlobalSet.class)
 public record CubePyramid(ImmutableList<CubeStep> steps) {
     public CubeStep getStepTo(ChunkStatus status) {

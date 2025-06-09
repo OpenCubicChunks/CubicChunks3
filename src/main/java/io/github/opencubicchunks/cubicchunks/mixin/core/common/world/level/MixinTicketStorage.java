@@ -14,7 +14,6 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.TicketStorage;
 import org.spongepowered.asm.mixin.Mixin;
 
-// FIXME write unit tests
 @Dasm(ChunkToCloSet.class)
 @Mixin(TicketStorage.class)
 public class MixinTicketStorage implements CubicTicketStorage {

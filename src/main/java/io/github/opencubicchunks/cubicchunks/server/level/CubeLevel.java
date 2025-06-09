@@ -16,6 +16,9 @@ import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.Contract;
 
+/**
+ * Equivalent to {@link ChunkLevel} for cubes; has methods for determining {@link ChunkStatus}es in a radius around a fully loaded cube.
+ */
 @Dasm(GlobalSet.class)
 public class CubeLevel {
     private static final int FULL_CHUNK_LEVEL = 33;

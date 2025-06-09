@@ -45,6 +45,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * The vanilla {@link ChunkHolder} class extends {@link GenerationChunkHolder} to have methods for getting a fully loaded chunk, and handle saving dependencies and broadcasting updates to clients.
+ * This mixin adds cubic chunks equivalents for methods where necessary, to allow GenerationChunkHolder to dynamically wrap either a chunk or a cube (i.e. a CLO).
+ */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(ChunkHolder.class)
 public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implements CloHolder, CubeHolder {

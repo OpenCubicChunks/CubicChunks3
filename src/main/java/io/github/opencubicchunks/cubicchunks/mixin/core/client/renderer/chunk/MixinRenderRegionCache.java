@@ -9,14 +9,25 @@ import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCubeRegion;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicLevel;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.RenderChunkRegion;
 import net.minecraft.client.renderer.chunk.RenderRegionCache;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+/**
+ * The vanilla {@link RenderRegionCache} caches {@link LevelChunk}s and {@link RenderChunk}s while rebuilding {@link SectionRenderDispatcher.RenderSection}s
+ * and has a method for creating a {@link RenderChunkRegion} for a given {@link SectionPos}.
+ * <p/>
+ * We modify it by additionally caching {@link LevelCube}s and {@link RenderCube}s, and adding an equivalent method to create a {@link RenderCubeRegion} for a given {@link SectionPos}.
+ */
 @Mixin(RenderRegionCache.class)
 public abstract class MixinRenderRegionCache implements CubicRenderRegionCache {
     @Shadow private final Long2ObjectMap<RenderRegionCacheCubeInfo> chunkInfoCache = new Long2ObjectOpenHashMap<>();

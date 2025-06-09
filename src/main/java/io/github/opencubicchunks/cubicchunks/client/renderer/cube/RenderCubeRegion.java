@@ -3,13 +3,19 @@ package io.github.opencubicchunks.cubicchunks.client.renderer.cube;
 import javax.annotation.Nullable;
 
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunkRegion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FluidState;
 
+/**
+ * The vanilla {@link RenderChunkRegion} stores a 3x3 of {@link RenderChunk}s and is used to get data for rendering a single {@link LevelChunkSection} in the center of the 3x3.
+ * Similarly, {@code RenderCubeRegion} stores a 3x3x3 of {@link RenderCube}s and is used to get data for rendering a single {@link LevelChunkSection} in the center of the 3x3x3.
+ */
 public class RenderCubeRegion extends RenderChunkRegion {
     private final int minCubeX;
     private final int minCubeY;

@@ -13,6 +13,7 @@ import io.github.opencubicchunks.cc_core.api.CubicConstants;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
+import io.github.opencubicchunks.cubicchunks.world.level.chunk.status.CCChunkStatusTasks;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -21,7 +22,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.status.ChunkStatusTasks;
 import net.minecraft.world.level.chunk.status.WorldGenContext;
-
+/**
+ * Equivalent of {@link ChunkStatusTasks} for cube generation.
+ * <p/>
+ * See also: {@link CCChunkStatusTasks} for chunk generation tasks in cubic worlds.
+ */
 @Dasm(ChunkToCubeSet.class)
 public class CubeStatusTasks {
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkStatusTasks.class), value = @MethodSig("isLighted(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))

@@ -40,7 +40,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// FIXME this class desperately needs unit tests.
+/**
+ * {@link ChunkGenerationTask} handles loading a given chunk at a given {@link ChunkStatus}, including generation if required, and loading neighboring chunks as required.
+ * <p/>
+ * We modify it to support cube loading as well, loading both neighboring cubes and chunks as required, and preserving chunk-cube load order invariants
+ * (cube status never exceeds the status of any chunks intersecting it)
+ */
 @Dasm(GlobalSet.class)
 @Mixin(ChunkGenerationTask.class)
 public abstract class MixinChunkGenerationTask implements CloGenerationTask {
@@ -69,11 +74,15 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         return CloPos.chunk(pos);
     }
 
+    /**
+     * Factory method to create a {@code ChunkGenerationTask} for a cube.
+     */
     @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkGenerationTask.class), method = @MethodSig("create(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
     @Public private static ChunkGenerationTask cc_createCubeGenerationTask(GeneratingChunkMap chunkMap, ChunkStatus targetStatus, CubePos pos) {
         int cubeRadius = CubePyramid.CC_GENERATION_PYRAMID_CUBES.getStepTo(targetStatus).getAccumulatedRadiusOf(ChunkStatus.EMPTY);
         int cubeDiameter = cubeRadius * 2 + 1;
         int chunkDiameter = cubeDiameter * CubicConstants.DIAMETER_IN_SECTIONS;
+        // We directly use the StaticCache2D constructor, as the `create` factory method only allows for odd dimensions, and `chunkDiameter` is even (for cube sizes greater than 16)
         StaticCache2D<GenerationChunkHolder> staticcache2d = new StaticCache2D<>(
             Coords.cubeToSection(pos.getX() - cubeRadius, 0), Coords.cubeToSection(pos.getZ() - cubeRadius, 0), chunkDiameter, chunkDiameter, (x, z) -> chunkMap.acquireGeneration(ChunkPos.asLong(x, z))
         );
@@ -102,31 +111,41 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         }
     }
 
+    /**
+     * Cube equivalent to {@code scheduleNextLayer}.
+     * Loads chunks one status higher than cubes until chunks have reached the target status, as otherwise cubes could reach a status before their intersecting chunks do.
+     */
     private void cc_scheduleNextLayer() {
         ChunkStatus nextChunkStatus;
         ChunkStatus nextCubeStatus = null;
+        // First two branches of this `if` are equivalent to the vanilla method; we are loading chunks at EMPTY so cubes are not involved yet
         if (this.cc_scheduledChunkStatus == null) {
             nextChunkStatus = ChunkStatus.EMPTY;
         } else if (!this.needsGeneration && this.cc_scheduledChunkStatus == ChunkStatus.EMPTY && !this.canLoadWithoutGeneration()) {
             this.needsGeneration = true;
             nextChunkStatus = ChunkStatus.EMPTY;
         } else {
+            // All chunks have reached `cc_scheduledChunkStatus`, so cubes can now be scheduled at that status
             nextCubeStatus = this.cc_scheduledChunkStatus;
             if (nextCubeStatus.isOrAfter(this.targetStatus)) {
                 // If nextCubeStatus is at or after targetStatus, it means chunks have already reached targetStatus and we just need cubes
                 nextChunkStatus = null;
             } else {
+                // Simultaneously schedule chunks one status ahead of cubes
                 nextChunkStatus = ChunkStatus.getStatusList().get(this.cc_scheduledChunkStatus.getIndex() + 1);
             }
         }
 
         this.cc_scheduleLayer(nextChunkStatus, nextCubeStatus, this.needsGeneration);
         this.scheduledStatus = nextCubeStatus;
-        if (nextChunkStatus != null) {
+        if (nextChunkStatus != null) { // If nextChunkStatus is null, the scheduled chunk status did not change
             this.cc_scheduledChunkStatus = nextChunkStatus;
         }
     }
 
+    /**
+     * When loading a cube, get the center cube instead of chunk, and call {@link GeneratingChunkMap#releaseGeneration} for cubes as well
+     */
     @Inject(method = "releaseClaim", at = @At("HEAD"), cancellable = true)
     private void cc_onReleaseClaim(CallbackInfo ci) {
         if (cc_cubePos == null) {
@@ -139,6 +158,9 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         this.cc_cubeCache.forEach(this.chunkMap::releaseGeneration);
     }
 
+    /**
+     * When loading a cube, check cube dependencies as well when determining if generation is required
+     */
     // TODO validate this ever returns actually returns true (aside from when targetStatus is EMPTY)
     @Inject(method = "canLoadWithoutGeneration", at = @At("HEAD"), cancellable = true)
     private void cc_onCanLoadWithoutGeneration(CallbackInfoReturnable<Boolean> cir) {
@@ -193,6 +215,10 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         if (cc_cubePos != null) cir.setReturnValue(this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ()));
     }
 
+    /**
+     * Cubic equivalent of {@code scheduleLayer}; schedules both cubes and chunks at given statuses (Chunk status will be higher to preserve load order invariants)
+     */
+    // TODO this could be two methods I guess? does it matter?
     private void cc_scheduleLayer(@Nullable ChunkStatus chunkStatus, @Nullable ChunkStatus cubeStatus, boolean needsGeneration) {
         try (Zone zone = Profiler.get().zone("scheduleLayer")) {
             zone.addText(() -> String.format("Chunk: %s, Cube: %s", chunkStatus == null ? "null" : chunkStatus.getName(), cubeStatus == null ? "null" : cubeStatus.getName()));
