@@ -330,9 +330,7 @@ tasks.withType(Test).configureEach {
 
 test {
     minHeapSize = "512M"
-    // TODO IntegrationTestServerCubeCache.testAddCubicRegionTicket currently requires ~4GB of memory;
-    //      we should reduce maxHeapSize to a more reasonable value once chunkloading memory usage is further optimized
-    maxHeapSize = "6G"
+    maxHeapSize = "2048M"
 
 //    dependsOn(project.tasks.named("unzipTests"))
     useJUnitPlatform {
@@ -351,34 +349,36 @@ test {
     exclude "**/mixin*"
 }
 
-def longRunTest = tasks.register("longRunTest", Test) {
-    minHeapSize = "512M"
-    maxHeapSize = "2048M"
-    systemProperty("junit.jupiter.testclass.order.default", "org.junit.jupiter.api.ClassOrderer.OrderAnnotation")
-
-    useJUnitPlatform {
-        includeTags "longRunTest"
-    }
-
-    // Show test results.
-    testLogging {
-        events("started", "passed", "skipped", "failed")
-        showStandardStreams = true
-        exceptionFormat = TestExceptionFormat.FULL
-        minGranularity = 3
-    }
-
-    jvmArgs("-ea", "-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true", "-Dmixin.checks.interfaces=true")
-    exclude "**/mixin*"
-
-    group = "Verification"
-//    mustRunAfter project.tasks.named("unzipTests")
-    shouldRunAfter project.tasks.named("test")
-}
-
-tasks.named("check") {
-    dependsOn longRunTest
-}
+// TODO longRunTest is disabled for now because MDG doesn't support multiple test tasks
+//      we don't currently need it anyway, as all tests currently complete reasonably quickly.
+//def longRunTest = tasks.register("longRunTest", Test) {
+//    minHeapSize = "512M"
+//    maxHeapSize = "2048M"
+//    systemProperty("junit.jupiter.testclass.order.default", "org.junit.jupiter.api.ClassOrderer.OrderAnnotation")
+//
+//    useJUnitPlatform {
+//        includeTags "longRunTest"
+//    }
+//
+//    // Show test results.
+//    testLogging {
+//        events("started", "passed", "skipped", "failed")
+//        showStandardStreams = true
+//        exceptionFormat = TestExceptionFormat.FULL
+//        minGranularity = 3
+//    }
+//
+//    jvmArgs("-ea", "-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true", "-Dmixin.checks.interfaces=true")
+//    exclude "**/mixin*"
+//
+//    group = "Verification"
+////    mustRunAfter project.tasks.named("unzipTests")
+//    shouldRunAfter project.tasks.named("test")
+//}
+//
+//tasks.named("check") {
+//    dependsOn longRunTest
+//}
 
 publishing {
     publications {

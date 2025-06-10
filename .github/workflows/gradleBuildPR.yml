@@ -24,7 +24,7 @@ jobs:
           java-version: 17
 
       - name: Build with Gradle
-        run: ./gradlew build -x test -x longRunTest
+        run: ./gradlew build -x test
 
       - name: Tar post-build state
         run: tar -cvzpf /tmp/post-build.tar.gz .
@@ -39,15 +39,8 @@ jobs:
     uses: ./.github/workflows/testJob.yml
     with:
       name: 'test'
-      command: './gradlew check -x longRunTest'
-
-  call-longRunTest:
-    needs: build
-    uses: ./.github/workflows/testJob.yml
-    with:
-      name: 'longRunTest'
-      command: './gradlew check -x test'
+      command: './gradlew check'
 
   call-cleanup:
-    needs: [ call-test, call-longRunTest ]
+    needs: [ call-test ]
     uses: ./.github/workflows/cleanupJob.yml
