@@ -289,9 +289,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("saveChunksEagerly(Ljava/util/function/BooleanSupplier;)V"))
     private native void cc_saveClosEagerly(BooleanSupplier hasMoreTime);
 
-    // P4: scheduleUnload lambda we'll want to mirror the forge API for cubes
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"))
-    private native void cc_scheduleUnload(long chunkPos, ChunkHolder chunkHolder);
+    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkMap.class), method = @MethodSig("scheduleUnload(JLnet/minecraft/server/level/ChunkHolder;)V"))
+    private void cc_scheduleUnload(long chunkPos, ChunkHolder chunkHolder) {
+        // TODO (P2) save/load
+    }
 
     // dasm + mixin
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("scheduleChunkLoad(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;"))
@@ -304,7 +305,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
 
     @Dynamic @Redirect(method = "cc_dasm$cc_scheduleChunkLoad", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;prefetch(Lio/github/opencubicchunks/cc_core/world/level/CloPos;)Ljava/util/concurrent/CompletableFuture;"))
     private CompletableFuture<?> cc_onScheduleChunkLoad_poiManagerPreFetch(PoiManager instance, CloPos cloPos) {
-        // TODO (P2? P3?) PoiManager
+        // TODO (P2) save/load - PoiManager
         return CompletableFuture.completedFuture(null);
     }
 
