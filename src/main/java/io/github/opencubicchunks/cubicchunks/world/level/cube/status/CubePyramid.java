@@ -1,9 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.world.level.cube.status;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.UnaryOperator;
-
 import com.google.common.collect.ImmutableList;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
@@ -12,6 +8,7 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import net.minecraft.world.level.chunk.status.ChunkPyramid;
@@ -34,7 +31,7 @@ public record CubePyramid(ImmutableList<CubeStep> steps) {
 
     @TransformFromMethod(useRedirectSets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), value = @MethodSig("<clinit>()V"))
     static void initCubePyramids() {
-        throw new IllegalStateException("DASM failed to apply");
+        throw new DasmFailedToApply();
     }
 
     static {

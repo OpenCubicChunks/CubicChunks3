@@ -20,6 +20,7 @@ import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -464,7 +465,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         private boolean loggedInvalidBlockState;
 
         BoundTickingBlockEntity(T blockEntity, BlockEntityTicker<T> ticker) {
-            throw new IllegalStateException("DASM failed to apply");
+            throw new DasmFailedToApply();
         }
 
         @Override public native void tick();
@@ -488,7 +489,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
         private TickingBlockEntity ticker;
 
         RebindableTickingBlockEntityWrapper(TickingBlockEntity ticker) {
-            throw new IllegalStateException("DASM failed to apply");
+            throw new DasmFailedToApply();
         }
 
         native void rebind(TickingBlockEntity ticker);

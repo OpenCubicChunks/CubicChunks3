@@ -17,6 +17,7 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CubeLevel;
@@ -66,7 +67,7 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
 
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;)V"))
     public MixinGenerationChunkHolder() {
-        throw new IllegalStateException("dasm failed to apply");
+        throw new DasmFailedToApply();
     }
 
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("applyStep(Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/util/StaticCache2D;)Ljava/util/concurrent/CompletableFuture;"))

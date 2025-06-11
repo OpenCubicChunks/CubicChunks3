@@ -15,6 +15,7 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.EventConstructorDelegates;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
@@ -95,7 +96,7 @@ public interface ChunkToCloSet extends GlobalSet {
 
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(Level.class), @Ref(CloPos.class) }))
         static LevelClo create(Level level, ChunkPos pos) {
-            throw new IllegalStateException("this should never be called");
+            throw new DasmFailedToApply();
         }
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(Level.class),
             @Ref(ChunkPos.class),
@@ -116,11 +117,11 @@ public interface ChunkToCloSet extends GlobalSet {
                                @Nullable LevelChunkSection[] sections,
                                @Nullable LevelClo.PostLoadProcessor postLoad,
                                @Nullable BlendingData blendingData) {
-            throw new IllegalStateException("this should never be called");
+            throw new DasmFailedToApply();
         }
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ServerLevel.class), @Ref(ProtoChunk.class), @Ref(LevelChunk.PostLoadProcessor.class)  }))
         static LevelClo create(ServerLevel level, ProtoClo clo, @Nullable LevelClo.PostLoadProcessor postLoad) {
-            throw new IllegalStateException("this should never be called");
+            throw new DasmFailedToApply();
         }
     }
 
@@ -135,7 +136,7 @@ public interface ChunkToCloSet extends GlobalSet {
 
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelHeightAccessor.class), @Ref(Registry.class), @Ref(BlendingData.class) }))
         static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
-            throw new IllegalStateException("this should never be called");
+            throw new DasmFailedToApply();
         }
 
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = {
@@ -157,7 +158,7 @@ public interface ChunkToCloSet extends GlobalSet {
             Registry<Biome> biomeRegistry,
             @Nullable BlendingData blendingData
         ) {
-            throw new IllegalStateException("this should never be called");
+            throw new DasmFailedToApply();
         }
     }
 
@@ -165,7 +166,7 @@ public interface ChunkToCloSet extends GlobalSet {
     interface ImposterProtoChunk_to_ImposterProtoClo_redirects {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class)}))
         static ImposterProtoClo create(LevelClo wrapped, boolean allowWrites) {
-            throw new IllegalStateException("this should never be called");
+            throw new DasmFailedToApply();
         }
 
         @MethodRedirect(@MethodSig("getWrapped()Lnet/minecraft/world/level/chunk/LevelChunk;"))

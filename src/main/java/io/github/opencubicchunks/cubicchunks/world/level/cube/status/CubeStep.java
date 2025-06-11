@@ -13,6 +13,7 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
@@ -40,11 +41,11 @@ public record CubeStep(
     ChunkStatus targetStatus, ChunkDependencies directDependencies, ChunkDependencies accumulatedDependencies, int blockStateWriteRadius, CubeStatusTask task
 ) {
     public int getAccumulatedRadiusOf(ChunkStatus status) {
-        throw new IllegalStateException("dasm failed to apply");
+        throw new DasmFailedToApply();
     }
 
     public CompletableFuture<CubeAccess> apply(WorldGenContext worldGenContext, StaticCache3D<GenerationChunkHolder> cache, CubeAccess chunk) {
-        throw new IllegalStateException("dasm failed to apply");
+        throw new DasmFailedToApply();
     }
 
     @Dasm(ChunkToCubeSet.class)

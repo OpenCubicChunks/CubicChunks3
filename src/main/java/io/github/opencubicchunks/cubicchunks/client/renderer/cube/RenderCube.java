@@ -2,6 +2,7 @@ package io.github.opencubicchunks.cubicchunks.client.renderer.cube;
 
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -19,7 +20,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 public class RenderCube {
     // Methods copied by DASM
     public RenderCube(LevelCube wrapped) {
-        throw new IllegalStateException("DASM failed to apply");
+        throw new DasmFailedToApply();
     }
     public native BlockEntity getBlockEntity(BlockPos pos);
     // This method is modified with mixin

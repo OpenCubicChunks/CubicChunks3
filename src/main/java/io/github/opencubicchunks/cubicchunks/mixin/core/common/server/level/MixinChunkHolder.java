@@ -17,6 +17,7 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
+import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
@@ -63,7 +64,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
 
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V"))
     public MixinChunkHolder() {
-        throw new IllegalStateException("dasm failed to apply");
+        throw new DasmFailedToApply();
     }
 
     @Shadow @Nullable public abstract LevelChunk getTickingChunk();
