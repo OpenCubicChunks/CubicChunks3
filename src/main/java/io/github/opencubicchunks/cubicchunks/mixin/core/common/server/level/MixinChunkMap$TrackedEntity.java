@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class MixinChunkMap$TrackedEntity {
     @Shadow @Final Entity entity;
 
-    // dasm + mixin
+    //region [cc_updatePlayer dasm + mixin]
     @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
     public native void cc_updatePlayer(ServerPlayer player);
 
@@ -29,4 +29,5 @@ public abstract class MixinChunkMap$TrackedEntity {
         // FIXME entity clo position once implemented
         return false; //((CubicChunkMap) instance).cc_isChunkTracked(player, this.entity.chunkPosition().x, 0, this.entity.chunkPosition().z);
     }
+    //endregion
 }
