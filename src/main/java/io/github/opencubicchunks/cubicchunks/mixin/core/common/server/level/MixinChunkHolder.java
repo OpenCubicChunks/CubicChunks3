@@ -15,6 +15,7 @@ import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
+import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
@@ -29,6 +30,7 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.FullChunkStatus;
@@ -120,8 +122,24 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
 
     @Shadow public abstract void broadcastChanges(LevelChunk chunk);
 
+    // region [cc_broadcastCubeChanges dasm + mixin]
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_broadcastCubeChanges(LevelCube cube);
+    // TODO (P2) lighting - ClientboundLightUpdatePacket branch is currently never reached; once we have lighting it will have to be a CC packet, and this.broadcast will need to redirect to a CC method
+
+    @Dynamic @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionYFromSectionIndex(I)I"))
+    private int cc_onBroadcastCubeChanges_indexToSectionY(LevelHeightAccessor instance, int sectionIndex) {
+        // The vanilla method uses SectionPos.of(ChunkPos, sectionY), but we want SectionPos.of(CubePos, sectionIndex).
+        // The easiest way to accomplish this is to turn `getSectionYFromSectionIndex` into a no-op so that we get sectionIndex instead of sectionY.
+        // (We could do local captures, but it'd be more brittle)
+        return sectionIndex;
+    }
+
+    @Dynamic @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;of(Lio/github/opencubicchunks/cc_core/api/CubePos;I)Lnet/minecraft/core/SectionPos;"))
+    private SectionPos cc_onBroadcastCubeChanges_sectionPos(CubePos cubePos, int sectionIndex) {
+        return Coords.sectionPosByIndex(cubePos, sectionIndex);
+    }
+    // endregion
 
     @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public void cc_broadcastCloChanges(LevelClo clo) {

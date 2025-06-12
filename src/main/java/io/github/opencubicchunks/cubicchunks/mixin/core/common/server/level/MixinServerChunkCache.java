@@ -1,6 +1,7 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
@@ -104,6 +105,8 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     @Shadow @Nullable private NaturalSpawner.SpawnState lastSpawnState;
 
     @Shadow protected abstract void getFullChunk(long p_8371_, Consumer<LevelChunk> p_8372_);
+
+    @Shadow @Final private Set<ChunkHolder> chunkHoldersToBroadcast;
 
     @Inject(method = "<init>", at = @At("CTOR_HEAD"))
     private void cc_onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager, Executor dispatcher,
@@ -243,17 +246,18 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         // TODO (P2)
     }
 
-    // TODO just inject and do this in vanilla method?
-    // needs manual impl because needs to use cube rather than chunk
-    @Override
-    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("blockChanged(Lnet/minecraft/core/BlockPos;)V"))
-    public void cc_blockChanged(BlockPos pos) {
+    @Inject(method = "blockChanged", at = @At("HEAD"), cancellable = true)
+    public void cc_onBlockChanged(BlockPos pos, CallbackInfo ci) {
+        if (!this.cc_isCubic) {
+            return;
+        }
+        ci.cancel();
         int x = Coords.blockToCube(pos.getX());
         int y = Coords.blockToCube(pos.getY());
         int z = Coords.blockToCube(pos.getZ());
         ChunkHolder chunkholder = this.getVisibleChunkIfPresent(CloPos.cubeAsLong(x, y, z));
-        if (chunkholder != null) {
-            chunkholder.blockChanged(pos);
+        if (chunkholder != null && chunkholder.blockChanged(pos)) {
+            this.chunkHoldersToBroadcast.add(chunkholder);
         }
     }
 

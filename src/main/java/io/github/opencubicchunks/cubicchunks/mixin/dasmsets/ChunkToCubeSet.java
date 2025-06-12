@@ -1,5 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
@@ -36,6 +37,7 @@ import net.minecraft.server.level.ChunkGenerationTask;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.GeneratingChunkMap;
 import net.minecraft.server.level.GenerationChunkHolder;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -156,7 +158,10 @@ public interface ChunkToCubeSet extends GlobalSet {
     interface ChunkHolder$LevelChangeListener_to_CubeHolder$LevelChangeListener_redirects { }
 
     @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CubeHolder.PlayerProvider.class))
-    interface ChunkHolder$PlayerProvider_to_CubeHolder$PlayerProvider_redirects { }
+    interface ChunkHolder$PlayerProvider_to_CubeHolder$PlayerProvider_redirects {
+        @MethodRedirect(@MethodSig("getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"))
+        List<ServerPlayer> cc_getPlayers(CubePos pos, boolean boundaryOnly);
+    }
 
     @TypeRedirect(from = @Ref(GeneratingChunkMap.class), to = @Ref(GeneratingCubeMap.class))
     interface GeneratingChunkMap_to_GeneratingCubeMap_redirects {
@@ -175,6 +180,13 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
+
+    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    abstract class ChunkHolder_redirects {
+        // TODO dasm inheritance
+        @FieldRedirect(@FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
+        protected CubePos cc_cubePos;
+    }
 
     // Forge stuff
     // TODO move to a forge-specific sourceset

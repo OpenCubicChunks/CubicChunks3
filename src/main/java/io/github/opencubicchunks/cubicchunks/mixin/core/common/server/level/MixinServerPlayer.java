@@ -16,6 +16,7 @@ import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.entity.MixinEntity;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
+import io.github.opencubicchunks.cubicchunks.server.level.CCServerPlayer;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.server.level.ServerCubeCache;
 import net.minecraft.core.BlockPos;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Dasm(ChunkToCloSet.class)
 @Mixin(ServerPlayer.class)
-public abstract class MixinServerPlayer extends MixinEntity {
+public abstract class MixinServerPlayer extends MixinEntity implements CCServerPlayer {
     @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerPlayer.class), field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "chunkTrackingView"))
     private CloTrackingView cc_cloTrackingView = CloTrackingView.EMPTY;
 

@@ -39,9 +39,11 @@ import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.GlobalSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.SectionPosToCubeSet;
 import io.github.opencubicchunks.cubicchunks.network.CCClientboundSetCubeCacheCenterPacket;
+import io.github.opencubicchunks.cubicchunks.server.level.CCServerPlayer;
 import io.github.opencubicchunks.cubicchunks.server.level.CloGenerationTask;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
+import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
 import io.github.opencubicchunks.cubicchunks.server.level.GeneratingCubeMap;
 import io.github.opencubicchunks.cubicchunks.server.level.progress.CloProgressListener;
@@ -94,7 +96,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Dasm(ChunkToCloSet.class)
 @Mixin(ChunkMap.class)
-public abstract class MixinChunkMap extends MixinChunkStorage implements GeneratingCubeMap, CubicChunkMap {
+public abstract class MixinChunkMap extends MixinChunkStorage implements GeneratingCubeMap, CubicChunkMap, CubeHolder.PlayerProvider {
     @Shadow public abstract ReportedException debugFuturesAndCreateReportedException(IllegalStateException exception, String details);
 
     @Shadow protected abstract ChunkHolder getUpdatingChunkIfPresent(long aLong);
@@ -155,7 +157,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     // These methods are not copied due to taking 3 ints instead of 2
     @Override
     public boolean cc_isChunkTracked(ServerPlayer player, int x, int y, int z) {
-        return ((CloTrackingView) player.getChunkTrackingView()).cc_contains(x, y, z)
+        return ((CCServerPlayer) player).cc_getCloTrackingView().cc_contains(x, y, z)
             // TODO this requires PlayerChunkSender to accept Clo longs
             && !player.connection.chunkSender.isPending(CloPos.cubeAsLong(x, y, z));
     }
@@ -495,6 +497,11 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         return this.cc_isChunkTracked(player, pos.getX(), pos.getY(), pos.getZ());
     }
     //endregion
+
+    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkMap.class), method = @MethodSig("getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"))
+    @Override public List<ServerPlayer> cc_getPlayers(CubePos pos, boolean boundaryOnly) {
+        return cc_getPlayers(CloPos.cube(pos), boundaryOnly);
+    }
 
     // Replace `SectionPos.chunk()` with `SectionPos.cc_cube()` unconditionally here
     @AddTransformToSets(GlobalSet.class) @TransformFromMethod(value = @MethodSig("tick(Ljava/util/function/BooleanSupplier;)V"), useRedirectSets = { ChunkToCloSet.class, SectionPosToCubeSet.class })

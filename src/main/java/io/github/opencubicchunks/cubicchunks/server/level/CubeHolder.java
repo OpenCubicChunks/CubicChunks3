@@ -18,6 +18,6 @@ public interface CubeHolder {
         /**
          * Returns the players tracking the given cube.
          */
-        List<ServerPlayer> getPlayers(CubePos pos, boolean boundaryOnly);
+        List<ServerPlayer> cc_getPlayers(CubePos pos, boolean boundaryOnly);
     }
 }
