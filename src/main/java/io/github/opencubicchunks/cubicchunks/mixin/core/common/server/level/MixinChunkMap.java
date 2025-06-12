@@ -102,10 +102,6 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     @Shadow @Final ServerLevel level;
     @Shadow @Final private ChunkMap.DistanceManager distanceManager;
 
-    private static CompletableFuture<ChunkResult<CloAccess>> UNLOADED_CHUNK_FUTURE = CompletableFuture.completedFuture(
-        ChunkResult.error("Unloaded chunk")
-    );
-
     @Shadow @Final private static CompletableFuture<ChunkResult<List<CloAccess>>> UNLOADED_CHUNK_LIST_FUTURE;
     @Shadow @Final private static ChunkResult<List<CloAccess>> UNLOADED_CHUNK_LIST_RESULT;
 
@@ -113,9 +109,10 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         throw new IllegalStateException();
     }
 
+    // TODO this one being on GlobalSet is a bit jank
     @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "progressListener"))
     private CloProgressListener cc_progressListener;
-    @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkStatusUpdateListener.class), name = "chunkStatusListener"))
+    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkMap.class), field = @FieldSig(type = @Ref(ChunkStatusUpdateListener.class), name = "chunkStatusListener"))
     private CloStatusUpdateListener cc_cloStatusListener;
 
     // TODO once we can target non-return locations in constructors, do this when the vanilla field is set
@@ -259,12 +256,12 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
 
     //region [cc_updateCubeScheduling dasm + mixin]
     @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(useRedirectSets = ChunkToCubeSet.class, value = @MethodSig("updateChunkScheduling(JILnet/minecraft/server/level/ChunkHolder;I)Lnet/minecraft/server/level/ChunkHolder;"))
-    @Nullable public native ChunkHolder cc_updateCubeScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
+    @Nullable public native ChunkHolder cc_updateCubeScheduling(long cubePos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
 
     @Inject(method = "updateChunkScheduling", at = @At("HEAD"), cancellable = true)
-    private void cc_onUpdateChunkScheduling(long chunkPos, int newLevel, ChunkHolder holder, int oldLevel, CallbackInfoReturnable<ChunkHolder> cir) {
-        if (((CanBeCubic) level).cc_isCubic() && CloPos.isCube(chunkPos)) {
-            cir.setReturnValue(cc_updateCubeScheduling(chunkPos, newLevel, holder, oldLevel));
+    private void cc_onUpdateChunkScheduling(long cloPos, int newLevel, ChunkHolder holder, int oldLevel, CallbackInfoReturnable<ChunkHolder> cir) {
+        if (((CanBeCubic) level).cc_isCubic() && CloPos.isCube(cloPos)) {
+            cir.setReturnValue(cc_updateCubeScheduling(cloPos, newLevel, holder, oldLevel));
         }
     }
     //endregion

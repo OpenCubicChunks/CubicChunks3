@@ -40,6 +40,7 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
         if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic()) {
             return;
         }
+        // TODO (P2) lighting: also check the cubic equivalent of LevelLightEngine.lightOnInColumn here (see vanilla doesChunkExistAt method) - sections currently sometimes fail to render due to this missing check
         cir.setReturnValue(((CubicLevel) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_getCube(Coords.sectionToCube(SectionPos.x(sectionPosLong)), Coords.sectionToCube(SectionPos.y(sectionPosLong)), Coords.sectionToCube(SectionPos.z(sectionPosLong)), ChunkStatus.FULL, false) != null);
     }
 
@@ -54,7 +55,6 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     if (dx == 0 && dy == 0 && dz == 0) continue;
-                    // TODO this checks neighboring sections rather than neighboring cubes; not sure if we should be checking neighboring cubes instead?
                     if (!this.doesChunkExistAt(SectionPos.offset(this.sectionNode, dx, dy, dz))) {
                         cir.setReturnValue(false);
                         return;

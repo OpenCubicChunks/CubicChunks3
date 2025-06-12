@@ -185,7 +185,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
     @TransformFromMethod(value = @MethodSig("getTicksForSerialization(J)Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;"), owner = @Ref(LevelChunk.class))
-    @Override public native ChunkAccess.PackedTicks getTicksForSerialization(long todoNameThis);
+    @Override public native ChunkAccess.PackedTicks getTicksForSerialization(long gameTime);
 
     // TODO should this actually be dasm'd?
     @TransformFromMethod(value = @MethodSig("getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;"), owner = @Ref(LevelChunk.class))

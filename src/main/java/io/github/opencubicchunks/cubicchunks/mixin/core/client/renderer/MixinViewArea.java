@@ -36,7 +36,6 @@ public abstract class MixinViewArea {
         if (!((CanBeCubic) level).cc_isCubic()) return;
         ci.cancel();
         int i = renderDistanceChunks * 2 + 1;
-        i *= CubicConstants.DIAMETER_IN_SECTIONS; // TODO is this correct?
         this.sectionGridSizeX = i;
         this.sectionGridSizeY = i;
         this.sectionGridSizeZ = i;

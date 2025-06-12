@@ -27,23 +27,24 @@ import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
-import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -93,26 +94,22 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
         return (LevelClo) getChunkToSend();
     }
 
-    // TODO dasm + mixin?
     @Inject(method = "blockChanged", at = @At("HEAD"), cancellable = true)
     public void cc_onBlockChanged(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (cc_cubePos != null) {
-            LevelCube levelCube = this.cc_getTickingCube();
-            if (levelCube == null) {
-                cir.setReturnValue(false);
-            } else {
-                boolean alreadyHadChangedSections = this.hasChangedSections;
-                int sectionIndex = Coords.sectionToIndex(Coords.blockToSection(pos.getX()), Coords.blockToSection(pos.getY()), Coords.blockToSection(pos.getZ()));
-                if (this.changedBlocksPerSection[sectionIndex] == null) {
-                    this.hasChangedSections = true;
-                    this.changedBlocksPerSection[sectionIndex] = new ShortOpenHashSet();
-                }
-
-                this.changedBlocksPerSection[sectionIndex].add(SectionPos.sectionRelativePos(pos));
-                cir.setReturnValue(!alreadyHadChangedSections);
-            }
+            cir.setReturnValue(cc_blockChanged(pos));
         }
     }
+
+    // region [cc_blockChanged dasm + mixin]
+    @TransformFromMethod(@MethodSig("blockChanged(Lnet/minecraft/core/BlockPos;)Z"))
+    private native boolean cc_blockChanged(BlockPos pos);
+
+    @Dynamic @Redirect(method = "cc_dasm$cc_blockChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionIndex(I)I"))
+    private int cc_onBlockChanged_sectionIndex(LevelHeightAccessor instance, int y, BlockPos pos) {
+        return Coords.sectionToIndex(Coords.blockToSection(pos.getX()), Coords.blockToSection(pos.getY()), Coords.blockToSection(pos.getZ()));
+    }
+    // endregion
 
     @Inject(method = "sectionLightChanged", at = @At("HEAD"), cancellable = true)
     public void cc_onSectionLightChanged(LightLayer lightLayer, int sectionY, CallbackInfoReturnable<Boolean> cir) {
