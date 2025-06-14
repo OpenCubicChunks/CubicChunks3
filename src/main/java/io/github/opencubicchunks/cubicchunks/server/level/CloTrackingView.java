@@ -17,7 +17,7 @@ import net.minecraft.world.level.ChunkPos;
 
 @Dasm(ChunkToCloSet.class)
 public interface CloTrackingView extends ChunkTrackingView {
-    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "EMPTY"))
+    @AddFieldToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "EMPTY"))
     CloTrackingView EMPTY = new CloTrackingView() {
         @Override public boolean cc_contains(int cubeX, int cubeY, int cubeZ, boolean searchAllChunks) {
             return false;
@@ -36,12 +36,12 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
     };
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
     static CloTrackingView cc_of(CloPos center, int viewDistanceCubes) {
         return new CloTrackingView.Positioned(center, viewDistanceCubes);
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("difference(Lnet/minecraft/server/level/ChunkTrackingView;Lnet/minecraft/server/level/ChunkTrackingView;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("difference(Lnet/minecraft/server/level/ChunkTrackingView;Lnet/minecraft/server/level/ChunkTrackingView;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
     static void cc_difference(CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker) {
         if (!oldCloTrackingView.equals(newCloTrackingView)) {
             if (oldCloTrackingView instanceof Positioned oldPositioned
@@ -122,7 +122,7 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("contains(Lnet/minecraft/world/level/ChunkPos;)Z"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("contains(Lnet/minecraft/world/level/ChunkPos;)Z"))
     default boolean cc_contains(CloPos cloPos) {
         if (cloPos.isCube()) {
             return this.cc_contains(cloPos.getX(), cloPos.getY(), cloPos.getZ());
@@ -137,7 +137,7 @@ public interface CloTrackingView extends ChunkTrackingView {
 
     boolean cc_contains(int cubeX, int cubeY, int cubeZ, boolean searchAllChunks);
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.class), method = @MethodSig("forEach(Ljava/util/function/Consumer;)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("forEach(Ljava/util/function/Consumer;)V"))
     void cc_forEach(Consumer<CloPos> action);
 
     default boolean cc_isInViewDistance(int cubeX, int cubeY, int cubeZ) {
@@ -161,7 +161,7 @@ public interface CloTrackingView extends ChunkTrackingView {
     }
 
     @Dasm(ChunkToCloSet.class)
-    record Positioned(CloPos center, @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkTrackingView.Positioned.class), method = @MethodSig("viewDistance()I")) int viewDistanceCubes) implements CloTrackingView {
+    record Positioned(CloPos center, @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects.class, method = @MethodSig("viewDistance()I")) int viewDistanceCubes) implements CloTrackingView {
         int minX() {
             return this.center.getX() - this.viewDistanceCubes - 1;
         }

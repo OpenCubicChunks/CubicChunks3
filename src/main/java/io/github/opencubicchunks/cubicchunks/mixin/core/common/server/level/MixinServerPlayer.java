@@ -31,25 +31,25 @@ import org.spongepowered.asm.mixin.injection.At;
 @Dasm(ChunkToCloSet.class)
 @Mixin(ServerPlayer.class)
 public abstract class MixinServerPlayer extends MixinEntity implements CCServerPlayer {
-    @AddFieldToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerPlayer.class), field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "chunkTrackingView"))
+    @AddFieldToSets(containers = ChunkToCloSet.ServerPlayer_redirects.class, field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "chunkTrackingView"))
     private CloTrackingView cc_cloTrackingView = CloTrackingView.EMPTY;
 
     // TODO unnecessary once we have DASM redirect inheritance
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerPlayer.class), method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerPlayer_redirects.class, method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     public CubePos cc_cubePosition() {
         return super.cc_cubePosition();
     }
 
     // TODO unnecessary once we have DASM redirect inheritance
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerPlayer.class), method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(containers = ChunkToCloSet.ServerPlayer_redirects.class, method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     public CloPos cc_cubePositionAsClo() {
         return super.cc_cubePositionAsClo();
     }
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getChunkTrackingView()Lnet/minecraft/server/level/ChunkTrackingView;"))
+    @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class) @TransformFromMethod(@MethodSig("getChunkTrackingView()Lnet/minecraft/server/level/ChunkTrackingView;"))
     public native CloTrackingView cc_getCloTrackingView();
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("setChunkTrackingView(Lnet/minecraft/server/level/ChunkTrackingView;)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class) @TransformFromMethod(@MethodSig("setChunkTrackingView(Lnet/minecraft/server/level/ChunkTrackingView;)V"))
     public native void cc_setCloTrackingView(CloTrackingView chunkTrackingView);
 
     // TODO P3 :: findDimensionEntryPoint

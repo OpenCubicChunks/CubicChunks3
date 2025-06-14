@@ -52,10 +52,10 @@ public class MixinPlayerChunkSender {
 
     @Shadow @Final private LongSet pendingChunks;
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(value = @MethodSig("markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddTransformToSets(ChunkToCloSet.PlayerChunkSender_redirects.class) @TransformFromMethod(value = @MethodSig("markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_markCloPendingToSend(LevelClo clo);
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(PlayerChunkSender.class), method = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.PlayerChunkSender_redirects.class, method = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
     public void cc_dropClo(ServerPlayer player, CloPos cloPos) {
         if (!this.pendingChunks.remove(cloPos.toLong()) && player.isAlive()) {
             PacketDistributor.sendToPlayer(player, new CCClientboundForgetLevelCloPacket(cloPos));

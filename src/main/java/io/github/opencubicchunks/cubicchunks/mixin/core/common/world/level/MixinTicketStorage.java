@@ -19,22 +19,22 @@ import org.spongepowered.asm.mixin.Mixin;
 public class MixinTicketStorage implements CubicTicketStorage {
     // TODO (P2) codec nonsense for save/load
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.TicketStorage_redirects.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_addTicketWithRadius(TicketType ticketType, CloPos cloPos, int radius);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.TicketStorage_redirects.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_addTicket(Ticket ticket, CloPos cloPos);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.TicketStorage_redirects.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_removeTicketWithRadius(TicketType ticketType, CloPos cloPos, int radius);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("removeTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.TicketStorage_redirects.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("removeTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_removeTicket(Ticket ticket, CloPos cloPos);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
+    @AddTransformToSets(ChunkToCloSet.TicketStorage_redirects.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
     public native boolean cc_updateChunkForced(CloPos cloPos, boolean add);
 
     // TODO move to neoforge-specific mixin
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("shouldForceNaturalSpawning(Lnet/minecraft/world/level/ChunkPos;)Z"))
+    @AddTransformToSets(ChunkToCloSet.TicketStorage_redirects.class) @TransformFromMethod(owner = @Ref(TicketStorage.class), value = @MethodSig("shouldForceNaturalSpawning(Lnet/minecraft/world/level/ChunkPos;)Z"))
     public native boolean cc_shouldForceNaturalSpawning(CloPos cloPos);
 }

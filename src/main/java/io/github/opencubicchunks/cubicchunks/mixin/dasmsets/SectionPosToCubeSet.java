@@ -13,7 +13,7 @@ import net.minecraft.core.SectionPos;
  */
 @RedirectSet
 public interface SectionPosToCubeSet {
-    @IntraOwnerContainer(owner = @Ref(SectionPos.class))
+    @IntraOwnerContainer(@Ref(SectionPos.class))
     abstract class SectionPos_redirects {
         @MethodRedirect(@MethodSig("chunk()Lnet/minecraft/world/level/ChunkPos;"))
         public native CloPos cc_cube();

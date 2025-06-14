@@ -19,8 +19,10 @@ import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
 import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
+import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.CCCommonHooks;
 import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.EventConstructorDelegates;
 import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
+import io.github.opencubicchunks.cubicchunks.server.level.CubeLevel;
 import io.github.opencubicchunks.cubicchunks.server.level.GeneratingCubeMap;
 import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
@@ -30,16 +32,25 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.ProtoCube;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubePyramid;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStatusTask;
+import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStatusTasks;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStep;
 import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.SectionOcclusionGraph;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.server.level.ChunkGenerationTask;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkLevel;
+import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.GeneratingChunkMap;
 import net.minecraft.server.level.GenerationChunkHolder;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StaticCache2D;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
@@ -48,8 +59,10 @@ import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.status.ChunkPyramid;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStatusTask;
+import net.minecraft.world.level.chunk.status.ChunkStatusTasks;
 import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
@@ -172,7 +185,7 @@ public interface ChunkToCubeSet extends GlobalSet {
         ChunkGenerationTask cc_scheduleGenerationTask(ChunkStatus targetStatus, CubePos pos);
     }
 
-    @IntraOwnerContainer(owner = @Ref(ChunkGenerationTask.class))
+    @IntraOwnerContainer(@Ref(ChunkGenerationTask.class))
     abstract class ChunkGenerationTask_redirects {
         @FieldToMethodRedirect(@FieldSig(type = @Ref(GeneratingChunkMap.class), name = "chunkMap"))
         private native GeneratingCubeMap cc_getGeneratingCubeMap();
@@ -181,7 +194,7 @@ public interface ChunkToCubeSet extends GlobalSet {
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
 
-    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    @IntraOwnerContainer(@Ref(ChunkHolder.class))
     abstract class ChunkHolder_redirects {
         // TODO dasm inheritance
         @FieldRedirect(@FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
@@ -192,7 +205,7 @@ public interface ChunkToCubeSet extends GlobalSet {
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
     abstract class ChunkEvent$Load_to_Event_redirects { }
-    @InterOwnerContainer(owner = @Ref(ChunkEvent.Load.class), newOwner = @Ref(EventConstructorDelegates.class))
+    @InterOwnerContainer(from = @Ref(ChunkEvent.Load.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Load_delegateConstruction {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class) }))
         static native Event create_ChunkEvent$Load(LevelCube levelCube, boolean newChunk);
@@ -200,16 +213,68 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
     abstract class ChunkEvent$Unload_to_Event_redirects { }
-    @InterOwnerContainer(owner = @Ref(ChunkEvent.Unload.class), newOwner = @Ref(EventConstructorDelegates.class))
+    @InterOwnerContainer(from = @Ref(ChunkEvent.Unload.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Unload_delegateConstruction {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
         static native Event create_ChunkEvent$Unload(LevelCube levelCube);
     }
 
     // TODO dasm inheritance
-    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    @IntraOwnerContainer(@Ref(ChunkHolder.class))
     abstract class ChunkHolder_Forge_Jank_redirects {
         @FieldRedirect(@FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)))
         public LevelCube cc_currentlyLoadingCube;
+    }
+
+    @InterOwnerContainer(from = @Ref(ChunkLevel.class), to = @Ref(CubeLevel.class))
+    class ChunkLevel_to_CubeLevel_redirects {
+    }
+
+    @InterOwnerContainer(from = @Ref(ChunkStatusTasks.class), to = @Ref(CubeStatusTasks.class))
+    class ChunkStatusTasks_to_CubeStatusTasks_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
+    class GenerationChunkHolder_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkMap.class))
+    class ChunkMap_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerChunkCache.class))
+    class ServerChunkCache_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerLevel.class))
+    class ServerLevel_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerPlayer.class))
+    class ServerPlayer_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(Entity.class))
+    class Entity_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ClientChunkCache.class))
+    class ClientChunkCache_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(SectionOcclusionGraph.class))
+    class SectionOcclusionGraph_redirects {
+    }
+
+    @InterOwnerContainer(from = @Ref(CommonHooks.class), to = @Ref(CCCommonHooks.class))
+    class CommonHooks_to_CCCommonHooks_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(Level.class))
+    class Level_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(LevelRenderer.class))
+    class LevelRenderer_redirects {
     }
 }

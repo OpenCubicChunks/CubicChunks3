@@ -16,9 +16,9 @@ public class RenderRegionCacheCubeInfo {
         throw new DasmFailedToApply();
     }
 
-    @AddMethodToSets(owner = @Ref(string = "net.minecraft.client.renderer.chunk.RenderRegionCache$ChunkInfo"), sets = ChunkToCubeSet.class, method = @MethodSig("chunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.RenderRegionCache$ChunkInfo_to_RenderRegionCacheCubeInfo_redirects.class, method = @MethodSig("chunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     public native LevelCube cube();
 
-    @AddMethodToSets(owner = @Ref(string = "net.minecraft.client.renderer.chunk.RenderRegionCache$ChunkInfo"), sets = ChunkToCubeSet.class, method = @MethodSig("renderChunk()Lnet/minecraft/client/renderer/chunk/RenderChunk;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.RenderRegionCache$ChunkInfo_to_RenderRegionCacheCubeInfo_redirects.class, method = @MethodSig("renderChunk()Lnet/minecraft/client/renderer/chunk/RenderChunk;"))
     public native RenderCube renderCube();
 }

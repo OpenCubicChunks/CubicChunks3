@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Dasm(ChunkToCloSet.class)
 @Mixin(SimulationChunkTracker.class)
 public abstract class MixinSimulationChunkTracker extends MixinChunkTracker implements SimulationCloTracker {
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(SimulationChunkTracker.class), value = @MethodSig("getLevel(Lnet/minecraft/world/level/ChunkPos;)I"))
+    @AddTransformToSets(ChunkToCloSet.SimulationChunkTracker_redirects.class) @TransformFromMethod(owner = @Ref(SimulationChunkTracker.class), value = @MethodSig("getLevel(Lnet/minecraft/world/level/ChunkPos;)I"))
     public native int cc_getLevel(CloPos cloPos);
 
     @Inject(method = "setLevel", at = @At("HEAD"))

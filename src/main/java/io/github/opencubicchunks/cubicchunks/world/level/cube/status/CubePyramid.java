@@ -24,9 +24,9 @@ public record CubePyramid(ImmutableList<CubeStep> steps) {
         return this.steps.get(status.getIndex());
     }
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), field = @FieldSig(type = @Ref(ChunkPyramid.class), name = "GENERATION_PYRAMID"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkPyramid_to_CubePyramid_redirects.class, field = @FieldSig(type = @Ref(ChunkPyramid.class), name = "GENERATION_PYRAMID"))
     public static CubePyramid CC_GENERATION_PYRAMID_CUBES;
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), field = @FieldSig(type = @Ref(ChunkPyramid.class), name = "LOADING_PYRAMID"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkPyramid_to_CubePyramid_redirects.class, field = @FieldSig(type = @Ref(ChunkPyramid.class), name = "LOADING_PYRAMID"))
     public static CubePyramid CC_LOADING_PYRAMID_CUBES;
 
     @TransformFromMethod(useRedirectSets = ChunkToCubeSet.class, owner = @Ref(ChunkPyramid.class), value = @MethodSig("<clinit>()V"))

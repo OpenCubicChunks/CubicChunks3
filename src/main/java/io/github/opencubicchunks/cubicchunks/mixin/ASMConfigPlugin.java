@@ -20,19 +20,24 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import com.mojang.datafixers.util.Either;
 import io.github.notstirred.dasm.annotation.AnnotationParser;
 import io.github.notstirred.dasm.api.annotations.transform.ApplicationStage;
 import io.github.notstirred.dasm.api.provider.MappingsProvider;
 import io.github.notstirred.dasm.exception.DasmException;
+import io.github.notstirred.dasm.notify.Notification;
 import io.github.notstirred.dasm.transformer.Transformer;
 import io.github.notstirred.dasm.transformer.data.ClassTransform;
 import io.github.notstirred.dasm.transformer.data.MethodTransform;
 import io.github.notstirred.dasm.util.CachingClassProvider;
-import io.github.notstirred.dasm.util.ClassNodeProvider;
-import io.github.notstirred.dasm.util.Either;
+import io.github.notstirred.dasm.util.NotifyStack;
+import io.github.notstirred.dasm.util.Pair;
 import io.github.opencubicchunks.cc_core.annotation.Public;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
+import net.minecraft.Util;
 import net.neoforged.fml.loading.FMLEnvironment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -50,6 +55,8 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
     private final Map<String, Either<ClassTransform, Collection<MethodTransform>>> preApplyTargets = new HashMap<>();
     private final Map<String, Either<ClassTransform, Collection<MethodTransform>>> postApplyTargets = new HashMap<>();
 
+    private final Logger logger = LogManager.getLogger("dasm");
+
     public ASMConfigPlugin() {
         boolean developmentEnvironment = false;
         try {
@@ -59,7 +66,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         MappingsProvider mappings = MappingsProvider.IDENTITY;
 
         // TODO: breaks on fabric (remapped at runtime)
-        ClassNodeProvider classProvider = new CachingClassProvider(s -> {
+        var classProvider = new CachingClassProvider(s -> {
             try (var classStream = ASMConfigPlugin.class.getClassLoader().getResourceAsStream(s.replace(".", "/") + ".class")) {
                 return Optional.ofNullable(classStream.readAllBytes());
             } catch (IOException e) {
@@ -81,15 +88,14 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         try {
             ClassNode targetClass = MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
             ClassNode mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-            // rename the mixin class to get dasm to generate owners correctly
             mixinClass.name = targetClass.name;
 
             // PRE_APPLY
-            this.annotationParser.findRedirectSets(mixinClass);
-            var methodTransformsMixin = this.annotationParser.buildMethodTargets(mixinClass, "cc_dasm$");
-            this.annotationParser.findRedirectSets(targetClass);
-            var classTransform = this.annotationParser.buildClassTarget(targetClass);
-            var methodTransformsTarget = this.annotationParser.buildMethodTargets(targetClass, "cc_dasm$");
+            handleError(this.annotationParser.findDasmAnnotations(mixinClass));
+            var methodTransformsMixin = handleError(this.annotationParser.buildContext().buildMethodTargets(mixinClass, "cc_dasm$"));
+            handleError(this.annotationParser.findDasmAnnotations(targetClass));
+            var classTransform = handleError(this.annotationParser.buildContext().buildClassTarget(targetClass));
+            var methodTransformsTarget = handleError(this.annotationParser.buildContext().buildMethodTargets(targetClass, "cc_dasm$"));
 
             var methodTransforms = Stream.of(methodTransformsTarget, methodTransformsMixin)
                 .filter(Optional::isPresent).map(Optional::get)
@@ -116,7 +122,11 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     }
                 });
             }
-        } catch (ClassNotFoundException | IOException | DasmException e) {
+        } catch (DasmException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return true;
@@ -245,7 +255,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             return false;
         }
 
-        if (target.isLeft()) {
+        if (target.left().isPresent()) {
             this.transformer.transform(targetClass, target.left().get());
         } else {
             this.transformer.transform(targetClass, target.right().get());
@@ -261,5 +271,32 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         }
 
         return true;
+    }
+
+    private <T> T handleError(Pair<T, List<Notification>> result) {
+        handleError(result.second());
+        return result.first();
+    }
+
+    private void handleError(NotifyStack notifyStack) {
+        handleError(notifyStack.notifications());
+    }
+
+    private void handleError(List<Notification> notifications) {
+        for (var notification : notifications) {
+            switch (notification.kind) {
+                case INFO:
+                    logger.info(notification.message);
+                    break;
+                case WARNING:
+                    logger.warn(notification.message);
+                    break;
+                case ERROR:
+                    logger.error(notification.message);
+                    break;
+            }
+        }
+        if (notifications.stream().anyMatch(n -> n.kind == Notification.Kind.ERROR))
+            throw Util.pauseInIde(new RuntimeException("DASM Failure, please see log output"));
     }
 }

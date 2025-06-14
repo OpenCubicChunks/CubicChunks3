@@ -21,7 +21,7 @@ public abstract class MixinChunkMap$TrackedEntity {
     @Shadow @Final Entity entity;
 
     //region [cc_updatePlayer dasm + mixin]
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    @AddTransformToSets(ChunkToCloSet.ChunkMap$TrackedEntity_redirects.class) @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
     public native void cc_updatePlayer(ServerPlayer player);
 
     @Dynamic @Redirect(method = "cc_dasm$cc_updatePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))

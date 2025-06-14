@@ -76,16 +76,16 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     // Cube equivalents for cached chunks
     @Shadow @Final private static int CACHE_SIZE;
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), field = @FieldSig(type = @Ref(long[].class), name = "lastChunkPos"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, field = @FieldSig(type = @Ref(long[].class), name = "lastChunkPos"))
     private final long[] cc_lastCubePos = new long[CACHE_SIZE];
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), field = @FieldSig(type = @Ref(ChunkStatus[].class), name = "lastChunkStatus"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, field = @FieldSig(type = @Ref(ChunkStatus[].class), name = "lastChunkStatus"))
     private final ChunkStatus[] cc_lastCubeStatus = new ChunkStatus[CACHE_SIZE];
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), field = @FieldSig(type = @Ref(CloAccess[].class), name = "lastChunk"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, field = @FieldSig(type = @Ref(CloAccess[].class), name = "lastChunk"))
     private final CubeAccess[] cc_lastCube = new CubeAccess[CACHE_SIZE];
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), field = @FieldSig(type = @Ref(List.class), name = "spawningChunks"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, field = @FieldSig(type = @Ref(List.class), name = "spawningChunks"))
     private final List<LevelCube> cc_spawningCubes = new ObjectArrayList<>();
 
     @Shadow @Final public ServerLevel level;
@@ -117,7 +117,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("storeInCache(JLnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCubeSet.ServerChunkCache_redirects.class) @TransformFromMethod(@MethodSig("storeInCache(JLnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     private native void cc_storeInCache(long pChunkPos, CubeAccess pChunk, ChunkStatus pChunkStatus);
 
     @TransformFromMethod(@MethodSig("getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
@@ -216,10 +216,10 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(@MethodSig("tick(Ljava/util/function/BooleanSupplier;Z)V"))
+    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class) @TransformFromMethod(@MethodSig("tick(Ljava/util/function/BooleanSupplier;Z)V"))
     public native void cc_tick(BooleanSupplier hasTimeLeft, boolean tickChunks);
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("broadcastChangedChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V"))
+    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("broadcastChangedChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V"))
     private native void cc_broadcastChangedClos(ProfilerFiller profiler);
 
     @Inject(method = "broadcastChangedChunks", at = @At("HEAD"), cancellable = true)
@@ -230,7 +230,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddTransformToSets(GlobalSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V"))
+    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V"))
     private native void cc_tickClos(ProfilerFiller profiler, long timeInhabited);
 
     @Inject(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V", at = @At("HEAD"), cancellable = true)
@@ -241,7 +241,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("tickSpawningChunk(Lnet/minecraft/world/level/chunk/LevelChunk;JLjava/util/List;Lnet/minecraft/world/level/NaturalSpawner$SpawnState;)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.ServerChunkCache_redirects.class, method = @MethodSig("tickSpawningChunk(Lnet/minecraft/world/level/chunk/LevelChunk;JLjava/util/List;Lnet/minecraft/world/level/NaturalSpawner$SpawnState;)V"))
     private void cc_tickSpawningClo(LevelClo levelClo, long timeInhabited, List<MobCategory> spawnCategories, NaturalSpawner.SpawnState spawnState) {
         // TODO (P2)
     }
@@ -270,45 +270,45 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     @Override
-    @AddMethodToSets(sets = GlobalSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("onLightUpdate(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/SectionPos;)V"))
+    @AddMethodToSets(containers = GlobalSet.ServerChunkCache_redirects.class, method = @MethodSig("onLightUpdate(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/SectionPos;)V"))
     public void cc_onLightUpdate(LightLayer pType, SectionPos pPos) {
         // TODO (P2) lighting
     }
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_addTicket(Ticket ticket, CloPos cloPos);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_addTicketWithRadius(TicketType ticket, CloPos cloPos, int radius);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_removeTicketWithRadius(TicketType ticket, CloPos cloPos, int radius);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
     public native boolean cc_updateCloForced(CloPos pPos, boolean pAdd);
 
     // Cube-specific methods that delegate to the corresponding Clo methods
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, method = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     public void cc_addTicket(Ticket ticket, CubePos cubePos) {
         cc_addTicket(ticket, CloPos.cube(cubePos));
     }
 
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, method = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public void cc_addTicketWithRadius(TicketType ticket, CubePos cubePos, int radius) {
         cc_addTicketWithRadius(ticket, CloPos.cube(cubePos), radius);
     }
 
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, method = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public void cc_removeTicketWithRadius(TicketType ticket, CubePos cubePos, int radius) {
         cc_removeTicketWithRadius(ticket, CloPos.cube(cubePos), radius);
     }
 
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerChunkCache.class), method = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z\""))
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, method = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z\""))
     @Override public boolean cc_updateCubeForced(CubePos cubePos, boolean forced) {
         return cc_updateCloForced(CloPos.cube(cubePos), forced);
     }
 
     // TODO should probably be implemented properly, but is low priority (debug)
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("getChunkDebugData(Lnet/minecraft/world/level/ChunkPos;)Ljava/lang/String;"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(@MethodSig("getChunkDebugData(Lnet/minecraft/world/level/ChunkPos;)Ljava/lang/String;"))
     public native String cc_getChunkDebugData(CloPos pChunkPos);
 }

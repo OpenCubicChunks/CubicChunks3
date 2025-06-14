@@ -1,5 +1,6 @@
 .idea/*
 !.idea/codeStyles/
+!.idea/inspectionProfiles
 # eclipse
 bin
 *.launch

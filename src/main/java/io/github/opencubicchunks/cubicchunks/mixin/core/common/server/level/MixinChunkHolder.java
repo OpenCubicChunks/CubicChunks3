@@ -59,23 +59,23 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @Shadow private boolean hasChangedSections;
     @Shadow @Final private ShortSet[] changedBlocksPerSection;
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(type = @Ref(ChunkHolder.LevelChangeListener.class), name = "onLevelChange"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, field = @FieldSig(type = @Ref(ChunkHolder.LevelChangeListener.class), name = "onLevelChange"))
     private final LevelChangeListener cc_onLevelChange;
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkHolder.class), field = @FieldSig(type = @Ref(ChunkHolder.PlayerProvider.class), name = "playerProvider"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, field = @FieldSig(type = @Ref(ChunkHolder.PlayerProvider.class), name = "playerProvider"))
     private final PlayerProvider cc_playerProvider;
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V"))
     public MixinChunkHolder() {
         throw new DasmFailedToApply();
     }
 
     @Shadow @Nullable public abstract LevelChunk getTickingChunk();
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelCube cc_getTickingCube();
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public LevelClo cc_getTickingClo() {
         if (cc_cubePos != null) {
             return cc_getTickingCube();
@@ -85,10 +85,10 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
 
     @Shadow @Nullable public abstract LevelChunk getChunkToSend();
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelCube cc_getCubeToSend();
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddTransformToSets(ChunkToCloSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public LevelClo cc_getCloToSend() {
         if (cc_cubePos != null) {
             return cc_getCubeToSend();
@@ -123,7 +123,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @Shadow public abstract void broadcastChanges(LevelChunk chunk);
 
     // region [cc_broadcastCubeChanges dasm + mixin]
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_broadcastCubeChanges(LevelCube cube);
     // TODO (P2) lighting - ClientboundLightUpdatePacket branch is currently never reached; once we have lighting it will have to be a CC packet, and this.broadcast will need to redirect to a CC method
 
@@ -141,7 +141,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     }
     // endregion
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public void cc_broadcastCloChanges(LevelClo clo) {
         if (cc_cubePos != null) {
             cc_broadcastCubeChanges((LevelCube) clo);
@@ -170,22 +170,22 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     }
 
     // TODO dasm inheritance
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public CubeAccess cc_getLatestCube() {
         return super.cc_getLatestCube();
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public CloAccess cc_getLatestClo() {
         return super.cc_getLatestClo();
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getCloPos() {
         return super.cc_getCloPos();
     }
 
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkHolder.class), method = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, method = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public CubeAccess cc_getCubeIfPresent(ChunkStatus status) {
         return super.cc_getCubeIfPresent(status);
     }

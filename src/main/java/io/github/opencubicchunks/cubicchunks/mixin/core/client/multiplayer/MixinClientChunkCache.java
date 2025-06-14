@@ -44,7 +44,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Dasm(ChunkToCubeSet.class)
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements ClientCubeCache {
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ClientChunkCache.class),
+    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class,
         field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))
     volatile ClientCubeCache.Storage cc_cubeStorage;
 

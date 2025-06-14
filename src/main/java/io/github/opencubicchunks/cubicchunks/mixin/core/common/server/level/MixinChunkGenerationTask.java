@@ -55,12 +55,12 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     @Shadow @Final public ChunkStatus targetStatus;
     @Shadow private volatile boolean markedForCancellation;
     @Shadow @Final private StaticCache2D<GenerationChunkHolder> cache;
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkGenerationTask.class), field = @FieldSig(type = @Ref(ChunkPos.class), name = "pos"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkGenerationTask_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "pos"))
     private CubePos cc_cubePos;
     // scheduledChunkStatus must be one status higher than the scheduled status for cubes until the target status is reached, to ensure load order invariants are preserved
     // we use the vanilla field for cube status, since that is the status of the actual cube that is being generated
     @Nullable public ChunkStatus cc_scheduledChunkStatus;
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkGenerationTask.class), field = @FieldSig(type = @Ref(StaticCache2D.class), name = "cache"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkGenerationTask_redirects.class, field = @FieldSig(type = @Ref(StaticCache2D.class), name = "cache"))
     private StaticCache3D<GenerationChunkHolder> cc_cubeCache;
 
     private GeneratingCubeMap cc_getGeneratingCubeMap() {
@@ -77,7 +77,7 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     /**
      * Factory method to create a {@code ChunkGenerationTask} for a cube.
      */
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkGenerationTask.class), method = @MethodSig("create(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkGenerationTask_redirects.class, method = @MethodSig("create(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
     @Public private static ChunkGenerationTask cc_createCubeGenerationTask(GeneratingChunkMap chunkMap, ChunkStatus targetStatus, CubePos pos) {
         int cubeRadius = CubePyramid.CC_GENERATION_PYRAMID_CUBES.getStepTo(targetStatus).getAccumulatedRadiusOf(ChunkStatus.EMPTY);
         int cubeDiameter = cubeRadius * 2 + 1;
@@ -94,7 +94,7 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         return chunkGenerationTask;
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ChunkGenerationTask.class), method = @MethodSig("create(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkGenerationTask_redirects.class, method = @MethodSig("create(Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
     @Public private static ChunkGenerationTask cc_createCubeGenerationTask(GeneratingChunkMap chunkMap, ChunkStatus targetStatus, CloPos pos) {
         if (pos.isCube()) {
             return cc_createCubeGenerationTask(chunkMap, targetStatus, pos.cubePos());

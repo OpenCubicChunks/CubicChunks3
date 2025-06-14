@@ -122,7 +122,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         return true;
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(useRedirectSets = { ChunkToCubeSet.class }, value  = @MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
+    @AddTransformToSets(ChunkToCubeSet.Level_redirects.class) @TransformFromMethod(useRedirectSets = { ChunkToCubeSet.class }, value  = @MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
     public native void cc_markAndNotifyBlock(BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46608_);
 
     // getBlockState

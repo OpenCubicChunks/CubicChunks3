@@ -21,12 +21,12 @@ import org.spongepowered.asm.mixin.Mixin;
 @Dasm(ChunkToCloSet.class)
 @Mixin(StoringChunkProgressListener.class)
 public abstract class MixinStoringChunkProgressListener implements CloProgressListener {
-    @AddFieldToSets(sets = GlobalSet.class, owner = @Ref(StoringChunkProgressListener.class), field = @FieldSig(type = @Ref(ChunkPos.class), name = "spawnPos"))
+    @AddFieldToSets(containers = GlobalSet.StoringChunkProgressListener_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "spawnPos"))
     private CloPos cc_spawnPos;
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.StoringChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
     @Override public native void cc_updateSpawnPos(CloPos center);
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCloSet.StoringChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }

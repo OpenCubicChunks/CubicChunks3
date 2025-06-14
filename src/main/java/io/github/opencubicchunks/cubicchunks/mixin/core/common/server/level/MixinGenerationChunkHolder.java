@@ -54,10 +54,10 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     @Shadow @Final private AtomicReferenceArray<CompletableFuture<ChunkResult<ChunkAccess>>> futures;
     @Shadow @Final private static ChunkResult<ChunkAccess> NOT_DONE_YET;
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(GenerationChunkHolder.class), field = @FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
+    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_redirects.class, field = @FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
     protected CubePos cc_cubePos;
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(GenerationChunkHolder.class), method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(containers = ChunkToCloSet.GenerationChunkHolder_redirects.class, method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     @Override public CloPos cc_getCloPos() {
         if (cc_cubePos != null) {
             return CloPos.cube(cc_cubePos);
@@ -65,12 +65,12 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
         return CloPos.chunk(pos);
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;)V"))
     public MixinGenerationChunkHolder() {
         throw new DasmFailedToApply();
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("applyStep(Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/util/StaticCache2D;)Ljava/util/concurrent/CompletableFuture;"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("applyStep(Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/server/level/GeneratingChunkMap;Lnet/minecraft/util/StaticCache2D;)Ljava/util/concurrent/CompletableFuture;"))
     native CompletableFuture<ChunkResult<CubeAccess>> cc_applyCubeStep(CubeStep step, GeneratingChunkMap chunkMap, StaticCache3D<GenerationChunkHolder> cache);
 
     @WrapOperation(method = "updateHighestAllowedStatus", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkLevel;generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
@@ -81,7 +81,7 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
         return original.call(level);
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("replaceProtoChunk(Lnet/minecraft/world/level/chunk/ImposterProtoChunk;)V"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("replaceProtoChunk(Lnet/minecraft/world/level/chunk/ImposterProtoChunk;)V"))
     public native void cc_replaceProtoCube(ImposterProtoCube cube);
 
     @WrapOperation(method = "rescheduleChunkTask", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;scheduleGenerationTask(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
@@ -92,21 +92,21 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
         return original.call(instance, status, chunkPos);
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("completeFuture(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/ChunkAccess;)V"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("completeFuture(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/ChunkAccess;)V"))
     private native void cc_completeFuture(ChunkStatus targetStatus, CubeAccess cubeAccess);
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getChunkIfPresentUnchecked(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getChunkIfPresentUnchecked(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public native CubeAccess cc_getCubeIfPresentUnchecked(ChunkStatus status);
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public native CubeAccess cc_getCubeIfPresent(ChunkStatus status);
 
     @Shadow @Nullable public abstract ChunkAccess getLatestChunk();
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public native CubeAccess cc_getLatestCube();
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(GenerationChunkHolder.class), method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
+    @AddMethodToSets(containers = ChunkToCloSet.GenerationChunkHolder_redirects.class, method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Nullable public CloAccess cc_getLatestClo() {
         if (cc_cubePos != null) {
             return cc_getLatestCube();
@@ -123,7 +123,7 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
         }
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
     public native CubePos cc_getCubePos();
 
     // TODO getLatestStatus - only used for vanilla debug code

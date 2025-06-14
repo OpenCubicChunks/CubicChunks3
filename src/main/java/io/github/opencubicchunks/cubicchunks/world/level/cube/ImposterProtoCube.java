@@ -22,7 +22,7 @@ public class ImposterProtoCube extends ProtoCube implements ImposterProtoClo {
     }
 
     // Method is implemented in MixinImposterProtoCube instead, since DASM clears everything in this class.
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ImposterProtoChunk.class), method = @MethodSig("Lnet/minecraft/world/level/chunk/ImposterProtoChunk;getWrapped()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ImposterProtoChunk_to_ImposterProtoCube_redirects.class, method = @MethodSig("Lnet/minecraft/world/level/chunk/ImposterProtoChunk;getWrapped()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Override public LevelClo cc_getWrappedClo() {
         throw new DasmFailedToApply();
     }

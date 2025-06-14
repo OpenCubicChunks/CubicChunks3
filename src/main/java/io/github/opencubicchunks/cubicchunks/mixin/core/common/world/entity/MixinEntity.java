@@ -44,13 +44,13 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     @Shadow public abstract AABB getBoundingBox();
     @Shadow public abstract int getId();
 
-    @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(Entity.class), field = @FieldSig(type = @Ref(ChunkPos.class), name = "chunkPosition"))
+    @AddFieldToSets(containers = ChunkToCubeSet.Entity_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "chunkPosition"))
     private CubePos cc_cubePosition = CubePos.of(0, 0, 0);
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddTransformToSets(ChunkToCubeSet.Entity_redirects.class) @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     public native CubePos cc_cubePosition();
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(Entity.class), method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(containers = ChunkToCloSet.Entity_redirects.class, method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     public CloPos cc_cubePositionAsClo() {
         return CloPos.cube(cc_cubePosition());
     }

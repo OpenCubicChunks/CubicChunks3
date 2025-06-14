@@ -16,6 +16,8 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
+import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.CCCommonHooks;
+import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.CCEventHooks;
 import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.EventConstructorDelegates;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
@@ -24,13 +26,26 @@ import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.ProtoClo;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ChunkGenerationTask;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkTaskDispatcher;
+import net.minecraft.server.level.ChunkTaskPriorityQueue;
 import net.minecraft.server.level.ChunkTrackingView;
 import net.minecraft.server.level.GenerationChunkHolder;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.SimulationChunkTracker;
+import net.minecraft.server.level.progress.LoggerChunkProgressListener;
+import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
+import net.minecraft.server.level.progress.StoringChunkProgressListener;
+import net.minecraft.server.network.PlayerChunkSender;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -40,11 +55,14 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
 import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
@@ -186,7 +204,7 @@ public interface ChunkToCloSet extends GlobalSet {
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
     abstract class ChunkEvent$Load_to_Event_redirects { }
-    @InterOwnerContainer(owner = @Ref(ChunkEvent.Load.class), newOwner = @Ref(EventConstructorDelegates.class))
+    @InterOwnerContainer(from = @Ref(ChunkEvent.Load.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Load_delegateConstruction {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class) }))
         static native Event create_ChunkEvent$Load(LevelCube levelCube, boolean newChunk);
@@ -194,21 +212,102 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
     abstract class ChunkEvent$Unload_to_Event_redirects { }
-    @InterOwnerContainer(owner = @Ref(ChunkEvent.Unload.class), newOwner = @Ref(EventConstructorDelegates.class))
+    @InterOwnerContainer(from = @Ref(ChunkEvent.Unload.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Unload_delegateConstruction {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
         static native Event create_ChunkEvent$Unload(LevelCube levelCube);
     }
 
-    @IntraOwnerContainer(owner = @Ref(GenerationChunkHolder.class))
+    @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
     abstract class GenerationChunkHolder_Forge_Jank_redirects {
         @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
         public native LevelClo cc_getCurrentlyLoading();
     }
+
+    @IntraOwnerContainer(@Ref(ChunkHolder.class))
+    class ChunkHolder_redirects {
+    }
+
     // TODO dasm inheritance
-    @IntraOwnerContainer(owner = @Ref(ChunkHolder.class))
+    @IntraOwnerContainer(@Ref(ChunkHolder.class))
     abstract class ChunkHolder_Forge_Jank_redirects {
         @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
         public native LevelClo cc_getCurrentlyLoading();
+    }
+
+    @IntraOwnerContainer(@Ref(ProcessorChunkProgressListener.class))
+    class ProcessorChunkProgressListener_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkGenerationTask.class))
+    class ChunkGenerationTask_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
+    class GenerationChunkHolder_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkMap.class))
+    class ChunkMap_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkMap.TrackedEntity.class))
+    class ChunkMap$TrackedEntity_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkStorage.class))
+    class ChunkStorage_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerChunkCache.class))
+    class ServerChunkCache_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerLevel.class))
+    class ServerLevel_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerPlayer.class))
+    class ServerPlayer_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(Entity.class))
+    class Entity_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(PlayerChunkSender.class))
+    class PlayerChunkSender_redirects {
+    }
+
+    @InterOwnerContainer(from = @Ref(EventHooks.class), to = @Ref(CCEventHooks.class))
+    class EventHooks_to_CCEventHooks_redirects {
+    }
+
+    @InterOwnerContainer(from = @Ref(CommonHooks.class), to = @Ref(CCCommonHooks.class))
+    class CommonHooks_to_CCCommonHooks_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkTaskDispatcher.class))
+    class ChunkTaskDispatcher_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkTaskPriorityQueue.class))
+    class ChunkTaskPriorityQueue_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(SimulationChunkTracker.class))
+    class SimulationChunkTracker_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(LoggerChunkProgressListener.class))
+    class LoggerChunkProgressListener_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(StoringChunkProgressListener.class))
+    class StoringChunkProgressListener_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(TicketStorage.class))
+    class TicketStorage_redirects {
     }
 }

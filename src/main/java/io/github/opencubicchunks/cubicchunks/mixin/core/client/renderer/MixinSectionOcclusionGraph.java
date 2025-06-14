@@ -43,10 +43,10 @@ public abstract class MixinSectionOcclusionGraph {
         cc_isCubic = viewArea != null && ((CanBeCubic) viewArea.getLevelHeightAccessor()).cc_isCubic();
     }
 
-    @AddTransformToSets(ChunkToCubeSet.class) @TransformFromMethod(@MethodSig("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCubeSet.SectionOcclusionGraph_redirects.class) @TransformFromMethod(@MethodSig("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_onCubeReadyToRender(CubePos cubePos);
 
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(SectionOcclusionGraph.class), method = @MethodSig("addNeighbors(Lnet/minecraft/client/renderer/SectionOcclusionGraph$GraphEvents;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddMethodToSets(containers = ChunkToCubeSet.SectionOcclusionGraph_redirects.class, method = @MethodSig("addNeighbors(Lnet/minecraft/client/renderer/SectionOcclusionGraph$GraphEvents;Lnet/minecraft/world/level/ChunkPos;)V"))
     private void cc_addNeighbors(SectionOcclusionGraph.GraphEvents graphEvents, CubePos cubePos) {
         var access = ((SectionOcclusionGraph$GraphEventsAccess) (Object) graphEvents);
         int cubeX = cubePos.getX();

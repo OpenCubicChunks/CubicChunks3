@@ -21,10 +21,12 @@ import io.github.opencubicchunks.cubicchunks.world.level.entity.CloStatusUpdateL
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ChunkTrackingView;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
+import net.minecraft.server.level.progress.StoringChunkProgressListener;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
@@ -37,7 +39,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
  */
 @RedirectSet
 public interface GlobalSet extends ForgeSet {
-    @IntraOwnerContainer(owner = @Ref(ChunkStatus.class))
+    @IntraOwnerContainer(@Ref(ChunkStatus.class))
     abstract class ChunkStatus_redirects {
         @MethodRedirect(@MethodSig("generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"))
         public abstract CompletableFuture<ChunkResult<CloAccess>> cc_generate(
@@ -68,4 +70,16 @@ public interface GlobalSet extends ForgeSet {
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
     abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects { }
+
+    @IntraOwnerContainer(@Ref(StoringChunkProgressListener.class))
+    class StoringChunkProgressListener_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ChunkMap.class))
+    class ChunkMap_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerChunkCache.class))
+    class ServerChunkCache_redirects {
+    }
 }

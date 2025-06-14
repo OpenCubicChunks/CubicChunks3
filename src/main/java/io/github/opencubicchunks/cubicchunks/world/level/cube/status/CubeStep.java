@@ -51,11 +51,11 @@ public record CubeStep(
     @Dasm(ChunkToCubeSet.class)
     public static class Builder {
         private final ChunkStatus status;
-        @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkStep.Builder.class), field = @FieldSig(type = @Ref(CubeStep.class), name = "parent"))
+        @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(CubeStep.class), name = "parent"))
         @Nullable private final CubeStep parent;
         private ChunkStatus[] directDependenciesByRadius;
         private int blockStateWriteRadius = -1;
-        @AddFieldToSets(sets = ChunkToCubeSet.class, owner = @Ref(ChunkStep.Builder.class), field = @FieldSig(type = @Ref(ChunkStatusTask.class), name = "task"))
+        @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(ChunkStatusTask.class), name = "task"))
         private CubeStatusTask task = (worldGenContext, step, cache, cube) -> CompletableFuture.completedFuture(cube);
 
         // TODO these should be dasm-copied but for some reason it didn't work when I tried

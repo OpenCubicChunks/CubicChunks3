@@ -55,7 +55,7 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         return ((ServerCubeCache) this.chunkSource);
     }
 
-    @AddTransformToSets(ChunkToCloSet.class) @TransformFromMethod(@MethodSig("startTickingChunk(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerLevel_redirects.class) @TransformFromMethod(@MethodSig("startTickingChunk(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_startTickingClo(LevelClo chunk);
 
     @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
@@ -76,7 +76,7 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         }
     }
 
-    @AddMethodToSets(sets = ChunkToCloSet.class, owner = @Ref(ServerLevel.class), method = @MethodSig("tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.ServerLevel_redirects.class, method = @MethodSig("tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V"))
     public void cc_tickClo(LevelClo levelClo, int randomTickSpeed) {
         if (levelClo instanceof LevelCube levelCube) {
             cc_tickCube(levelCube, randomTickSpeed);
@@ -85,7 +85,7 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         }
     }
 
-    @AddMethodToSets(sets = ChunkToCubeSet.class, owner = @Ref(ServerLevel.class), method = @MethodSig("tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V"))
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerLevel_redirects.class, method = @MethodSig("tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V"))
     public void cc_tickCube(LevelCube levelCube, int randomTickSpeed) {
         // TODO (P2) cube ticking
     }
