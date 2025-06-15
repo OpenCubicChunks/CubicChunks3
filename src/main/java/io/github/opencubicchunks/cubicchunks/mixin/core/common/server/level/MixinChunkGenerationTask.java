@@ -165,6 +165,7 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     /**
      * When loading a cube, check cube dependencies as well when determining if generation is required
      */
+    @SuppressWarnings("checkstyle:CyclomaticComplexity") // <-- copies structure of vanilla method
     @Inject(method = "canLoadWithoutGeneration", at = @At("HEAD"), cancellable = true)
     private void cc_onCanLoadWithoutGeneration(CallbackInfoReturnable<Boolean> cir) {
         if (cc_cubePos == null) {
@@ -216,15 +217,16 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     @Inject(method = "getCenter", at = @At("HEAD"), cancellable = true)
     private void cc_onGetCenter(CallbackInfoReturnable<GenerationChunkHolder> cir) {
-        if (cc_cubePos != null)
+        if (cc_cubePos != null) {
             cir.setReturnValue(this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ()));
+        }
     }
 
     /**
      * Cubic equivalent of {@code scheduleLayer}; schedules both cubes and chunks at given statuses (Chunk status will be higher to preserve load
      * order invariants)
      */
-    // TODO this could be two methods I guess? does it matter?
+    @SuppressWarnings("checkstyle:CyclomaticComplexity") // <-- TODO this could be two methods
     private void cc_scheduleLayer(@Nullable ChunkStatus chunkStatus, @Nullable ChunkStatus cubeStatus, boolean needsGeneration) {
         try (Zone zone = Profiler.get().zone("scheduleLayer")) {
             zone.addText(() -> String.format("Chunk: %s, Cube: %s", chunkStatus == null ? "null" : chunkStatus.getName(),
@@ -264,8 +266,9 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     @Inject(method = "scheduleLayer", at = @At("HEAD"))
     private void cc_onScheduleLayer(ChunkStatus status, boolean needsGeneration, CallbackInfo ci) {
-        if (cc_cubePos == null)
+        if (cc_cubePos == null) {
             return;
+        }
         throw new IllegalStateException("shouldn't call vanilla scheduleLayer for cube generation task");
     }
 

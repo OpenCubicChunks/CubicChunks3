@@ -46,10 +46,11 @@ public class TestCubicChunkTracker extends BaseTest {
 
         @Override protected void setLevel(long pos, int level) {
             ((ChunkTrackerTestAccess) this).invoke_cc_onSetLevel(pos, level);
-            if (level >= maxLevel)
+            if (level >= maxLevel) {
                 chunks.remove(pos);
-            else
+            } else {
                 chunks.put(pos, (byte) level);
+            }
         }
 
         public void runAllUpdates() {

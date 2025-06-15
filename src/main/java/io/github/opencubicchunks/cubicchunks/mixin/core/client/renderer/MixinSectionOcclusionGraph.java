@@ -54,8 +54,9 @@ public abstract class MixinSectionOcclusionGraph {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 for (int dy = -1; dy <= 1; dy++) {
-                    if (dx == 0 && dy == 0 && dz == 0)
+                    if (dx == 0 && dy == 0 && dz == 0) {
                         continue;
+                    }
                     access.cc_chunksWhichReceivedNeighbors().add(CubePos.asLong(cubeX + dx, cubeY + dy, cubeZ + dz));
                 }
             }
@@ -75,15 +76,17 @@ public abstract class MixinSectionOcclusionGraph {
 
     @WrapOperation(method = "runUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;sectionToChunk(J)J"))
     private long cc_onRunUpdates_sectionToChunk(long sectionPosLong, Operation<Long> original) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return original.call(sectionPosLong);
+        }
         return CubePos.asLong(SectionPos.x(sectionPosLong), SectionPos.y(sectionPosLong), SectionPos.z(sectionPosLong));
     }
 
     @Inject(method = "isInViewDistance", at = @At("HEAD"), cancellable = true)
     private void cc_onIsInViewDistance(long originSectionPosLong, long sectionPosLong, CallbackInfoReturnable<Boolean> cir) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return;
+        }
         int originCubeX = Coords.blockToCube(SectionPos.x(originSectionPosLong));
         int originCubeY = Coords.blockToCube(SectionPos.y(originSectionPosLong));
         int originCubeZ = Coords.blockToCube(SectionPos.z(originSectionPosLong));
@@ -99,8 +102,9 @@ public abstract class MixinSectionOcclusionGraph {
             long sectionPosLong, SectionRenderDispatcher.RenderSection section, Direction direction,
             CallbackInfoReturnable<SectionRenderDispatcher.RenderSection> cir
     ) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return;
+        }
         // Same as vanilla logic but we don't manually check Y coordinates since that's handled by isInViewDistance now
         long sectionPosLong2 = section.getNeighborSectionNode(direction);
         if (!this.isInViewDistance(sectionPosLong, sectionPosLong2)) {

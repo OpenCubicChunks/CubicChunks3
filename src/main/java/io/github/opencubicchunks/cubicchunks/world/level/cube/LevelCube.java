@@ -185,15 +185,16 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @Override public native FluidState getFluidState(int x, int y, int z);
 
     // TODO might be dasm-able eventually, if we get more powerful mixin tools
+    @SuppressWarnings({ "checkstyle:CyclomaticComplexity", "checkstyle:NPathComplexity" }) // <-- copies structure of vanilla method
     @Nullable @Override public BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
         var chunkSection = this.getSection(Coords.blockToIndex(pos));
         boolean wasOnlyAir = chunkSection.hasOnlyAir();
         if (wasOnlyAir && state.isAir()) {
             return null;
         } else {
-            int sectionLocalX = pos.getX() & 15;
-            int sectionLocalY = pos.getY() & 15;
-            int sectionLocalZ = pos.getZ() & 15;
+            int sectionLocalX = pos.getX() & SectionPos.SECTION_MASK;
+            int sectionLocalY = pos.getY() & SectionPos.SECTION_MASK;
+            int sectionLocalZ = pos.getZ() & SectionPos.SECTION_MASK;
             var previousState = chunkSection.setBlockState(sectionLocalX, sectionLocalY, sectionLocalZ, state);
             if (previousState == state) {
                 return null;
@@ -212,8 +213,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
                 }
 
                 boolean flag4 = !previousState.is(block);
-                boolean flag2 = (flags & 64) != 0;
-                boolean flag3 = (flags & 256) == 0;
+                boolean flag2 = (flags & Block.UPDATE_MOVE_BY_PISTON) != 0;
+                boolean flag3 = (flags & Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS) == 0;
                 if (flag4 && previousState.hasBlockEntity()) {
                     if (!this.level.isClientSide && flag3) {
                         BlockEntity blockentity = this.level.getBlockEntity(pos);
@@ -232,7 +233,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
                 if (!chunkSection.getBlockState(sectionLocalX, sectionLocalY, sectionLocalZ).is(block)) {
                     return null;
                 } else {
-                    if (!this.level.isClientSide && !this.level.captureBlockSnapshots && (flags & 512) == 0) {
+                    if (!this.level.isClientSide && !this.level.captureBlockSnapshots && (flags & Block.UPDATE_SKIP_ON_PLACE) == 0) {
                         state.onPlace(this.level, pos, previousState, flag2);
                     }
 
@@ -299,8 +300,9 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("removeGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"), owner = @Ref(LevelChunk.class))
     private native <T extends BlockEntity> void removeGameEventListener(T blockEntity, ServerLevel level);
 
+    // TODO sectionY is definitely wrong here
     @TransformFromMethod(value = @MethodSig("removeGameEventListenerRegistry(I)V"), owner = @Ref(LevelChunk.class))
-    private native void removeGameEventListenerRegistry(int p_283355_);
+    private native void removeGameEventListenerRegistry(int sectionY);
 
     @TransformFromMethod(value = @MethodSig("removeBlockEntityTicker(Lnet/minecraft/core/BlockPos;)V"), owner = @Ref(LevelChunk.class))
     private native void removeBlockEntityTicker(BlockPos pos);

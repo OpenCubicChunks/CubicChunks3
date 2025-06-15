@@ -313,6 +313,10 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFromMethod(value = @MethodSig("getMinY()I"), owner = @Ref(ChunkAccess.class))
     @Override public native int getMinY();
 
+    // these are two semantically different methods that happen to share a name;
+    // one is for accessing heightmaps, and the other for getting height of the world.
+    // we match the method ordering of the vanilla ChunkAccess class, which doesn't group them.
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     @TransformFromMethod(value = @MethodSig("getHeight()I"), owner = @Ref(ChunkAccess.class))
     @Override public native int getHeight();
 

@@ -57,8 +57,9 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
      */
     @WrapWithCondition(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/TicketStorage;addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     private boolean cc_replaceTicketTypeOnAddPlayer(TicketStorage instance, Ticket ticket, ChunkPos chunkPos, SectionPos sectionPos) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return true;
+        }
         CloPos cloPos = CloPos.section(sectionPos);
         ((CubicTicketStorage) instance).cc_addTicket(ticket, cloPos);
         return false;
@@ -70,8 +71,9 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
      */
     @WrapWithCondition(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/TicketStorage;removeTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     private boolean cc_replaceTicketTypeOnRemovePlayer(TicketStorage instance, Ticket ticket, ChunkPos chunkPos, SectionPos sectionPos) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return true;
+        }
         CloPos cloPos = CloPos.section(sectionPos);
         ((CubicTicketStorage) instance).cc_removeTicket(ticket, cloPos);
         return false;
@@ -82,8 +84,9 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
      */
     @WrapOperation(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;toLong()J"))
     private long cc_replaceTicketTypeOnAddPlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos sectionPos) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return original.call(chunkPos);
+        }
         return CloPos.section(sectionPos).toLong();
     }
 
@@ -92,8 +95,9 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
      */
     @WrapOperation(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;toLong()J"))
     private long cc_replaceTicketTypeOnRemovePlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos sectionPos) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return original.call(chunkPos);
+        }
         return CloPos.section(sectionPos).toLong();
     }
 

@@ -85,19 +85,19 @@ public record CubeStep(
         }
 
         // TODO could be mixin + DASM
-        public CubeStep.Builder addRequirement(ChunkStatus status, int radius) {
-            if (status.isOrAfter(this.status)) {
-                throw new IllegalArgumentException("Status " + status + " can not be required by " + this.status);
+        public CubeStep.Builder addRequirement(ChunkStatus requiredStatus, int radius) {
+            if (requiredStatus.isOrAfter(this.status)) {
+                throw new IllegalArgumentException("Status " + requiredStatus + " can not be required by " + this.status);
             } else {
                 ChunkStatus[] achunkstatus = this.directDependenciesByRadius;
                 int i = Coords.sectionToCubeCeil(radius) + 1;
                 if (i > achunkstatus.length) {
                     this.directDependenciesByRadius = new ChunkStatus[i];
-                    Arrays.fill(this.directDependenciesByRadius, status);
+                    Arrays.fill(this.directDependenciesByRadius, requiredStatus);
                 }
 
                 for (int j = 0; j < Math.min(i, achunkstatus.length); j++) {
-                    this.directDependenciesByRadius[j] = ChunkStatus.max(achunkstatus[j], status);
+                    this.directDependenciesByRadius[j] = ChunkStatus.max(achunkstatus[j], requiredStatus);
                 }
 
                 return this;
@@ -105,8 +105,8 @@ public record CubeStep(
         }
 
         // TODO could be mixin + DASM
-        public CubeStep.Builder blockStateWriteRadius(int blockStateWriteRadius) {
-            this.blockStateWriteRadius = Coords.sectionToCubeCeil(blockStateWriteRadius);
+        public CubeStep.Builder blockStateWriteRadius(int blockStateWriteRadiusInSections) {
+            this.blockStateWriteRadius = Coords.sectionToCubeCeil(blockStateWriteRadiusInSections);
             return this;
         }
 
@@ -120,6 +120,6 @@ public record CubeStep(
         private native ChunkStatus[] buildAccumulatedDependencies();
 
         @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("getRadiusOfParent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)I"))
-        private native int getRadiusOfParent(ChunkStatus status);
+        private native int getRadiusOfParent(ChunkStatus parentStatus);
     }
 }

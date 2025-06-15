@@ -6,6 +6,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 public class MiscStreamCodecs {
+    private MiscStreamCodecs() {}
+
     // TODO where should these go? can't go on CloPos/CubePos because they're in core
     public static final StreamCodec<ByteBuf, CloPos> CLO_POS_STREAM_CODEC = new StreamCodec<>() {
         public CloPos decode(ByteBuf buffer) {

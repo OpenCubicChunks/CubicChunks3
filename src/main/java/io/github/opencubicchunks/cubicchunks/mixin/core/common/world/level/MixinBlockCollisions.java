@@ -36,8 +36,9 @@ public class MixinBlockCollisions {
             CallbackInfo ci
     ) {
         // TODO probably don't cast without an instanceof check in production - for dev it's fine since it will tell us we're missing something
-        if (((CanBeCubic) collisionGetter).cc_isCubic())
+        if (((CanBeCubic) collisionGetter).cc_isCubic()) {
             cc_isCubic = true;
+        }
     }
 
     @Nullable private BlockGetter cc_getCube(int x, int y, int z) {
@@ -59,8 +60,9 @@ public class MixinBlockCollisions {
     @Nullable private BlockGetter cc_onComputeNext_getChunk(
             BlockCollisions instance, int x, int z, Operation<BlockGetter> original, @Local(ordinal = 1) int y
     ) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return original.call(instance, x, z);
+        }
         return cc_getCube(x, y, z);
     }
 }

@@ -14,5 +14,5 @@ public interface MinecraftServerTestAccess {
     void invoke_prepareLevels(ChunkProgressListener chunkProgressListener);
 
     @Invoker(value = "setInitialSpawn")
-    void invoke_setInitialSpawn(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean p_177899_, boolean p_177900_);
+    void invoke_setInitialSpawn(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean generateBonusChest, boolean debug);
 }

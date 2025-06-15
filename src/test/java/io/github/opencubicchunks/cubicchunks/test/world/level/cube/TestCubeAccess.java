@@ -39,7 +39,7 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCubeAccess extends BaseTest {
     static class CubeAccessTestImpl extends CubeAccess {
-        public CubeAccessTestImpl(
+        CubeAccessTestImpl(
                 CubePos cubePos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, long inhabitedTime,
                 @Nullable LevelChunkSection[] chunkSections, @Nullable BlendingData blendingData
         ) {
@@ -111,8 +111,9 @@ public class TestCubeAccess extends BaseTest {
         for (int i = 0; i < 1000; i++) {
             BlockPos pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
                     random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
-            if (!visitedPositions.add(pos))
+            if (!visitedPositions.add(pos)) {
                 continue;
+            }
             if (random.nextBoolean()) {
                 cubeAccess.setBlockState(pos, Blocks.STONE.defaultBlockState());
                 expectedPositions.add(pos);

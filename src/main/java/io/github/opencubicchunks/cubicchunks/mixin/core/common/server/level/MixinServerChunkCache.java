@@ -105,7 +105,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     @Shadow @Nullable private NaturalSpawner.SpawnState lastSpawnState;
 
-    @Shadow protected abstract void getFullChunk(long p_8371_, Consumer<LevelChunk> p_8372_);
+    @Shadow protected abstract void getFullChunk(long chunkPos, Consumer<LevelChunk> fullChunkGetter);
 
     @Shadow @Final private Set<ChunkHolder> chunkHoldersToBroadcast;
 
@@ -191,7 +191,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         } else {
             completablefuture = CompletableFuture
                     .supplyAsync(() -> this.cc_getCubeFutureMainThread(pX, chunkY, pZ, pChunkStatus, pLoad), this.mainThreadProcessor)
-                    .thenCompose(p_8413_ -> p_8413_);
+                    .thenCompose(future -> future);
         }
 
         return completablefuture;

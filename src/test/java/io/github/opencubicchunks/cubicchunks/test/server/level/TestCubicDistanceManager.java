@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
  */
 public class TestCubicDistanceManager extends BaseTest {
     static class TestDistanceManager extends DistanceManager {
-        public TestDistanceManager(TicketStorage ticketStorage, Executor executor, Executor executor2) {
+        TestDistanceManager(TicketStorage ticketStorage, Executor executor, Executor executor2) {
             super(ticketStorage, executor, executor2);
         }
 

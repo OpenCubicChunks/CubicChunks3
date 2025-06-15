@@ -57,6 +57,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
 
     private final Logger logger = LogManager.getLogger("dasm");
 
+    @SuppressWarnings("checkstyle:EmptyCatchBlock") // <-- TODO stirred's problem not mine :)
     public ASMConfigPlugin() {
         boolean developmentEnvironment = false;
         try {
@@ -177,8 +178,9 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             throw new RuntimeException(e);
         }
         // If no DASM transformation happened to this class, we can skip removing the prefixed methods
-        if (!(wasTransformed | dasmTransformedInPreApply.get(mixinClassName + "|" + targetClassName)))
+        if (!(wasTransformed | dasmTransformedInPreApply.get(mixinClassName + "|" + targetClassName))) {
             return;
+        }
 
         // Find all DASM-added method nodes and their corresponding MixinMerged method nodes
         record PrefixMethodPair(MethodNode dasmAddedMethod, MethodNode mixinAddedMethod) {}
@@ -248,8 +250,13 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             throws DasmException {
         Either<ClassTransform, Collection<MethodTransform>> target = null;
         switch (stage) {
-            case PRE_APPLY -> target = preApplyTargets.get(mixinClassName + "|" + targetClassName);
-            case POST_APPLY -> target = postApplyTargets.get(mixinClassName + "|" + targetClassName);
+            case PRE_APPLY -> {
+                target = preApplyTargets.get(mixinClassName + "|" + targetClassName);
+            }
+            case POST_APPLY -> {
+                target = postApplyTargets.get(mixinClassName + "|" + targetClassName);
+            }
+            default -> throw new IllegalStateException("Unknown enum variant: " + stage);
         }
         if (target == null) {
             return false;
@@ -294,9 +301,12 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 case ERROR:
                     logger.error(notification.message);
                     break;
+                default:
+                    throw new IllegalStateException("Unknown enum variant: " + notification.kind);
             }
         }
-        if (notifications.stream().anyMatch(n -> n.kind == Notification.Kind.ERROR))
+        if (notifications.stream().anyMatch(n -> n.kind == Notification.Kind.ERROR)) {
             throw Util.pauseInIde(new RuntimeException("DASM Failure, please see log output"));
+        }
     }
 }

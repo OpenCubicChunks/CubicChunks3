@@ -21,6 +21,8 @@ import org.jetbrains.annotations.Contract;
  */
 @Dasm(GlobalSet.class)
 public class CubeLevel {
+    private CubeLevel() {}
+
     private static final int FULL_CHUNK_LEVEL = 33;
     private static final CubeStep FULL_CUBE_STEP = CubePyramid.CC_GENERATION_PYRAMID_CUBES.getStepTo(ChunkStatus.FULL);
     @AddFieldToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class, field = @FieldSig(type = @Ref(int.class), name = "RADIUS_AROUND_FULL_CHUNK"))

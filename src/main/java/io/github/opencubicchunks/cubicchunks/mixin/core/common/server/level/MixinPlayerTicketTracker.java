@@ -27,8 +27,9 @@ public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceC
     private boolean cc_onRunAllUpdates(
             ThrottlingChunkTaskDispatcher instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer
     ) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return true;
+        }
         ((CloTaskDispatcher) ((DistanceManagerAccess) this$0).cc_ticketDispatcher()).cc_onLevelChange(CloPos.fromLong(chunkPos.toLong()), intSupplier,
                 i, intConsumer);
         return false;

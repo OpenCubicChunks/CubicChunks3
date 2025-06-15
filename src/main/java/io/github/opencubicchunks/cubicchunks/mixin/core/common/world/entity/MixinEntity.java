@@ -72,8 +72,9 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     // In cubic levels, check for unloaded cubes instead of chunks
     @Inject(method = "touchingUnloadedChunk", at = @At("HEAD"), cancellable = true)
     private void cc_onTouchingUnloadedChunk(CallbackInfoReturnable<Boolean> cir) {
-        if (!((CanBeCubic) this.level).cc_isCubic())
+        if (!((CanBeCubic) this.level).cc_isCubic()) {
             return;
+        }
         AABB aabb = this.getBoundingBox().inflate(1.0);
         int minX = Mth.floor(aabb.minX);
         int maxX = Mth.ceil(aabb.maxX);

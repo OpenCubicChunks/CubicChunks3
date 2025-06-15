@@ -9,9 +9,9 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public interface CubicLevelReader extends CubicCollisionGetter {
-    @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus chunkStatus, boolean forceLoad);
-
     boolean cc_hasCube(int cubeX, int cubeY, int cubeZ);
+
+    @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus chunkStatus, boolean forceLoad);
 
     @Nullable default CubeAccess cc_getCube(BlockPos blockPos) {
         return this.cc_getCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()), Coords.blockToCube(blockPos.getZ()));

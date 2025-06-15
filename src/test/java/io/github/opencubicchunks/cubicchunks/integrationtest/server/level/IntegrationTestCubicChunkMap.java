@@ -119,8 +119,9 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
                     var holder = ((ChunkMapTestAccess) chunkMap).invokeUpdateChunkScheduling(ChunkPos.asLong(x, z),
                             centerLevel + Math.max(Math.abs(x), Math.abs(z)), null, ChunkLevel.MAX_LEVEL + 1);
                     ((GenerationChunkHolderTestAccess) holder).invokeUpdateHighestAllowedStatus(chunkMap);
-                    if (x == 0 && z == 0)
+                    if (x == 0 && z == 0) {
                         centerHolder = holder;
+                    }
                 }
             }
 
@@ -156,8 +157,9 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
                     var holder = ((ChunkMapTestAccess) chunkMap).invokeUpdateChunkScheduling(ChunkPos.asLong(x, z),
                             centerLevel + Math.max(Math.abs(x), Math.abs(z)), null, ChunkLevel.MAX_LEVEL + 1);
                     ((GenerationChunkHolderTestAccess) holder).invokeUpdateHighestAllowedStatus(chunkMap);
-                    if (x == 0 && z == 0)
+                    if (x == 0 && z == 0) {
                         centerHolder = holder;
+                    }
                 }
             }
 
@@ -206,8 +208,9 @@ public class IntegrationTestCubicChunkMap extends BaseTest {
                         var holder = ((ChunkMapTestAccess) chunkMap).invokeUpdateChunkScheduling(CloPos.cubeAsLong(x, y, z),
                                 centerLevel + Math.max(Math.abs(y), chunkDistance), null, ChunkLevel.MAX_LEVEL + 1);
                         ((GenerationChunkHolderTestAccess) holder).invokeUpdateHighestAllowedStatus(chunkMap);
-                        if (x == 0 && z == 0 && y == 0)
+                        if (x == 0 && z == 0 && y == 0) {
                             centerHolder = holder;
+                        }
                     }
                 }
             }

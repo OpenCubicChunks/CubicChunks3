@@ -195,6 +195,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     /**
      * Cubes require different adjacency logic compared to Chunks
      */
+    @SuppressWarnings("checkstyle:CyclomaticComplexity") // <-- TODO this method is just a bit of a disaster
     @Dynamic
     @Inject(method = "cc_dasm$cc_getChunkRangeFuture", at = @At("HEAD"), cancellable = true)
     private void cc_onGetChunkRangeFuture(
@@ -204,8 +205,9 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         // Note that statusByRadius sometimes isn't actually correct for cubes beyond the first few steps, but getChunkRangeFuture is only called with
         // parameters for which it's correct within the radius
         CloPos pos = ((CloHolder) cloHolder).cc_getCloPos();
-        if (!pos.isCube())
+        if (!pos.isCube()) {
             return;
+        }
         // The vanilla method has an early exit for radius=0 here; this is not valid for cubes because even if radius=0 we still depend on chunks that
         // neighbor the cube
         int cubeDiameter = radius * 2 + 1;
@@ -590,5 +592,5 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
 
     @AddTransformToSets(ChunkToCloSet.ChunkMap_redirects.class)
     @TransformFromMethod(@MethodSig("waitForLightBeforeSending(Lnet/minecraft/world/level/ChunkPos;I)V"))
-    public native void cc_waitForLightBeforeSending(CloPos cloPos, int p_301130_);
+    public native void cc_waitForLightBeforeSending(CloPos cloPos, int radius);
 }

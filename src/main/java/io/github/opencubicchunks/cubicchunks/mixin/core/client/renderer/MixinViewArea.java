@@ -32,8 +32,9 @@ public abstract class MixinViewArea {
     // This could be multiple more specific injects, but overwriting the method is probably cleaner
     @Inject(method = "setViewDistance", at = @At("HEAD"), cancellable = true)
     private void cc_onSetViewDistance(int renderDistanceChunks, CallbackInfo ci) {
-        if (!((CanBeCubic) level).cc_isCubic())
+        if (!((CanBeCubic) level).cc_isCubic()) {
             return;
+        }
         ci.cancel();
         int i = renderDistanceChunks * 2 + 1;
         this.sectionGridSizeX = i;
@@ -44,8 +45,9 @@ public abstract class MixinViewArea {
 
     @WrapOperation(method = "createSections", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getMinSectionY()I"))
     private int cc_onCreateSections_getMinY(Level instance, Operation<Integer> original) {
-        if (!((CanBeCubic) level).cc_isCubic())
+        if (!((CanBeCubic) level).cc_isCubic()) {
             return original.call(instance);
+        }
         return 0; // I don't really understand the logic here, but returning 0 makes the Y axis behave equivalently to X and Z, which *should* be what
                   // we want
     }
@@ -53,8 +55,9 @@ public abstract class MixinViewArea {
     // TODO can we do this without fully overwriting the method?
     @Inject(method = "getRenderSection(III)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;", at = @At("HEAD"), cancellable = true)
     private void cc_onGetRenderSection(int sectionX, int sectionY, int sectionZ, CallbackInfoReturnable<SectionRenderDispatcher.RenderSection> cir) {
-        if (!((CanBeCubic) level).cc_isCubic())
+        if (!((CanBeCubic) level).cc_isCubic()) {
             return;
+        }
         if (!this.cc_containsSection(sectionX, sectionY, sectionZ)) {
             cir.setReturnValue(null);
             return;
@@ -69,8 +72,9 @@ public abstract class MixinViewArea {
     // I don't really understand the coordinate maths here, but we replicate it for the Y axis
     @Inject(method = "repositionCamera", at = @At("HEAD"), cancellable = true)
     private void cc_onRepositionCamera(SectionPos newSectionPos, CallbackInfo ci) {
-        if (!((CanBeCubic) level).cc_isCubic())
+        if (!((CanBeCubic) level).cc_isCubic()) {
             return;
+        }
         ci.cancel();
         for (int sectionX = 0; sectionX < this.sectionGridSizeX; sectionX++) {
             int i1 = newSectionPos.x() - this.viewDistance;

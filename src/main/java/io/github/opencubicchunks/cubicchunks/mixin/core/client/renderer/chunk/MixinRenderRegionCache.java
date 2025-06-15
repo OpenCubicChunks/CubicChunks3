@@ -49,7 +49,7 @@ public abstract class MixinRenderRegionCache implements CubicRenderRegionCache {
         int cubeEndX = centerCubeX + 1;
         int cubeEndY = centerCubeY + 1;
         int cubeEndZ = centerCubeZ + 1;
-        RenderCube[] renderCubes = new RenderCube[27];
+        RenderCube[] renderCubes = new RenderCube[RenderCubeRegion.CUBE_COUNT];
 
         for (int cubeX = cubeStartX; cubeX <= cubeEndX; ++cubeX) {
             for (int cubeY = cubeStartY; cubeY <= cubeEndY; ++cubeY) {

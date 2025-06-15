@@ -98,9 +98,10 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     }
 
     @Override public void cc_replaceBiomes(int x, int y, int z, FriendlyByteBuf buffer) {
-        if (true)
-            throw new UnsupportedOperationException("don't remove this exception until packet integration tests are added for this method"); // TODO
-                                                                                                                                             // (P2)
+        if (true) {
+            // TODO (P2)
+            throw new UnsupportedOperationException("don't remove this exception until packet integration tests are added for this method");
+        }
         if (!this.cc_cubeStorage.inRange(x, y, z)) {
             LOGGER.warn("Ignoring cube since it's not in the view range: {}, {}, {}", x, y, z);
         } else {
@@ -179,6 +180,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         throw new IllegalStateException("mixin failed to apply");
     }
 
+    @SuppressWarnings("checkstyle:MagicNumber") // <-- TODO it's unclear what the 3 represents in vanilla?
     private static int cc_calculateChunkViewDistance(int cubeViewDistance) {
         int cubeStorageRange = calculateStorageRange(cubeViewDistance);
         // TODO this radius might be larger than it needs to be? coordinate maths is difficult

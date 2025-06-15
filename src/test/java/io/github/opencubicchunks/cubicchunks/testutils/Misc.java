@@ -33,6 +33,8 @@ import org.mockito.Mockito;
 
 // TODO maybe split things off of this class instead of dumping everything in here?
 public class Misc {
+    private Misc() {}
+
     public static int chebyshevDistance(Vec3i a, Vec3i b) {
         return Math.max(Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY())), Math.abs(a.getZ() - b.getZ()));
     }

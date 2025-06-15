@@ -8,6 +8,8 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 
 // In DASM-copied code we redirect forge event construction to factory methods on this class, allowing for easier control (e.g. not firing events for cubic equivalents of vanilla things)
 public class EventConstructorDelegates {
+    private EventConstructorDelegates() {}
+
     public static Event create_ChunkEvent$Load(LevelClo levelClo, boolean newChunk) {
         if (levelClo instanceof LevelChunk chunk) {
             return new ChunkEvent.Load(chunk, newChunk);

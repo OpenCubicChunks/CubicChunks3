@@ -36,8 +36,9 @@ public class ServerConfig extends BaseConfig {
     }
 
     private static WorldStyle worldStyleFromString(String string) {
-        if (string.equals("VANILLA"))
+        if (string.equals("VANILLA")) {
             return WorldStyle.CHUNK;
+        }
         return WorldStyle.valueOf(string);
     }
 
@@ -78,32 +79,33 @@ public class ServerConfig extends BaseConfig {
 
     private static void createConfig(Path worldFolder) {
         File configPath = getConfigPath(worldFolder);
-        if (configPath.exists())
+        if (configPath.exists()) {
             return;
+        }
         configPath.getParentFile().mkdirs();
         write(configPath, createDefaultConfig());
     }
-    /*
-     * @Nullable public static ServerConfig getConfig(LevelStorageSource.LevelStorageAccess levelStorageAccess) {
-     * File configPath = getConfigPath(((LevelStorageAccessAccess) levelStorageAccess).getLevelPath());
-     * if (configPath.exists()) {
-     * var config = createDefaultConfig();
-     * read(configPath, config);
-     * var serverConfig = new ServerConfig(config);
-     * // Write the config again in case any keys were missing or invalid
-     * write(configPath, config);
-     * return serverConfig;
-     * }
-     * return null;
-     * }
-     * public static void generateConfigIfNecessary(LevelStorageSource.LevelStorageAccess levelStorageAccess) {
-     * if (CubicChunks.config().shouldGenerateNewWorldsAsCC()) {
-     * CubicChunks.LOGGER.info("New worlds are configured to generate as CC; creating CC config file");
-     * var rootFolderPath = ((LevelStorageAccessAccess) levelStorageAccess).getLevelPath();
-     * ServerConfig.createConfig(rootFolderPath);
-     * } else {
-     * CubicChunks.LOGGER.info("New worlds are configured to NOT generate as CC; no Cubic Chunks data will be created");
-     * }
-     * }
-     */
+
+//    @Nullable public static ServerConfig getConfig(LevelStorageSource.LevelStorageAccess levelStorageAccess) {
+//        File configPath = getConfigPath(((LevelStorageAccessAccess) levelStorageAccess).getLevelPath());
+//        if (configPath.exists()) {
+//            var config = createDefaultConfig();
+//            read(configPath, config);
+//            var serverConfig = new ServerConfig(config);
+//            // Write the config again in case any keys were missing or invalid
+//            write(configPath, config);
+//            return serverConfig;
+//        }
+//        return null;
+//    }
+//
+//    public static void generateConfigIfNecessary(LevelStorageSource.LevelStorageAccess levelStorageAccess) {
+//        if (CubicChunks.config().shouldGenerateNewWorldsAsCC()) {
+//            CubicChunks.LOGGER.info("New worlds are configured to generate as CC; creating CC config file");
+//            var rootFolderPath = ((LevelStorageAccessAccess) levelStorageAccess).getLevelPath();
+//            ServerConfig.createConfig(rootFolderPath);
+//        } else {
+//            CubicChunks.LOGGER.info("New worlds are configured to NOT generate as CC; no Cubic Chunks data will be created");
+//        }
+//    }
 }

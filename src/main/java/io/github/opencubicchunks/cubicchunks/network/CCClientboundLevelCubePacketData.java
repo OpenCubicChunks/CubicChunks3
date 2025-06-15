@@ -12,6 +12,8 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 
 // TODO block entities - see ClientboundLevelChunkPacketData
 public class CCClientboundLevelCubePacketData {
+    private static final int TWO_MEGABYTES = 2097152;
+
     private final byte[] buffer;
 
     public static final StreamCodec<FriendlyByteBuf, CCClientboundLevelCubePacketData> STREAM_CODEC = new StreamCodec<>() {
@@ -29,19 +31,19 @@ public class CCClientboundLevelCubePacketData {
         extractChunkData(new FriendlyByteBuf(this.getWriteBuffer()), cube);
     }
 
-    public CCClientboundLevelCubePacketData(final FriendlyByteBuf buffer) {
-        int i = buffer.readVarInt();
-        if (i > 2097152) {
+    public CCClientboundLevelCubePacketData(final FriendlyByteBuf byteBuf) {
+        int i = byteBuf.readVarInt();
+        if (i > TWO_MEGABYTES) {
             throw new RuntimeException("Cube Packet trying to allocate too much memory on read.");
         } else {
             this.buffer = new byte[i];
-            buffer.readBytes(this.buffer);
+            byteBuf.readBytes(this.buffer);
         }
     }
 
-    public void write(final FriendlyByteBuf buffer) {
-        buffer.writeVarInt(this.buffer.length);
-        buffer.writeBytes(this.buffer);
+    public void write(final FriendlyByteBuf byteBuf) {
+        byteBuf.writeVarInt(this.buffer.length);
+        byteBuf.writeBytes(this.buffer);
     }
 
     // TODO could maybe dasm copy these from ClientboundLevelChunkPacketData?
@@ -73,8 +75,9 @@ public class CCClientboundLevelCubePacketData {
 
     // Implement .equals for unit testing
     @Override public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass())
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         CCClientboundLevelCubePacketData that = (CCClientboundLevelCubePacketData) o;
         return Objects.deepEquals(buffer, that.buffer);
     }

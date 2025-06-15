@@ -3,6 +3,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.ligh
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,13 +20,15 @@ public class MixinLevelLightEngine {
 
     @Inject(method = "lightOnInColumn", at = @At("HEAD"), cancellable = true)
     private void cc_onLightOnInColumn(long columnPos, CallbackInfoReturnable<Boolean> cir) {
-        if (((CanBeCubic) this.levelHeightAccessor).cc_isCubic())
+        if (((CanBeCubic) this.levelHeightAccessor).cc_isCubic()) {
             cir.setReturnValue(true);
+        }
     }
 
     @Inject(method = "getRawBrightness", at = @At("HEAD"), cancellable = true)
     private void cc_onGetRawBrightness(BlockPos blockPos, int amount, CallbackInfoReturnable<Integer> cir) {
-        if (((CanBeCubic) this.levelHeightAccessor).cc_isCubic())
-            cir.setReturnValue(15);
+        if (((CanBeCubic) this.levelHeightAccessor).cc_isCubic()) {
+            cir.setReturnValue(LightBlock.MAX_LEVEL);
+        }
     }
 }

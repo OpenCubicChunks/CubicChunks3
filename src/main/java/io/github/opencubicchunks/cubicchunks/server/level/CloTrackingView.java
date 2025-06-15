@@ -37,6 +37,7 @@ public interface CloTrackingView extends ChunkTrackingView {
         return new CloTrackingView.Positioned(center, viewDistanceCubes);
     }
 
+    @SuppressWarnings({ "checkstyle:CyclomaticComplexity", "checkstyle:JavaNCSS" }) // <-- copies structure of vanilla method
     @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("difference(Lnet/minecraft/server/level/ChunkTrackingView;Lnet/minecraft/server/level/ChunkTrackingView;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
     static void cc_difference(
             CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker

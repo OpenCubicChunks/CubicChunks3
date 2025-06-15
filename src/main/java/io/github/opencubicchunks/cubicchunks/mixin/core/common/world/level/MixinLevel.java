@@ -45,7 +45,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Dasm(ChunkToCloSet.class)
 @Mixin(Level.class)
 public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAccessor {
-    @Shadow @Nullable public abstract ChunkAccess getChunk(int p_46502_, int p_46503_, ChunkStatus p_46504_, boolean p_46505_);
+    @Shadow @Nullable public abstract ChunkAccess getChunk(int chunkX, int chunkZ, ChunkStatus requestedStatus, boolean forceLoad);
 
     @Shadow public abstract long getDayTime();
 
@@ -114,11 +114,11 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     @WrapWithCondition(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
     private boolean cc_replaceLevelChunkInMarkAndNotifyBlock(
-            Level level, BlockPos blockPos, LevelChunk levelChunk, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46607_,
+            Level level, BlockPos blockPos, LevelChunk levelChunk, BlockState blockStatePrev, BlockState blockStateNew, int flags, int recursionLeft,
             @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
-            this.cc_markAndNotifyBlock(blockPos, levelCubeLocalRef.get(), blockStatePrev, blockStateNew, flags, p_46607_);
+            this.cc_markAndNotifyBlock(blockPos, levelCubeLocalRef.get(), blockStatePrev, blockStateNew, flags, recursionLeft);
             return false;
         }
         return true;
@@ -128,7 +128,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     @TransformFromMethod(useRedirectSets = {
         ChunkToCubeSet.class }, value = @MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
     public native void cc_markAndNotifyBlock(
-            BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int p_46608_
+            BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int recursionLeft
     );
 
     // getBlockState

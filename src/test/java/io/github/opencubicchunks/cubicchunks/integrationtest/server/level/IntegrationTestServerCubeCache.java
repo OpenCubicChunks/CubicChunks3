@@ -391,8 +391,9 @@ public class IntegrationTestServerCubeCache extends BaseTest {
                     for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
                         int x = -i * CubicConstants.DIAMETER_IN_SECTIONS + dx;
                         int z = i * CubicConstants.DIAMETER_IN_SECTIONS + dz;
-                        if (expectedStatus.isOrAfter(ChunkStatus.FULL))
+                        if (expectedStatus.isOrAfter(ChunkStatus.FULL)) {
                             assertTrue(serverChunkCache.hasChunk(x, z));
+                        }
                         var chunkAccess = serverChunkCache.getChunk(x, z, expectedStatus, false);
                         assertNotNull(chunkAccess);
                         assertTrue(chunkAccess.getPersistedStatus().isOrAfter(expectedStatus));

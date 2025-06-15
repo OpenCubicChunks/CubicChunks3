@@ -55,8 +55,9 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
 
     @Redirect(method = "*", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/ChunkPos;INVALID_CHUNK_POS:J"))
     private long cc_sentinelValue() {
-        if (cc_isCubic)
+        if (cc_isCubic) {
             return CloPos.INVALID_CLO_POS;
+        }
         return ChunkPos.INVALID_CHUNK_POS;
     }
 
@@ -64,8 +65,9 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     private int cc_dontIncrementLevelOnCubeChunkEdge(
             int constant, @Local(ordinal = 0, argsOnly = true) long startPos, @Local(ordinal = 1, argsOnly = true) long endPos
     ) {
-        if (cc_isCubic && CloPos.isCube(startPos) && CloPos.isChunk(endPos))
+        if (cc_isCubic && CloPos.isCube(startPos) && CloPos.isChunk(endPos)) {
             return 0;
+        }
         return constant;
     }
 
@@ -88,10 +90,12 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
      * if we did do that, then a single column could potentially load an infinite amount of cubes. So only
      * cubes can propagate to a column, or cubes propagating to cubes.
      */
+    @SuppressWarnings({ "checkstyle:CyclomaticComplexity", "checkstyle:JavaNCSS" }) // <-- TODO can this be improved?
     @Inject(method = "getComputedLevel", at = @At("HEAD"), cancellable = true)
     private void cc_onGetComputedLevel(long pos, long excludedSourcePos, int level, CallbackInfoReturnable<Integer> cir) {
-        if (!cc_isCubic)
+        if (!cc_isCubic) {
             return;
+        }
         if (CloPos.isChunk(pos)) {
             int out = level;
 
@@ -195,7 +199,8 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
                 }
             } else {
                 if (cubes == null) {
-                    cc_existingCubesForCubeColumns.put(key, cubes = new IntOpenHashSet());
+                    cubes = new IntOpenHashSet();
+                    cc_existingCubesForCubeColumns.put(key, cubes);
                 }
                 cubes.add(CloPos.extractY(pos));
             }

@@ -15,6 +15,7 @@ public class CommonConfig extends BaseConfig {
 
     private static final String KEY_GENERAL = "general";
     private static final String KEY_VERTICAL_VIEW_DISTANCE = KEY_GENERAL + ".verticalViewDistance";
+    private static final int DEFAULT_VERTICAL_VIEW_DISTANCE = 8;
     private static final String KEY_GENERATE_NEW_WORLDS_AS_CC = KEY_GENERAL + ".generateNewWorldsAsCC";
 
     private final CommentedConfig config;
@@ -26,7 +27,7 @@ public class CommonConfig extends BaseConfig {
     private static CommentedConfig createDefaultConfig() {
         Config.setInsertionOrderPreserved(true);
         var config = CommentedConfig.inMemory();
-        config.set(KEY_VERTICAL_VIEW_DISTANCE, 8);
+        config.set(KEY_VERTICAL_VIEW_DISTANCE, DEFAULT_VERTICAL_VIEW_DISTANCE);
         // TODO more detailed config comment?
         config.setComment(KEY_VERTICAL_VIEW_DISTANCE, """
                  The vertical view distance for players in Cubic Chunks dimensions (similar to vanilla render distance for the horizontal axes).\

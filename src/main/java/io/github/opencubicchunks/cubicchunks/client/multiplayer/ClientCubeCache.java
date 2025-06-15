@@ -1,6 +1,6 @@
 package io.github.opencubicchunks.cubicchunks.client.multiplayer;
 
-import static io.github.notstirred.dasm.api.annotations.transform.Visibility.*;
+import static io.github.notstirred.dasm.api.annotations.transform.Visibility.PUBLIC;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReferenceArray;

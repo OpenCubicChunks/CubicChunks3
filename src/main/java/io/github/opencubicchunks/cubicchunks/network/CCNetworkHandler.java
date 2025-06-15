@@ -8,6 +8,8 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class CCNetworkHandler {
+    private CCNetworkHandler() {}
+
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
         // Sets the current network version

@@ -53,8 +53,9 @@ public class TestBlockCollisions extends BaseTest {
         var blockGetter = DummyBlockGetter.mockBlockGetter(Blocks.STONE.defaultBlockState());
         var cubePos = CubePos.of(7, -13, 4);
         var cubeGetter = new CubeGetter((cubeX, cubeY, cubeZ) -> {
-            if (cubePos.getX() == cubeX && cubePos.getY() == cubeY && cubePos.getZ() == cubeZ)
+            if (cubePos.getX() == cubeX && cubePos.getY() == cubeY && cubePos.getZ() == cubeZ) {
                 return blockGetter;
+            }
             throw new IllegalStateException();
         });
         when(((CubicLevel) level).cc_getCubeForCollisions(anyInt(), anyInt(), anyInt())).then(AdditionalAnswers.delegatesTo(cubeGetter));

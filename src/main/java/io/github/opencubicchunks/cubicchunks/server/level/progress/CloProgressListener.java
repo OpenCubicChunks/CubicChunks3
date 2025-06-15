@@ -9,11 +9,11 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 public interface CloProgressListener {
     void cc_updateSpawnPos(CloPos center);
 
-    void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
-
     default void cc_updateSpawnPos(CubePos center) {
         cc_updateSpawnPos(CloPos.cube(center));
     }
+
+    void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 
     default void cc_onStatusChange(CubePos chunkPosition, @Nullable ChunkStatus newStatus) {
         cc_onStatusChange(CloPos.cube(chunkPosition), newStatus);

@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Dasm(ForgeSet.class)
 public class CCEventHooks {
+    private CCEventHooks() {}
+
     // TODO onCreateWorldSpawn?
     // TODO onTrySpawnPortal?
 

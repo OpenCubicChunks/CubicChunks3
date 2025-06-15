@@ -19,6 +19,10 @@ import net.minecraft.world.level.material.FluidState;
  * in the center of the 3x3x3.
  */
 public class RenderCubeRegion extends RenderChunkRegion {
+    private static final int DIAMETER = 3;
+    private static final int DIAMETER_SQUARED = DIAMETER * DIAMETER;
+    public static final int CUBE_COUNT = DIAMETER * DIAMETER * DIAMETER;
+
     private final int minCubeX;
     private final int minCubeY;
     private final int minCubeZ;
@@ -54,6 +58,6 @@ public class RenderCubeRegion extends RenderChunkRegion {
     }
 
     public static int index(int minCubeX, int minCubeY, int minCubeZ, int cubeX, int cubeY, int cubeZ) {
-        return cubeX - minCubeX + (cubeZ - minCubeZ) * 3 + (cubeY - minCubeY) * 9;
+        return cubeX - minCubeX + (cubeZ - minCubeZ) * DIAMETER + (cubeY - minCubeY) * DIAMETER_SQUARED;
     }
 }

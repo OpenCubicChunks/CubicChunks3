@@ -30,6 +30,8 @@ import net.minecraft.world.level.chunk.status.WorldGenContext;
  */
 @Dasm(ChunkToCubeSet.class)
 public class CubeStatusTasks {
+    private CubeStatusTasks() {}
+
     @AddTransformToSets(ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class)
     @TransformFromMethod(owner = @Ref(ChunkStatusTasks.class), value = @MethodSig("isLighted(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))
     private static native boolean isLighted(CubeAccess cube);
@@ -42,18 +44,7 @@ public class CubeStatusTasks {
     }
 
     // TODO (P3) we skip cube generation steps for now by delegating to passThrough
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class, method = @MethodSig("generateStructureStarts(Lnet/minecraft/world/level/chunk/status/WorldGenContext;Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/util/StaticCache2D;Lnet/minecraft/world/level/chunk/ChunkAccess;)Ljava/util/concurrent/CompletableFuture;")) // We
-                                                                                                                                                                                                                                                                                                                                                                                         // skip
-                                                                                                                                                                                                                                                                                                                                                                                         // chunk
-                                                                                                                                                                                                                                                                                                                                                                                         // generation
-                                                                                                                                                                                                                                                                                                                                                                                         // steps
-                                                                                                                                                                                                                                                                                                                                                                                         // in
-                                                                                                                                                                                                                                                                                                                                                                                         // cubic
-                                                                                                                                                                                                                                                                                                                                                                                         // contexts
-                                                                                                                                                                                                                                                                                                                                                                                         // by
-                                                                                                                                                                                                                                                                                                                                                                                         // delegating
-                                                                                                                                                                                                                                                                                                                                                                                         // to
-                                                                                                                                                                                                                                                                                                                                                                                         // passThrough
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class, method = @MethodSig("generateStructureStarts(Lnet/minecraft/world/level/chunk/status/WorldGenContext;Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/util/StaticCache2D;Lnet/minecraft/world/level/chunk/ChunkAccess;)Ljava/util/concurrent/CompletableFuture;"))
     public static CompletableFuture<CubeAccess> generateStructureStarts(
             WorldGenContext worldGenContext, CubeStep step, StaticCache3D<GenerationChunkHolder> cache, CubeAccess cube
     ) {
@@ -81,6 +72,7 @@ public class CubeStatusTasks {
         return passThrough(worldGenContext, step, cache, cube);
     }
 
+    @SuppressWarnings("checkstyle:MagicNumber") // hardcoded terrain generation; the constants are arbitrary
     @AddMethodToSets(containers = ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class, method = @MethodSig("generateNoise(Lnet/minecraft/world/level/chunk/status/WorldGenContext;Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/util/StaticCache2D;Lnet/minecraft/world/level/chunk/ChunkAccess;)Ljava/util/concurrent/CompletableFuture;"))
     public static CompletableFuture<CubeAccess> generateNoise(
             WorldGenContext worldGenContext, CubeStep step, StaticCache3D<GenerationChunkHolder> cache, CubeAccess cube
@@ -97,8 +89,9 @@ public class CubeStatusTasks {
             for (int x = 0; x < CubicConstants.DIAMETER_IN_BLOCKS; x++) {
                 for (int z = 0; z < CubicConstants.DIAMETER_IN_BLOCKS; z++) {
                     if (y + Math.round((amplitude * (Math.sin((x + cubeX) / 8.0 + (z + cubeZ) / 21.0) + Math.cos((z + cubeZ) / 13.0)))
-                            / 2.0) <= CubicChunks.SUPERFLAT_HEIGHT)
+                            / 2.0) <= CubicChunks.SUPERFLAT_HEIGHT) {
                         cube.setBlockState(blockPos.set(x, y, z), blockState);
+                    }
                 }
             }
         }

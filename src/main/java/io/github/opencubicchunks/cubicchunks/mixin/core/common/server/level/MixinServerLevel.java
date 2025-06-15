@@ -85,8 +85,7 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
     public void cc_tickClo(LevelClo levelClo, int randomTickSpeed) {
         if (levelClo instanceof LevelCube levelCube) {
             cc_tickCube(levelCube, randomTickSpeed);
-        }
-        {
+        } else {
             // TODO (P2) chunk ticking for anything that still needs to happen on chunks (probably just the forge event for mods?)
         }
     }

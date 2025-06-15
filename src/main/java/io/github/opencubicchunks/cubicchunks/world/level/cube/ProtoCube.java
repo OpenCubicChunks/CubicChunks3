@@ -141,10 +141,10 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native Holder<Biome> getNoiseBiome(int x, int y, int z);
 
     @TransformFromMethod(value = @MethodSig("packOffsetCoordinates(Lnet/minecraft/core/BlockPos;)S"), owner = @Ref(ProtoChunk.class))
-    public native static short packOffsetCoordinates(BlockPos pos);
+    public static native short packOffsetCoordinates(BlockPos pos);
 
     @TransformFromMethod(value = @MethodSig("unpackOffsetCoordinates(SILnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"), owner = @Ref(ProtoChunk.class))
-    public native static BlockPos unpackOffsetCoordinates(short packedPos, int yOffset, ChunkPos chunkPos);
+    public static native BlockPos unpackOffsetCoordinates(short packedPos, int yOffset, ChunkPos chunkPos);
 
     // dasm + mixin
     @TransformFromMethod(value = @MethodSig("markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"), owner = @Ref(ProtoChunk.class))

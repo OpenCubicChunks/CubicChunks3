@@ -53,13 +53,15 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
      */
     @Inject(method = "hasAllNeighbors", cancellable = true, at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;doesChunkExistAt(J)Z"))
     private void cc_onHasAllNeighbors(CallbackInfoReturnable<Boolean> cir) {
-        if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic())
+        if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic()) {
             return;
+        }
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dz = -1; dz <= 1; dz++) {
-                    if (dx == 0 && dy == 0 && dz == 0)
+                    if (dx == 0 && dy == 0 && dz == 0) {
                         continue;
+                    }
                     if (!this.doesChunkExistAt(SectionPos.offset(this.sectionNode, dx, dy, dz))) {
                         cir.setReturnValue(false);
                         return;
@@ -78,8 +80,9 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
     @Nullable private RenderChunkRegion cc_onCreateCompileTask_createRegion(
             RenderRegionCache instance, Level level, SectionPos sectionPos, boolean bool, Operation<RenderChunkRegion> original
     ) {
-        if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic())
+        if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic()) {
             return original.call(instance, level, sectionPos, bool);
+        }
         return ((CubicRenderRegionCache) instance).cc_createRegion(level, sectionPos, bool);
     }
 }
