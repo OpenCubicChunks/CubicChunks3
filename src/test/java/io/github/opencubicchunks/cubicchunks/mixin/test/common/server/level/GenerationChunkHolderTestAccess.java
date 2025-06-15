@@ -7,6 +7,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(GenerationChunkHolder.class)
 public interface GenerationChunkHolderTestAccess {
-    @Invoker
-    void invokeUpdateHighestAllowedStatus(ChunkMap chunkMap);
+    @Invoker void invokeUpdateHighestAllowedStatus(ChunkMap chunkMap);
 }

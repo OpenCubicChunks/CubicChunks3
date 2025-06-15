@@ -28,13 +28,13 @@ public class CubicChunks extends CubicChunksBase {
 
     public CubicChunks(IEventBus modEventBus) {
         ChunkMap.class.getName();
-        // if (!(CubeMap.class.isAssignableFrom(ChunkMap.class))) {
-        // throw new IllegalStateException("Mixin not applied!");
-        // }
+//        if (!(CubeMap.class.isAssignableFrom(ChunkMap.class))) {
+//            throw new IllegalStateException("Mixin not applied!");
+//        }
         EarlyConfig.getDiameterInSections();
 
         Coords.blockToIndex(new BlockPos(0, 0, 0));
-        // ClassDuplicator.init();
+//        ClassDuplicator.init();
         if (System.getProperty("cubicchunks.debug", "false").equalsIgnoreCase("true")) {
             try {
                 Class.forName("io.github.opencubicchunks.cubicchunks.debug.DebugVisualization").getMethod("enable").invoke(null);
@@ -48,7 +48,7 @@ public class CubicChunks extends CubicChunksBase {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // PacketDispatcher.register();
+//        PacketDispatcher.register();
     }
 
     public static CommonConfig config() {

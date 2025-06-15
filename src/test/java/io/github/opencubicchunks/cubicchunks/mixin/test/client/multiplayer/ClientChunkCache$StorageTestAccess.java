@@ -6,6 +6,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ClientChunkCache.Storage.class)
 public interface ClientChunkCache$StorageTestAccess {
-    @Invoker("inRange")
-    boolean invokeInRange(int x, int z);
+    @Invoker("inRange") boolean invokeInRange(int x, int z);
 }

@@ -196,8 +196,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
      * Cubes require different adjacency logic compared to Chunks
      */
     @SuppressWarnings("checkstyle:CyclomaticComplexity") // <-- TODO this method is just a bit of a disaster
-    @Dynamic
-    @Inject(method = "cc_dasm$cc_getChunkRangeFuture", at = @At("HEAD"), cancellable = true)
+    @Dynamic @Inject(method = "cc_dasm$cc_getChunkRangeFuture", at = @At("HEAD"), cancellable = true)
     private void cc_onGetChunkRangeFuture(
             ChunkHolder cloHolder, int radius, IntFunction<ChunkStatus> statusByRadius,
             CallbackInfoReturnable<CompletableFuture<ChunkResult<List<CloAccess>>>> cir
@@ -329,8 +328,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         return cc_scheduleChunkLoad(CloPos.cube(cubePos));
     }
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_scheduleChunkLoad", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;prefetch(Lio/github/opencubicchunks/cc_core/world/level/CloPos;)Ljava/util/concurrent/CompletableFuture;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_scheduleChunkLoad", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;prefetch(Lio/github/opencubicchunks/cc_core/world/level/CloPos;)Ljava/util/concurrent/CompletableFuture;"))
     private CompletableFuture<?> cc_onScheduleChunkLoad_poiManagerPreFetch(PoiManager instance, CloPos cloPos) {
         // TODO (P2) save/load - PoiManager
         return CompletableFuture.completedFuture(null);
@@ -360,8 +358,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
             GenerationChunkHolder generationchunkholder, CubeStep chunkstep, StaticCache3D<GenerationChunkHolder> cache
     );
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_applyCubeStep", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/util/StaticCache3D;get(II)Ljava/lang/Object;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_applyCubeStep", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/util/StaticCache3D;get(II)Ljava/lang/Object;"))
     private Object cc_onApplyCubeStep_staticCacheGet(StaticCache3D instance, int x, int z, @Local(ordinal = 0) CubePos cubePos) {
         return instance.get(cubePos.getX(), cubePos.getY(), cubePos.getZ());
     }
@@ -520,8 +517,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     @TransformFromMethod(@MethodSig("updateChunkTracking(Lnet/minecraft/server/level/ServerPlayer;)V"))
     private native void cc_updateChunkTracking(ServerPlayer player);
 
-    @Dynamic
-    @WrapOperation(method = "cc_dasm$cc_updateChunkTracking", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;getPlayerViewDistance(Lnet/minecraft/server/level/ServerPlayer;)I"))
+    @Dynamic @WrapOperation(method = "cc_dasm$cc_updateChunkTracking", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;getPlayerViewDistance(Lnet/minecraft/server/level/ServerPlayer;)I"))
     private int cc_onUpdateChunkTracking_getViewDistance(ChunkMap instance, ServerPlayer player, Operation<Integer> original) {
         return Coords.sectionToCubeRenderDistance(original.call(instance, player));
     }
@@ -532,8 +528,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     @TransformFromMethod(@MethodSig("applyChunkTrackingView(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ChunkTrackingView;)V"))
     private native void cc_applyChunkTrackingView(ServerPlayer player, CloTrackingView chunkTrackingView);
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_applyChunkTrackingView", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_applyChunkTrackingView", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"))
     private void cc_onApplyChunkTrackingView_setChunkCacheCenterPacket(
             ServerGamePacketListenerImpl instance, Packet packet, ServerPlayer player, CloTrackingView cloTrackingView
     ) {
@@ -547,14 +542,12 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     @TransformFromMethod(@MethodSig("getPlayers(Lnet/minecraft/world/level/ChunkPos;Z)Ljava/util/List;"))
     public native List<ServerPlayer> cc_getPlayers(CloPos pos, boolean boundaryOnly);
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_getPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkOnTrackedBorder(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_getPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkOnTrackedBorder(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
     private boolean cc_getPlayers_isChunkOnTrackedBorder(ChunkMap instance, ServerPlayer player, int x, int z, @Local CloPos pos) {
         return this.cc_isChunkOnTrackedBorder(player, pos.getX(), pos.getY(), pos.getZ());
     }
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_getPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_getPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
     private boolean cc_getPlayers_isChunkTracked(ChunkMap instance, ServerPlayer player, int x, int z, @Local CloPos pos) {
         return this.cc_isChunkTracked(player, pos.getX(), pos.getY(), pos.getZ());
     }

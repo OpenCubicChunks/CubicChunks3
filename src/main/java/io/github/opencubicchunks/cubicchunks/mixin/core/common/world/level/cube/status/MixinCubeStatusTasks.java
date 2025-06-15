@@ -14,14 +14,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 // Needed for DASM to apply
 @Mixin(CubeStatusTasks.class)
 public class MixinCubeStatusTasks {
-    @Dynamic
-    @Redirect(method = "cc_dasm$full", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/util/StaticCache3D;get(II)Ljava/lang/Object;"))
+    @Dynamic @Redirect(method = "cc_dasm$full", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/util/StaticCache3D;get(II)Ljava/lang/Object;"))
     private static Object onFullCube_cacheGet(StaticCache3D<?> instance, int x, int z, @Local(ordinal = 0) CubePos cubePos) {
         return instance.get(x, cubePos.getY(), z);
     }
 
-    @Dynamic
-    @Redirect(method = "dasm$redirect$lambda$full$2", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/status/WorldGenContext;unsavedListener()Lio/github/opencubicchunks/cubicchunks/world/level/cube/LevelCube$UnsavedListener;"))
+    @Dynamic @Redirect(method = "dasm$redirect$lambda$full$2", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/status/WorldGenContext;unsavedListener()Lio/github/opencubicchunks/cubicchunks/world/level/cube/LevelCube$UnsavedListener;"))
     private static LevelCube.UnsavedListener onFullCube_worldGenContext_unsavedListener(WorldGenContext instance) {
         return cubePos -> {}; // TODO (P2) save/load: this is temporary until WorldGenContext actually has a proper redirect so we can get a cube
                               // unsaved listener

@@ -10,9 +10,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(MinecraftServer.class)
 public interface MinecraftServerTestAccess {
 
-    @Invoker(value = "prepareLevels")
-    void invoke_prepareLevels(ChunkProgressListener chunkProgressListener);
+    @Invoker(value = "prepareLevels") void invoke_prepareLevels(ChunkProgressListener chunkProgressListener);
 
-    @Invoker(value = "setInitialSpawn")
-    void invoke_setInitialSpawn(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean generateBonusChest, boolean debug);
+    @Invoker(value = "setInitialSpawn") void invoke_setInitialSpawn(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean generateBonusChest, boolean debug);
 }

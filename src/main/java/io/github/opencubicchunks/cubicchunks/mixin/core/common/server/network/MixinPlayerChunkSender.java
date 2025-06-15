@@ -141,14 +141,12 @@ public class MixinPlayerChunkSender {
     private native List<LevelClo> cc_collectChunksToSend(ChunkMap chunkMap, CloPos cloPos);
 
     // FIXME these should probably have some kind of reasonable sort order - at the very least, chunks before cubes
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 0, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 0, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
     private Comparator<Long> cc_onCollectChunksToSend_comparator1(ToIntFunction<Long> keyExtractor) {
         return (a, b) -> 0;
     }
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 1, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 1, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
     private Comparator<LevelClo> cc_onCollectChunksToSend_comparator2(ToIntFunction<LevelClo> keyExtractor) {
         return (a, b) -> 0;
     }

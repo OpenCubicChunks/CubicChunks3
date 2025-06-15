@@ -161,8 +161,8 @@ public interface ClientCubeCache extends CubeSource {
                     && Math.abs(z - this.viewCenterZ) <= this.cubeRadius;
         }
 
-        @Nullable @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"), visibility = PUBLIC)
-        public native LevelCube getChunk(int chunkIndex);
+        @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"), visibility = PUBLIC)
+        public native @Nullable LevelCube getChunk(int chunkIndex);
 
         public void dumpChunks(String filePath) {
             // TODO reimplement debug code

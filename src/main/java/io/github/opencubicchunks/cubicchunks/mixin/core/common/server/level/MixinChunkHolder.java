@@ -109,8 +109,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @TransformFromMethod(@MethodSig("blockChanged(Lnet/minecraft/core/BlockPos;)Z"))
     private native boolean cc_blockChanged(BlockPos pos);
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_blockChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionIndex(I)I"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_blockChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionIndex(I)I"))
     private int cc_onBlockChanged_sectionIndex(LevelHeightAccessor instance, int y, BlockPos pos) {
         return Coords.sectionToIndex(Coords.blockToSection(pos.getX()), Coords.blockToSection(pos.getY()), Coords.blockToSection(pos.getZ()));
     }
@@ -132,8 +131,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     // TODO (P2) lighting - ClientboundLightUpdatePacket branch is currently never reached; once we have lighting it will have to be a CC packet, and
     // this.broadcast will need to redirect to a CC method
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionYFromSectionIndex(I)I"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionYFromSectionIndex(I)I"))
     private int cc_onBroadcastCubeChanges_indexToSectionY(LevelHeightAccessor instance, int sectionIndex) {
         // The vanilla method uses SectionPos.of(ChunkPos, sectionY), but we want SectionPos.of(CubePos, sectionIndex).
         // The easiest way to accomplish this is to turn `getSectionYFromSectionIndex` into a no-op so that we get sectionIndex instead of sectionY.
@@ -141,8 +139,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
         return sectionIndex;
     }
 
-    @Dynamic
-    @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;of(Lio/github/opencubicchunks/cc_core/api/CubePos;I)Lnet/minecraft/core/SectionPos;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;of(Lio/github/opencubicchunks/cc_core/api/CubePos;I)Lnet/minecraft/core/SectionPos;"))
     private SectionPos cc_onBroadcastCubeChanges_sectionPos(CubePos cubePos, int sectionIndex) {
         return Coords.sectionPosByIndex(cubePos, sectionIndex);
     }

@@ -11,13 +11,14 @@ public class FixAnnotationsFormatterStep implements FormatterStep {
         return "cc_fix_annotations";
     }
 
-    private static final String[] ANNOTATIONS = { "@Shadow", "@Final", "@Mutable", "@Public", "@Override", "@Nullable", "@NotNull", };
+    private static final String[] ANNOTATIONS = { "@Shadow", "@Final", "@Mutable", "@Public", "@Override", "@Nullable", "@NotNull", "@Invoker",
+        "@Accessor", "@Dynamic" };
 
     @Override public @Nullable String format(String s, @NotNull File file) {
         var outputString = s;
         for (var annotation : ANNOTATIONS) {
             // Remove newlines after the listed annotations
-            outputString = outputString.replaceAll(annotation + "\\n\\h*", annotation + " ");
+            outputString = outputString.replaceAll("(" + annotation + "(:?\\([^()\\n]*\\))?)\\n\\h*", "$1 ");
         }
         return outputString;
     }
