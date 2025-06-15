@@ -21,7 +21,7 @@ public class MixinGenerationChunkHolder_Forge {
     @Shadow public LevelChunk currentlyLoading;
 
     // Corresponds to field added by Forge
-    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_redirects.class, field = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)))
+    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_Forge_Jank_redirects.class, field = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)))
     public LevelCube cc_currentlyLoadingCube;
 
     public LevelClo cc_getCurrentlyLoading() {

@@ -203,7 +203,7 @@ public interface ChunkToCubeSet extends GlobalSet {
     abstract class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
     }
 
-    // Forge stuff
+    //region [Forge stuff]
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
     abstract class ChunkEvent$Load_to_Event_redirects { }
@@ -221,12 +221,11 @@ public interface ChunkToCubeSet extends GlobalSet {
         static native Event create_ChunkEvent$Unload(LevelCube levelCube);
     }
 
-    // TODO dasm inheritance
+    @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
+    abstract class GenerationChunkHolder_Forge_Jank_redirects {}
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    abstract class ChunkHolder_Forge_Jank_redirects {
-        @FieldRedirect(@FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)))
-        public LevelCube cc_currentlyLoadingCube;
-    }
+    abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {}
+    //endregion
 
     @InterOwnerContainer(from = @Ref(ChunkLevel.class), to = @Ref(CubeLevel.class))
     class ChunkLevel_to_CubeLevel_redirects {

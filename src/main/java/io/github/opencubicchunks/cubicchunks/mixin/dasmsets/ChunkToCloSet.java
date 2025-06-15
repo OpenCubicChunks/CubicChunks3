@@ -144,10 +144,6 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoClo.class))
     interface ProtoChunk_to_ProtoClo_redirects extends ChunkAccess_to_CloAccess_redirects {
-        // TODO unnecessary once we have DASM redirect inheritance
-        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
-        CloPos cc_getCloPos();
-
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelHeightAccessor.class), @Ref(Registry.class), @Ref(BlendingData.class) }))
         static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
             throw new DasmFailedToApply();
@@ -212,22 +208,18 @@ public interface ChunkToCloSet extends GlobalSet {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
         static native Event create_ChunkEvent$Unload(LevelCube levelCube);
     }
-    //endregion
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
     abstract class GenerationChunkHolder_Forge_Jank_redirects {
         @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
         public native LevelClo cc_getCurrentlyLoading();
     }
+    @IntraOwnerContainer(@Ref(ChunkHolder.class))
+    abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {}
+    //endregion
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
     class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
-    }
-
-    @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    abstract class ChunkHolder_Forge_Jank_redirects {
-        @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
-        public native LevelClo cc_getCurrentlyLoading();
     }
 
     @IntraOwnerContainer(@Ref(ProcessorChunkProgressListener.class))
