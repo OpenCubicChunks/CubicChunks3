@@ -85,8 +85,8 @@ public class McGitVersion implements Plugin<Project> {
                 shortestVersion = version;
                 shortestCommit = commit;
             } else if (commitCount == shortest) {
-                project.getLogger().warn("Potentially ambiguous version detection: The same amount of commits since " +
-                        commit + "(version=" + version + ") as since " + shortestCommit + " (version=" + shortestVersion + ")");
+                project.getLogger().warn("Potentially ambiguous version detection: The same amount of commits since " + commit + "(version=" + version
+                        + ") as since " + shortestCommit + " (version=" + shortestVersion + ")");
             }
             revWalk.close();
         }
@@ -118,11 +118,7 @@ public class McGitVersion implements Plugin<Project> {
         if (branch.equals("HEAD")) {
             branch = firstNonEmpty(
                     () -> new RuntimeException("Found HEAD branch! This is most likely caused by detached head state! Will assume unknown version!"),
-                    System.getenv("TRAVIS_BRANCH"),
-                    System.getenv("GIT_BRANCH"),
-                    System.getenv("BRANCH_NAME"),
-                    System.getenv("GITHUB_HEAD_REF")
-            );
+                    System.getenv("TRAVIS_BRANCH"), System.getenv("GIT_BRANCH"), System.getenv("BRANCH_NAME"), System.getenv("GITHUB_HEAD_REF"));
         }
 
         if (branch.startsWith("origin/")) {
@@ -131,22 +127,20 @@ public class McGitVersion implements Plugin<Project> {
         return branch;
     }
 
-
     private String getModVersion(Project target, McGitVersionExtension extension, GitVersionInfo describe, String branch, boolean mvn) {
         String mcVersion = getMcVersion(extension);
         if (branch.startsWith("MC_")) {
             String branchMcVersion = branch.substring("MC_".length());
             if (!mcVersion.startsWith(branchMcVersion)) {
-                target.getLogger().warn("Branch version different than project MC version! MC version: " +
-                        mcVersion + ", branch: " + branch + ", branch version: " + branchMcVersion);
+                target.getLogger().warn("Branch version different than project MC version! MC version: " + mcVersion + ", branch: " + branch
+                        + ", branch version: " + branchMcVersion);
             }
         }
 
-        //branches "master" and "MC_something" are not appended to version string, everything else is
-        //only builds from "master" and "MC_version" branches will actually use the correct versioning
-        //but it allows to distinguish between builds from different branches even if version number is the same
-        String branchSuffix = (branch.equals("master") || branch.startsWith("MC_")) ? "" :
-                ("-" + branch.replaceAll("[^a-zA-Z0-9.-]", "_"));
+        // branches "master" and "MC_something" are not appended to version string, everything else is
+        // only builds from "master" and "MC_version" branches will actually use the correct versioning
+        // but it allows to distinguish between builds from different branches even if version number is the same
+        String branchSuffix = (branch.equals("master") || branch.startsWith("MC_")) ? "" : ("-" + branch.replaceAll("[^a-zA-Z0-9.-]", "_"));
         String versionSuffix = extension.getVersionSuffix();
         String modAndApiVersion = describe.baseVersion;
 

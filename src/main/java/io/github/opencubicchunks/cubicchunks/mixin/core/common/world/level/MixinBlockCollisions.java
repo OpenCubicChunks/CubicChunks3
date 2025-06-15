@@ -31,13 +31,16 @@ public class MixinBlockCollisions {
     private boolean cc_isCubic;
 
     @Inject(method = "<init>(Lnet/minecraft/world/level/CollisionGetter;Lnet/minecraft/world/phys/shapes/CollisionContext;Lnet/minecraft/world/phys/AABB;ZLjava/util/function/BiFunction;)V", at = @At("CTOR_HEAD"))
-    private void cc_onInit(CollisionGetter collisionGetter, CollisionContext context, AABB box, boolean onlySuffocatingBlocks, BiFunction resultProvider, CallbackInfo ci) {
+    private void cc_onInit(
+            CollisionGetter collisionGetter, CollisionContext context, AABB box, boolean onlySuffocatingBlocks, BiFunction resultProvider,
+            CallbackInfo ci
+    ) {
         // TODO probably don't cast without an instanceof check in production - for dev it's fine since it will tell us we're missing something
-        if (((CanBeCubic) collisionGetter).cc_isCubic()) cc_isCubic = true;
+        if (((CanBeCubic) collisionGetter).cc_isCubic())
+            cc_isCubic = true;
     }
 
-    @Nullable
-    private BlockGetter cc_getCube(int x, int y, int z) {
+    @Nullable private BlockGetter cc_getCube(int x, int y, int z) {
         int cubeX = Coords.blockToCube(x);
         int cubeY = Coords.blockToCube(y);
         int cubeZ = Coords.blockToCube(z);
@@ -53,8 +56,11 @@ public class MixinBlockCollisions {
     }
 
     @WrapOperation(method = "computeNext", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/BlockCollisions;getChunk(II)Lnet/minecraft/world/level/BlockGetter;"))
-    @Nullable private BlockGetter cc_onComputeNext_getChunk(BlockCollisions instance, int x, int z, Operation<BlockGetter> original, @Local(ordinal = 1) int y) {
-        if (!cc_isCubic) return original.call(instance, x, z);
+    @Nullable private BlockGetter cc_onComputeNext_getChunk(
+            BlockCollisions instance, int x, int z, Operation<BlockGetter> original, @Local(ordinal = 1) int y
+    ) {
+        if (!cc_isCubic)
+            return original.call(instance, x, z);
         return cc_getCube(x, y, z);
     }
 }

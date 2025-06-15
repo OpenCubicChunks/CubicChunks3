@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.gradle;
 
-
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.apache.tools.ant.util.StringUtils.removePrefix;
@@ -28,7 +27,8 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
 // Note: this intentionally only contains the parts that I actually use
-@SuppressWarnings("unused") public class MixinGenExtension {
+@SuppressWarnings("unused")
+public class MixinGenExtension {
 
     private final Map<SourceSet, Map<String, Action<MixinConfig>>> configsBySourceSet = new HashMap<>();
 
@@ -39,8 +39,7 @@ import org.gradle.api.tasks.SourceSet;
     private String defaultCompatibilityLevel;
     private String defaultMinVersion;
 
-    MixinGenExtension() {
-    }
+    MixinGenExtension() {}
 
     public void setFilePattern(String pattern) {
         this.filePattern = pattern;
@@ -253,7 +252,8 @@ import org.gradle.api.tasks.SourceSet;
         });
     }
 
-    private void writeMixins(JavaPluginConvention convention, SourceSet sourceSet, String name, MixinConfig config, JsonWriter writer) throws IOException {
+    private void writeMixins(JavaPluginConvention convention, SourceSet sourceSet, String name, MixinConfig config, JsonWriter writer)
+            throws IOException {
         Set<Path> classes = getMixinClasses(config, sourceSet.getAllJava());
 
         Set<Path> commonSet = new HashSet<>();
@@ -272,12 +272,14 @@ import org.gradle.api.tasks.SourceSet;
                 commonSet.add(relative);
             }
         }
-        Function<Path, String> transform = path ->
-            removeSuffix(removePrefix(path.toString().replace(File.separatorChar, '.'), name + "."), ".java");
+        Function<Path, String> transform = path -> removeSuffix(removePrefix(path.toString().replace(File.separatorChar, '.'), name + "."), ".java");
 
-        List<String> common = commonSet.stream().map(transform).sorted(Comparator.comparing(a -> a.toLowerCase(Locale.ROOT))).collect(Collectors.toList());
-        List<String> client = clientSet.stream().map(transform).sorted(Comparator.comparing(a -> a.toLowerCase(Locale.ROOT))).collect(Collectors.toList());
-        List<String> server = serverSet.stream().map(transform).sorted(Comparator.comparing(a -> a.toLowerCase(Locale.ROOT))).collect(Collectors.toList());
+        List<String> common = commonSet.stream().map(transform).sorted(Comparator.comparing(a -> a.toLowerCase(Locale.ROOT)))
+                .collect(Collectors.toList());
+        List<String> client = clientSet.stream().map(transform).sorted(Comparator.comparing(a -> a.toLowerCase(Locale.ROOT)))
+                .collect(Collectors.toList());
+        List<String> server = serverSet.stream().map(transform).sorted(Comparator.comparing(a -> a.toLowerCase(Locale.ROOT)))
+                .collect(Collectors.toList());
 
         writer.name("mixins").beginArray();
         for (String path : common) {

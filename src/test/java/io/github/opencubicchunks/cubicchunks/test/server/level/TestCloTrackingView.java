@@ -16,7 +16,8 @@ import org.junit.jupiter.api.Test;
 
 public class TestCloTrackingView extends BaseTest {
     // TODO might be possible to test this class more thoroughly, but this should be sufficient for now - non-trivial methods have full coverage
-    @Test public void basicTests() {
+    @Test
+    public void basicTests() {
         var originPos = CloPos.cube(0, 0, 0);
         var originChunk = CloPos.chunk(0, 0);
         var origin = CloTrackingView.cc_of(originPos, 1);
@@ -90,12 +91,14 @@ public class TestCloTrackingView extends BaseTest {
         assertThat(eAdded).allMatch(added::contains);
     }
 
-    @Test public void testDifferenceRandomized() {
+    @Test
+    public void testDifferenceRandomized() {
         var random = new Random(120829);
 
         for (int i = 0; i < 100; i++) {
-            var pos1 = CloPos.cube(random.nextInt(10000)-5000, random.nextInt(10000)-5000, random.nextInt(10000)-5000);
-            var pos2 = CloPos.cube(pos1.getX() + random.nextInt(20)-10, pos1.getY() + random.nextInt(20)-10, pos1.getZ() + random.nextInt(20)-10);
+            var pos1 = CloPos.cube(random.nextInt(10000) - 5000, random.nextInt(10000) - 5000, random.nextInt(10000) - 5000);
+            var pos2 = CloPos.cube(pos1.getX() + random.nextInt(20) - 10, pos1.getY() + random.nextInt(20) - 10,
+                    pos1.getZ() + random.nextInt(20) - 10);
             int r1 = random.nextInt(0, 10);
             int r2 = random.nextInt(0, 10);
             var track1 = CloTrackingView.cc_of(pos1, r1);

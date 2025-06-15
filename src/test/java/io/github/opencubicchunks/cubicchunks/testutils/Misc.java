@@ -36,15 +36,19 @@ public class Misc {
     public static int chebyshevDistance(Vec3i a, Vec3i b) {
         return Math.max(Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY())), Math.abs(a.getZ() - b.getZ()));
     }
+
     public static int chebyshevDistance(ChunkPos a, ChunkPos b) {
         return Math.max(Math.abs(a.x - b.x), Math.abs(a.z - b.z));
     }
 
     public static CloseableReference<ServerLevel> setupServerLevel() {
-        MockedStatic<RandomState> randomStateMockedStatic = Mockito.mockStatic(RandomState.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
+        MockedStatic<RandomState> randomStateMockedStatic = Mockito.mockStatic(RandomState.class,
+                withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         ChunkGenerator noiseBasedChunkGeneratorMock = mock(ChunkGenerator.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-        when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
-        when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
+        when(noiseBasedChunkGeneratorMock.createBiomes(any(), any(), any(), any()))
+                .thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
+        when(noiseBasedChunkGeneratorMock.fillFromNoise(any(), any(), any(), any()))
+                .thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[4]));
         LevelStem levelStemMock = mock(Mockito.RETURNS_DEEP_STUBS);
         when(levelStemMock.type().value().height()).thenReturn(384);
         LevelStorageSource.LevelStorageAccess levelStorageAccessMock = mock(Mockito.RETURNS_DEEP_STUBS);
@@ -53,23 +57,13 @@ public class Misc {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new CloseableReference<>(
-            new ServerLevel(mock(RETURNS_DEEP_STUBS),
+        return new CloseableReference<>(new ServerLevel(mock(RETURNS_DEEP_STUBS),
                 // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
                 // (which occurs when using RETURNS_DEEP_STUBS)
-                Runnable::run,
-                levelStorageAccessMock,
-                mock(RETURNS_DEEP_STUBS),
-                mock(RETURNS_DEEP_STUBS),
-                levelStemMock,
+                Runnable::run, levelStorageAccessMock, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), levelStemMock,
                 // Need to mock an implementation of the interface, so that it also implements CloProgressListener
-                Mockito.<LoggerChunkProgressListener>mock(RETURNS_DEEP_STUBS),
-                false,
-                0,
-                List.of(),
-                false,
-                mock(RETURNS_DEEP_STUBS)),
-            randomStateMockedStatic);
+                Mockito.<LoggerChunkProgressListener>mock(RETURNS_DEEP_STUBS), false, 0, List.of(), false, mock(RETURNS_DEEP_STUBS)),
+                randomStateMockedStatic);
     }
 
     /**
@@ -83,7 +77,8 @@ public class Misc {
                 for (int y = 0; y < CubicConstants.SECTION_DIAMETER; y++) {
                     for (int z = 0; z < CubicConstants.SECTION_DIAMETER; z++) {
                         if (random.nextBoolean()) {
-                            section.setBlockState(x, y, z, random.nextBoolean() ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState(), false);
+                            section.setBlockState(x, y, z, random.nextBoolean() ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState(),
+                                    false);
                         }
                     }
                 }
@@ -93,9 +88,6 @@ public class Misc {
     }
 
     public static <T> void assertDeepEquals(@Nullable T actual, @Nullable T expected) {
-        assertThat(actual)
-            .usingRecursiveComparison()
-            .usingOverriddenEquals()
-            .isEqualTo(expected);
+        assertThat(actual).usingRecursiveComparison().usingOverriddenEquals().isEqualTo(expected);
     }
 }

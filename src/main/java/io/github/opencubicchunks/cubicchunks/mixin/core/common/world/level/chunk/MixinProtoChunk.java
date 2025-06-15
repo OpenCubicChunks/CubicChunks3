@@ -6,5 +6,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed to add the ProtoClo interface
 @Mixin(ProtoChunk.class)
-public abstract class MixinProtoChunk implements ProtoClo {
-}
+public abstract class MixinProtoChunk implements ProtoClo {}

@@ -29,12 +29,13 @@ public class CommonConfig extends BaseConfig {
         config.set(KEY_VERTICAL_VIEW_DISTANCE, 8);
         // TODO more detailed config comment?
         config.setComment(KEY_VERTICAL_VIEW_DISTANCE, """
- The vertical view distance for players in Cubic Chunks dimensions (similar to vanilla render distance for the horizontal axes).\
-""");
+                 The vertical view distance for players in Cubic Chunks dimensions (similar to vanilla render distance for the horizontal axes).\
+                """);
         config.set(KEY_GENERATE_NEW_WORLDS_AS_CC, true);
-        config.setComment(KEY_GENERATE_NEW_WORLDS_AS_CC, """
- Whether or not newly-created worlds generate using Cubic Chunks. (On the client, this is toggled by the button in the world creation GUI.)\
-""");
+        config.setComment(KEY_GENERATE_NEW_WORLDS_AS_CC,
+                """
+                         Whether or not newly-created worlds generate using Cubic Chunks. (On the client, this is toggled by the button in the world creation GUI.)\
+                        """);
         return config;
     }
 

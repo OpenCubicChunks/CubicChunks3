@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.test.server.level;
 
-
 import static io.github.opencubicchunks.cubicchunks.testutils.Misc.setupServerLevel;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -20,35 +19,41 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCubicServerLevel extends BaseTest {
     // TODO: Phase 3 - This needs a more rigorous test down the line when we actually care about entities
-    @Test public void testVanillaSpawningAllowed() throws Exception {
+    @Test
+    public void testVanillaSpawningAllowed() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             assertFalse(serverLevelReference.value().areEntitiesActuallyLoadedAndTicking(new ChunkPos(0, 0)));
         }
     }
 
     // TODO: Phase 3 - This is part of the neoforge API and will need a more rigorous test when we need to support their API
-    @Test public void testVanillaInvalidateCapabilities() throws Exception {
+    @Test
+    public void testVanillaInvalidateCapabilities() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             serverLevelReference.value().invalidateCapabilities(new ChunkPos(0, 0));
         }
     }
 
     // TODO: Stub.
-    @Test public void testVanillaTickChunk() throws Exception {
+    @Test
+    public void testVanillaTickChunk() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             serverLevelReference.value().tickChunk(new LevelChunk(serverLevelReference.value(), new ChunkPos(0, 0)), 10);
         }
     }
 
     // TODO: Stub. This test hangs. Maybe due to ForcedChunksSavedData?
-    @Test @Disabled public void testVanillaSetChunkForced() throws Exception{
+    @Test
+    @Disabled
+    public void testVanillaSetChunkForced() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             serverLevelReference.value().setChunkForced(0, 0, true);
         }
     }
 
     // TODO: Stub.
-    @Test public void testVanillaIsPositionEntityTicking() throws Exception {
+    @Test
+    public void testVanillaIsPositionEntityTicking() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
             assertFalse(serverLevelReference.value().isPositionEntityTicking(BlockPos.ZERO));
         }

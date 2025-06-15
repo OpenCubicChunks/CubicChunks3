@@ -24,6 +24,7 @@ public class TestCubicLevelReader extends BaseTest {
     public static class DummyLevelReader implements CubicLevelReader {
         private CubeAccess ca;
         private LongSet cubePositions;
+
         public DummyLevelReader(CubeAccess ca, LongSet cubePositions) {
             this.ca = ca;
             this.cubePositions = cubePositions;
@@ -39,7 +40,8 @@ public class TestCubicLevelReader extends BaseTest {
     }
 
     // This test is pretty trivial since it just tests methods that are effectively wrappers for hasCube and getCube
-    @Test public void testSingleCubeMethods() {
+    @Test
+    public void testSingleCubeMethods() {
         var random = new Random(9264);
         var cubePositions = new LongAVLTreeSet();
         for (int x = -5; x <= 5; x++) {
@@ -54,7 +56,7 @@ public class TestCubicLevelReader extends BaseTest {
         var levelReader = new DummyLevelReader(mock(), cubePositions);
         var radius = 6 * CubicConstants.DIAMETER_IN_BLOCKS;
         for (int i = 0; i < 500; i++) {
-            var pos = new BlockPos(random.nextInt(2*radius)-radius, random.nextInt(2*radius)-radius, random.nextInt(2*radius)-radius);
+            var pos = new BlockPos(random.nextInt(2 * radius) - radius, random.nextInt(2 * radius) - radius, random.nextInt(2 * radius) - radius);
             var expectedResult = cubePositions.contains(CubePos.asLong(pos));
             assertEquals(expectedResult, levelReader.cc_getCube(pos) != null);
             assertEquals(expectedResult, levelReader.cc_hasCubeAt(pos));
@@ -62,7 +64,8 @@ public class TestCubicLevelReader extends BaseTest {
     }
     // TODO (P2): test cc_getCubeForCollisions
 
-    @Test public void testHasCubesAt() {
+    @Test
+    public void testHasCubesAt() {
         var random = new Random(9264);
         var cubePositions = new LongAVLTreeSet();
         for (int x = -4; x <= 4; x++) {
@@ -76,14 +79,13 @@ public class TestCubicLevelReader extends BaseTest {
         var radius = 6 * CubicConstants.DIAMETER_IN_BLOCKS;
 
         for (int i = 0; i < 2000; i++) {
-            var pos1 = new BlockPos(random.nextInt(2*radius)-radius, random.nextInt(2*radius)-radius, random.nextInt(2*radius)-radius);
-            var pos2 = new BlockPos(random.nextInt(2*radius)-radius, random.nextInt(2*radius)-radius, random.nextInt(2*radius)-radius);
+            var pos1 = new BlockPos(random.nextInt(2 * radius) - radius, random.nextInt(2 * radius) - radius, random.nextInt(2 * radius) - radius);
+            var pos2 = new BlockPos(random.nextInt(2 * radius) - radius, random.nextInt(2 * radius) - radius, random.nextInt(2 * radius) - radius);
             var minPos = new BlockPos(Math.min(pos1.getX(), pos2.getX()), Math.min(pos1.getY(), pos2.getY()), Math.min(pos1.getZ(), pos2.getZ()));
             var maxPos = new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
-            var expectedResult =
-                    Coords.blockToCube(minPos.getX()) >= -4 && Coords.blockToCube(maxPos.getX()) <= 4 &&
-                    Coords.blockToCube(minPos.getY()) >= -4 && Coords.blockToCube(maxPos.getY()) <= 4 &&
-                    Coords.blockToCube(minPos.getZ()) >= -4 && Coords.blockToCube(maxPos.getZ()) <= 4;
+            var expectedResult = Coords.blockToCube(minPos.getX()) >= -4 && Coords.blockToCube(maxPos.getX()) <= 4
+                    && Coords.blockToCube(minPos.getY()) >= -4 && Coords.blockToCube(maxPos.getY()) <= 4 && Coords.blockToCube(minPos.getZ()) >= -4
+                    && Coords.blockToCube(maxPos.getZ()) <= 4;
             assertEquals(expectedResult, levelReader.cc_hasCubesAt(minPos, maxPos));
         }
     }

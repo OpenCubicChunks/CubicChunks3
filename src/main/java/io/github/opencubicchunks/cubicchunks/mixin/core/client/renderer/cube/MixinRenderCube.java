@@ -15,7 +15,8 @@ public abstract class MixinRenderCube {
     /**
      * Redirect to use cube section indexing instead of chunk section indexing
      */
-    @Dynamic @Redirect(method = "getBlockState", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/world/level/cube/LevelCube;getSectionIndex(I)I"))
+    @Dynamic
+    @Redirect(method = "getBlockState", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/world/level/cube/LevelCube;getSectionIndex(I)I"))
     private int cc_onGetBlockState_SectionIndex(LevelCube instance, int y, BlockPos pos) {
         return Coords.blockToIndex(pos);
     }

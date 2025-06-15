@@ -17,16 +17,20 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(DistanceManager.PlayerTicketTracker.class)
 public abstract class MixinPlayerTicketTracker extends MixinFixedPlayerDistanceChunkTracker {
-    @SuppressWarnings("target") @Shadow @Final DistanceManager this$0;
+    @SuppressWarnings("target")
+    @Shadow @Final DistanceManager this$0;
 
     /**
      * This modifies the lambda inside Distance.this.ticketDispatcher.onLevelChange to use a CloPos instead of a ChunkPos.
      */
     @WrapWithCondition(method = "runAllUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ThrottlingChunkTaskDispatcher;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
-    private boolean cc_onRunAllUpdates(ThrottlingChunkTaskDispatcher instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer) {
-        if(!cc_isCubic) return true;
-        ((CloTaskDispatcher)((DistanceManagerAccess)this$0).cc_ticketDispatcher())
-            .cc_onLevelChange(CloPos.fromLong(chunkPos.toLong()), intSupplier, i, intConsumer);
+    private boolean cc_onRunAllUpdates(
+            ThrottlingChunkTaskDispatcher instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer
+    ) {
+        if (!cc_isCubic)
+            return true;
+        ((CloTaskDispatcher) ((DistanceManagerAccess) this$0).cc_ticketDispatcher()).cc_onLevelChange(CloPos.fromLong(chunkPos.toLong()), intSupplier,
+                i, intConsumer);
         return false;
     }
 }

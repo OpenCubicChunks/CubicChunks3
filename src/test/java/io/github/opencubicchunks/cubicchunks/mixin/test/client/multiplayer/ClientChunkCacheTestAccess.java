@@ -9,7 +9,14 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientChunkCache.class)
 public interface ClientChunkCacheTestAccess {
-    @Dynamic @Accessor("cc_cubeStorage") ClientCubeCache.Storage cubeStorage();
-    @Dynamic @Accessor("cc_emptyCube") LevelCube emptyCube();
-    @Accessor("storage") ClientChunkCache.Storage chunkStorage();
+    @Dynamic
+    @Accessor("cc_cubeStorage")
+    ClientCubeCache.Storage cubeStorage();
+
+    @Dynamic
+    @Accessor("cc_emptyCube")
+    LevelCube emptyCube();
+
+    @Accessor("storage")
+    ClientChunkCache.Storage chunkStorage();
 }

@@ -14,11 +14,10 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public interface ServerCubeCache extends CubeSource {
-    CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFuture(
-        int pX, int pY, int pZ, ChunkStatus pChunkStatus, boolean pLoad
-    );
+    CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFuture(int pX, int pY, int pZ, ChunkStatus pChunkStatus, boolean pLoad);
 
     void cc_blockChanged(BlockPos pos);
+
     void cc_onLightUpdate(LightLayer pType, SectionPos pPos);
 
     void cc_addTicket(Ticket ticket, CloPos cloPos);

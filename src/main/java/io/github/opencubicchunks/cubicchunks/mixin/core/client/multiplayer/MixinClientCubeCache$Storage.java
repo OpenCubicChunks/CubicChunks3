@@ -5,5 +5,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(ClientCubeCache.Storage.class)
-public class MixinClientCubeCache$Storage {
-}
+public class MixinClientCubeCache$Storage {}

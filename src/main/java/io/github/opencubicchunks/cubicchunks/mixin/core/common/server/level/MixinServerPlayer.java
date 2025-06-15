@@ -21,10 +21,12 @@ public abstract class MixinServerPlayer extends MixinEntity implements CCServerP
     @AddFieldToSets(containers = ChunkToCloSet.ServerPlayer_redirects.class, field = @FieldSig(type = @Ref(ChunkTrackingView.class), name = "chunkTrackingView"))
     private CloTrackingView cc_cloTrackingView = CloTrackingView.EMPTY;
 
-    @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class) @TransformFromMethod(@MethodSig("getChunkTrackingView()Lnet/minecraft/server/level/ChunkTrackingView;"))
+    @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class)
+    @TransformFromMethod(@MethodSig("getChunkTrackingView()Lnet/minecraft/server/level/ChunkTrackingView;"))
     public native CloTrackingView cc_getCloTrackingView();
 
-    @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class) @TransformFromMethod(@MethodSig("setChunkTrackingView(Lnet/minecraft/server/level/ChunkTrackingView;)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class)
+    @TransformFromMethod(@MethodSig("setChunkTrackingView(Lnet/minecraft/server/level/ChunkTrackingView;)V"))
     public native void cc_setCloTrackingView(CloTrackingView chunkTrackingView);
 
     // TODO P3 :: findDimensionEntryPoint

@@ -23,10 +23,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 /**
- * The vanilla {@link RenderRegionCache} caches {@link LevelChunk}s and {@link RenderChunk}s while rebuilding {@link SectionRenderDispatcher.RenderSection}s
+ * The vanilla {@link RenderRegionCache} caches {@link LevelChunk}s and {@link RenderChunk}s while rebuilding
+ * {@link SectionRenderDispatcher.RenderSection}s
  * and has a method for creating a {@link RenderChunkRegion} for a given {@link SectionPos}.
  * <p/>
- * We modify it by additionally caching {@link LevelCube}s and {@link RenderCube}s, and adding an equivalent method to create a {@link RenderCubeRegion} for a given {@link SectionPos}.
+ * We modify it by additionally caching {@link LevelCube}s and {@link RenderCube}s, and adding an equivalent method to create a
+ * {@link RenderCubeRegion} for a given {@link SectionPos}.
  */
 @Mixin(RenderRegionCache.class)
 public abstract class MixinRenderRegionCache implements CubicRenderRegionCache {
@@ -49,13 +51,12 @@ public abstract class MixinRenderRegionCache implements CubicRenderRegionCache {
         int cubeEndZ = centerCubeZ + 1;
         RenderCube[] renderCubes = new RenderCube[27];
 
-        for(int cubeX = cubeStartX; cubeX <= cubeEndX; ++cubeX) {
-            for(int cubeY = cubeStartY; cubeY <= cubeEndY; ++cubeY) {
-                for(int cubeZ = cubeStartZ; cubeZ <= cubeEndZ; ++cubeZ) {
+        for (int cubeX = cubeStartX; cubeX <= cubeEndX; ++cubeX) {
+            for (int cubeY = cubeStartY; cubeY <= cubeEndY; ++cubeY) {
+                for (int cubeZ = cubeStartZ; cubeZ <= cubeEndZ; ++cubeZ) {
                     int cubeIndex = RenderCubeRegion.index(cubeStartX, cubeStartY, cubeStartZ, cubeX, cubeY, cubeZ);
-                    var cubeInfo = cubeX == centerCubeX && cubeY == centerCubeY && cubeZ == centerCubeZ
-                        ? centerCubeInfo
-                        : this.cc_getChunkInfo(level, cubeX, cubeY, cubeZ);
+                    var cubeInfo = cubeX == centerCubeX && cubeY == centerCubeY && cubeZ == centerCubeZ ? centerCubeInfo
+                            : this.cc_getChunkInfo(level, cubeX, cubeY, cubeZ);
                     renderCubes[cubeIndex] = cubeInfo.renderCube();
                 }
             }
@@ -66,10 +67,7 @@ public abstract class MixinRenderRegionCache implements CubicRenderRegionCache {
     }
 
     private RenderRegionCacheCubeInfo cc_getChunkInfo(Level level, int cubeX, int cubeY, int cubeZ) {
-        return this.chunkInfoCache
-            .computeIfAbsent(
-                CubePos.asLong(cubeX, cubeY, cubeZ),
-                cubePosLong -> new RenderRegionCacheCubeInfo(((CubicLevel) level).cc_getCube(CubePos.extractX(cubePosLong), CubePos.extractY(cubePosLong), CubePos.extractZ(cubePosLong)))
-            );
+        return this.chunkInfoCache.computeIfAbsent(CubePos.asLong(cubeX, cubeY, cubeZ), cubePosLong -> new RenderRegionCacheCubeInfo(
+                ((CubicLevel) level).cc_getCube(CubePos.extractX(cubePosLong), CubePos.extractY(cubePosLong), CubePos.extractZ(cubePosLong))));
     }
 }

@@ -22,7 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MixinChunkStatusTasks {
     @Inject(method = "generateStructureStarts", at = @At("HEAD"), cancellable = true)
     private static void cc_generateStructureStarts(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateStructureStarts(worldGenContext, step, cache, chunk));
@@ -31,7 +32,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "loadStructureStarts", at = @At("HEAD"), cancellable = true)
     private static void cc_loadStructureStarts(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.loadStructureStarts(worldGenContext, step, cache, chunk));
@@ -40,7 +42,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateStructureReferences", at = @At("HEAD"), cancellable = true)
     private static void cc_generateStructureReferences(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateStructureReferences(worldGenContext, step, cache, chunk));
@@ -49,7 +52,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateBiomes", at = @At("HEAD"), cancellable = true)
     private static void cc_generateBiomes(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateBiomes(worldGenContext, step, cache, chunk));
@@ -58,7 +62,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateNoise", at = @At("HEAD"), cancellable = true)
     private static void cc_generateNoise(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateNoise(worldGenContext, step, cache, chunk));
@@ -67,7 +72,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateSurface", at = @At("HEAD"), cancellable = true)
     private static void cc_generateSurface(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateSurface(worldGenContext, step, cache, chunk));
@@ -76,7 +82,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateCarvers", at = @At("HEAD"), cancellable = true)
     private static void cc_generateCarvers(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateCarvers(worldGenContext, step, cache, chunk));
@@ -85,7 +92,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateFeatures", at = @At("HEAD"), cancellable = true)
     private static void cc_generateFeatures(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateFeatures(worldGenContext, step, cache, chunk));
@@ -94,7 +102,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "initializeLight", at = @At("HEAD"), cancellable = true)
     private static void cc_initializeLight(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.initializeLight(worldGenContext, step, cache, chunk));
@@ -103,7 +112,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "light", at = @At("HEAD"), cancellable = true)
     private static void cc_light(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.light(worldGenContext, step, cache, chunk));
@@ -112,7 +122,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "generateSpawn", at = @At("HEAD"), cancellable = true)
     private static void cc_generateSpawn(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.generateSpawn(worldGenContext, step, cache, chunk));
@@ -121,7 +132,8 @@ public class MixinChunkStatusTasks {
 
     @Inject(method = "full", at = @At("HEAD"), cancellable = true)
     private static void cc_full(
-        WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk, CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
+            WorldGenContext worldGenContext, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache, ChunkAccess chunk,
+            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir
     ) {
         if (((CanBeCubic) worldGenContext.level()).cc_isCubic()) {
             cir.setReturnValue(CCChunkStatusTasks.full(worldGenContext, step, cache, chunk));

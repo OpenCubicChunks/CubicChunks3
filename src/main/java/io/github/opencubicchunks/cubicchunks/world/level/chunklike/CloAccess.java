@@ -110,7 +110,9 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
-    void findBlocks(Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output);
+    void findBlocks(
+            Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output
+    );
 
     TickContainerAccess<Block> getBlockTicks();
 
@@ -138,7 +140,8 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 
     NoiseChunk getOrCreateNoiseChunk(Function<CloAccess, NoiseChunk> noiseChunkCreator);
 
-    @Deprecated BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> carverBiomeSettingsProvider);
+    @Deprecated
+    BiomeGenerationSettings carverBiome(Supplier<BiomeGenerationSettings> carverBiomeSettingsProvider);
 
     void fillBiomesFromNoise(BiomeResolver resolver, Climate.Sampler sampler);
 

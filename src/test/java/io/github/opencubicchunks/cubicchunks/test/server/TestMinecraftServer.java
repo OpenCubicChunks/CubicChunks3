@@ -23,33 +23,37 @@ import org.mockito.Answers;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
-
 // TODO :: These tests don't work, because mocking the minecraft server is extremely hard. If anyone can figure it out, please re-enable these tests.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestMinecraftServer extends BaseTest {
     private CloseableReference<IntegratedServer> setupServer() {
         WorldStem worldStemMock = mock(WorldStem.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         when(worldStemMock.registries().compositeAccess().lookupOrThrow(Registries.LEVEL_STEM).containsKey(LevelStem.OVERWORLD)).thenReturn(true);
-        MockedConstruction<ServerFunctionManager> serverFunctionManagerMockedConstruction = Mockito.mockConstruction(ServerFunctionManager.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
-        return new CloseableReference<>(
-           new IntegratedServer(mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), worldStemMock, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS)),
-            serverFunctionManagerMockedConstruction
-        );
+        MockedConstruction<ServerFunctionManager> serverFunctionManagerMockedConstruction = Mockito.mockConstruction(ServerFunctionManager.class,
+                withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
+        return new CloseableReference<>(new IntegratedServer(mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS),
+                mock(RETURNS_DEEP_STUBS), worldStemMock, mock(RETURNS_DEEP_STUBS), mock(RETURNS_DEEP_STUBS)),
+                serverFunctionManagerMockedConstruction);
     }
 
-    @Test @Disabled public void testSetInitialSpawnVanilla() throws Exception {
+    @Test
+    @Disabled
+    public void testSetInitialSpawnVanilla() throws Exception {
         try (CloseableReference<ServerLevel> serverLevelReference = setupServerLevel()) {
-            ((MarkableAsCubic)serverLevelReference.value()).cc_setCubic();
+            ((MarkableAsCubic) serverLevelReference.value()).cc_setCubic();
             try (CloseableReference<IntegratedServer> server = setupServer()) {
-                ((MinecraftServerTestAccess)server.value()).invoke_setInitialSpawn(serverLevelReference.value(), mock(RETURNS_DEEP_STUBS), false, false);
+                ((MinecraftServerTestAccess) server.value()).invoke_setInitialSpawn(serverLevelReference.value(), mock(RETURNS_DEEP_STUBS), false,
+                        false);
             }
         }
     }
 
-    @Test @Disabled void testPrepareLevelsVanilla() throws Exception {
+    @Test
+    @Disabled
+    void testPrepareLevelsVanilla() throws Exception {
         try (CloseableReference<IntegratedServer> server = setupServer()) {
-            ((MarkableAsCubic)server.value().overworld()).cc_setCubic();
-            ((MinecraftServerTestAccess)server.value()).invoke_prepareLevels(mock(RETURNS_DEEP_STUBS));
+            ((MarkableAsCubic) server.value().overworld()).cc_setCubic();
+            ((MinecraftServerTestAccess) server.value()).invoke_prepareLevels(mock(RETURNS_DEEP_STUBS));
         }
     }
 }

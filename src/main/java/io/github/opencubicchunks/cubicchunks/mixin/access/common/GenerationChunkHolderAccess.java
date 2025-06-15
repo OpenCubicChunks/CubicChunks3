@@ -7,5 +7,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(GenerationChunkHolder.class)
 public interface GenerationChunkHolderAccess {
-    @Invoker("removeTask") void cc_invokeRemoveTask(ChunkGenerationTask task);
+    @Invoker("removeTask")
+    void cc_invokeRemoveTask(ChunkGenerationTask task);
 }

@@ -24,7 +24,6 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.level.biome.Biomes;
@@ -38,14 +37,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * The vanilla {@link ClientChunkCache} class stores all loaded chunks on the client and has methods to update and unload them, as well as change the center and range of the chunk storage.
+ * The vanilla {@link ClientChunkCache} class stores all loaded chunks on the client and has methods to update and unload them, as well as change the
+ * center and range of the chunk storage.
  * This mixin adds versions of these methods for cubes, meaning that this class now stores both cubes and chunks.
  */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements ClientCubeCache {
-    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class,
-        field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class, field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))
     volatile ClientCubeCache.Storage cc_cubeStorage;
 
     private LevelCube cc_emptyCube;
@@ -58,9 +57,8 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void cc_onConstruct(ClientLevel level, int viewDistance, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
-            cc_emptyCube = new EmptyLevelCube(
-                level, CubePos.of(0, 0, 0), level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)
-            );
+            cc_emptyCube = new EmptyLevelCube(level, CubePos.of(0, 0, 0),
+                    level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
             cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter
             updateViewRadius(cc_calculateChunkViewDistance(viewDistance));
@@ -76,8 +74,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @Override
-    public void cc_drop(CubePos chunkPos) {
+    @Override public void cc_drop(CubePos chunkPos) {
         if (this.cc_cubeStorage.inRange(chunkPos.getX(), chunkPos.getY(), chunkPos.getZ())) {
             int i = this.cc_cubeStorage.getIndex(chunkPos.getX(), chunkPos.getY(), chunkPos.getZ());
             LevelCube levelCube = this.cc_cubeStorage.getChunk(i);
@@ -89,11 +86,10 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @Override
-    public @Nullable LevelCube cc_getCube(int chunkX, int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load) {
-        if (this.cc_cubeStorage.inRange(chunkX, chunkY,chunkZ)) {
-            LevelCube levelCube = this.cc_cubeStorage.getChunk(this.cc_cubeStorage.getIndex(chunkX, chunkY,chunkZ));
-            if (cc_isValidCube(levelCube, chunkX, chunkY,chunkZ)) {
+    @Override public @Nullable LevelCube cc_getCube(int chunkX, int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load) {
+        if (this.cc_cubeStorage.inRange(chunkX, chunkY, chunkZ)) {
+            LevelCube levelCube = this.cc_cubeStorage.getChunk(this.cc_cubeStorage.getIndex(chunkX, chunkY, chunkZ));
+            if (cc_isValidCube(levelCube, chunkX, chunkY, chunkZ)) {
                 return levelCube;
             }
         }
@@ -101,9 +97,10 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         return load ? this.cc_emptyCube : null;
     }
 
-    @Override
-    public void cc_replaceBiomes(int x, int y, int z, FriendlyByteBuf buffer) {
-        if (true) throw new UnsupportedOperationException("don't remove this exception until packet integration tests are added for this method"); // TODO (P2)
+    @Override public void cc_replaceBiomes(int x, int y, int z, FriendlyByteBuf buffer) {
+        if (true)
+            throw new UnsupportedOperationException("don't remove this exception until packet integration tests are added for this method"); // TODO
+                                                                                                                                             // (P2)
         if (!this.cc_cubeStorage.inRange(x, y, z)) {
             LOGGER.warn("Ignoring cube since it's not in the view range: {}, {}, {}", x, y, z);
         } else {
@@ -117,14 +114,9 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @Override
-    public @Nullable LevelCube cc_replaceWithPacketData(
-        int x,
-        int y,
-        int z,
-        FriendlyByteBuf buffer,
-        Map<Heightmap.Types, long[]> map,
-        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
+    @Override public @Nullable LevelCube cc_replaceWithPacketData(
+            int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
+            Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         if (!this.cc_cubeStorage.inRange(x, y, z)) {
             LOGGER.warn("Ignoring cube since it's not in the view range: {}, {}, {}", x, y, z);
@@ -151,8 +143,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
 
     @Shadow public abstract void updateViewCenter(int x, int z);
 
-    @Override
-    public void cc_updateViewCenter(int x, int y, int z) {
+    @Override public void cc_updateViewCenter(int x, int y, int z) {
         this.cc_cubeStorage.viewCenterX = x;
         this.cc_cubeStorage.viewCenterY = y;
         this.cc_cubeStorage.viewCenterZ = z;
@@ -161,8 +152,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
 
     @Shadow public abstract void updateViewRadius(int viewDistance);
 
-    @Override
-    public void cc_updateViewRadius(int viewDistance) {
+    @Override public void cc_updateViewRadius(int viewDistance) {
         int i = this.cc_cubeStorage.cubeRadius;
         int j = calculateStorageRange(viewDistance);
         if (i != j) {
@@ -171,7 +161,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
             storage.viewCenterY = this.cc_cubeStorage.viewCenterY;
             storage.viewCenterZ = this.cc_cubeStorage.viewCenterZ;
 
-            for(int k = 0; k < this.cc_cubeStorage.chunks.length(); ++k) {
+            for (int k = 0; k < this.cc_cubeStorage.chunks.length(); ++k) {
                 LevelCube levelCube = this.cc_cubeStorage.chunks.get(k);
                 if (levelCube != null) {
                     CubePos cubePos = levelCube.cc_getCloPos().cubePos();
@@ -185,8 +175,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
         updateViewRadius(cc_calculateChunkViewDistance(viewDistance));
     }
 
-    @Shadow
-    private static int calculateStorageRange(int viewDistance) {
+    @Shadow private static int calculateStorageRange(int viewDistance) {
         throw new IllegalStateException("mixin failed to apply");
     }
 
@@ -199,8 +188,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
 
     // TODO gatherStats (only used for debug)
 
-    @Override
-    public int cc_getLoadedCubeCount() {
+    @Override public int cc_getLoadedCubeCount() {
         return this.cc_cubeStorage.chunkCount;
     }
 }

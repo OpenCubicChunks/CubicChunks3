@@ -14,8 +14,10 @@ public abstract class MixinProtoCube extends MixinCubeAccess {
     /**
      * Redirect to use cube section indexing instead of chunk section indexing
      */
-    @Dynamic @Redirect(method = {"markPosForPostprocessing", "cc_dasm$getBlockState", "cc_dasm$getFluidState"}, at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks"
-        + "/world/level/cube/ProtoCube;getSectionIndex(I)I"))
+    @Dynamic
+    @Redirect(method = { "markPosForPostprocessing", "cc_dasm$getBlockState",
+        "cc_dasm$getFluidState" }, at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks"
+                + "/world/level/cube/ProtoCube;getSectionIndex(I)I"))
     private int cc_onGetBlockState_SectionIndex(ProtoCube instance, int i, BlockPos pos) {
         return Coords.blockToIndex(pos);
     }

@@ -5,5 +5,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(CubeAccess.class)
-public class MixinCubeAccess {
-}
+public class MixinCubeAccess {}

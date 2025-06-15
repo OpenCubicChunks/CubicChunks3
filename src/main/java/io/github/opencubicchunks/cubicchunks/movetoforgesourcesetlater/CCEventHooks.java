@@ -3,7 +3,6 @@ package io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
-import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ForgeSet;
@@ -21,7 +20,9 @@ public class CCEventHooks {
     // TODO onTrySpawnPortal?
 
     @AddMethodToSets(containers = ForgeSet.EventHooks_to_CCEventHooks_redirects.class, method = @MethodSig("fireChunkTicketLevelUpdated(Lnet/minecraft/server/level/ServerLevel;JIILnet/minecraft/server/level/ChunkHolder;)V"))
-    public static void fireChunkTicketLevelUpdated(ServerLevel level, long cloPos, int oldTicketLevel, int newTicketLevel, @Nullable ChunkHolder chunkHolder) {
+    public static void fireChunkTicketLevelUpdated(
+            ServerLevel level, long cloPos, int oldTicketLevel, int newTicketLevel, @Nullable ChunkHolder chunkHolder
+    ) {
         if (CloPos.isChunk(cloPos)) {
             EventHooks.fireChunkTicketLevelUpdated(level, cloPos, oldTicketLevel, newTicketLevel, chunkHolder);
         } else {

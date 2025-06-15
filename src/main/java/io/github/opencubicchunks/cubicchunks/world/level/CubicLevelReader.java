@@ -49,9 +49,9 @@ public interface CubicLevelReader extends CubicCollisionGetter {
         int minZ = Coords.blockToCube(minBlockZ);
         int maxZ = Coords.blockToCube(maxBlockZ);
 
-        for(int x = minX; x <= maxX; ++x) {
-            for(int z = minZ; z <= maxZ; ++z) {
-                for(int y = minY; y <= maxY; ++y) {
+        for (int x = minX; x <= maxX; ++x) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                for (int y = minY; y <= maxY; ++y) {
                     if (!this.cc_hasCube(x, y, z)) {
                         return false;
                     }

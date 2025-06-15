@@ -34,6 +34,7 @@ public abstract class MixinChunkTaskPriorityQueue implements MarkableAsCubic {
     }
 
     @UsedFromASM
-    @AddTransformToSets(ChunkToCloSet.ChunkTaskPriorityQueue_redirects.class) @TransformFromMethod(@MethodSig("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.ChunkTaskPriorityQueue_redirects.class)
+    @TransformFromMethod(@MethodSig("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_resortCubicTasks(int queueLevel, CloPos cloPos, int ticketLevel);
 }

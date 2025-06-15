@@ -46,8 +46,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * The vanilla {@link ChunkHolder} class extends {@link GenerationChunkHolder} to have methods for getting a fully loaded chunk, and handle saving dependencies and broadcasting updates to clients.
- * This mixin adds cubic chunks equivalents for methods where necessary, to allow GenerationChunkHolder to dynamically wrap either a chunk or a cube (i.e. a CLO).
+ * The vanilla {@link ChunkHolder} class extends {@link GenerationChunkHolder} to have methods for getting a fully loaded chunk, and handle saving
+ * dependencies and broadcasting updates to clients.
+ * This mixin adds cubic chunks equivalents for methods where necessary, to allow GenerationChunkHolder to dynamically wrap either a chunk or a cube
+ * (i.e. a CLO).
  */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(ChunkHolder.class)
@@ -61,14 +63,16 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @AddFieldToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, field = @FieldSig(type = @Ref(ChunkHolder.PlayerProvider.class), name = "playerProvider"))
     private final PlayerProvider cc_playerProvider;
 
-    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class)
+    @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/lighting/LevelLightEngine;Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;Lnet/minecraft/server/level/ChunkHolder$PlayerProvider;)V"))
     public MixinChunkHolder() {
         throw new DasmFailedToApply();
     }
 
     @Shadow @Nullable public abstract LevelChunk getTickingChunk();
 
-    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class)
+    @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelCube cc_getTickingCube();
 
     @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
@@ -81,10 +85,12 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
 
     @Shadow @Nullable public abstract LevelChunk getChunkToSend();
 
-    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class)
+    @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public native LevelCube cc_getCubeToSend();
 
-    @AddTransformToSets(ChunkToCloSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @AddTransformToSets(ChunkToCloSet.ChunkHolder_redirects.class)
+    @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Nullable public LevelClo cc_getCloToSend() {
         if (cc_cubePos != null) {
             return cc_getCubeToSend();
@@ -103,7 +109,8 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @TransformFromMethod(@MethodSig("blockChanged(Lnet/minecraft/core/BlockPos;)Z"))
     private native boolean cc_blockChanged(BlockPos pos);
 
-    @Dynamic @Redirect(method = "cc_dasm$cc_blockChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionIndex(I)I"))
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_blockChanged", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionIndex(I)I"))
     private int cc_onBlockChanged_sectionIndex(LevelHeightAccessor instance, int y, BlockPos pos) {
         return Coords.sectionToIndex(Coords.blockToSection(pos.getX()), Coords.blockToSection(pos.getY()), Coords.blockToSection(pos.getZ()));
     }
@@ -119,11 +126,14 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     @Shadow public abstract void broadcastChanges(LevelChunk chunk);
 
     // region [cc_broadcastCubeChanges dasm + mixin]
-    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class) @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class)
+    @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("broadcastChanges(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_broadcastCubeChanges(LevelCube cube);
-    // TODO (P2) lighting - ClientboundLightUpdatePacket branch is currently never reached; once we have lighting it will have to be a CC packet, and this.broadcast will need to redirect to a CC method
+    // TODO (P2) lighting - ClientboundLightUpdatePacket branch is currently never reached; once we have lighting it will have to be a CC packet, and
+    // this.broadcast will need to redirect to a CC method
 
-    @Dynamic @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionYFromSectionIndex(I)I"))
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/LevelHeightAccessor;getSectionYFromSectionIndex(I)I"))
     private int cc_onBroadcastCubeChanges_indexToSectionY(LevelHeightAccessor instance, int sectionIndex) {
         // The vanilla method uses SectionPos.of(ChunkPos, sectionY), but we want SectionPos.of(CubePos, sectionIndex).
         // The easiest way to accomplish this is to turn `getSectionYFromSectionIndex` into a no-op so that we get sectionIndex instead of sectionY.
@@ -131,7 +141,8 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
         return sectionIndex;
     }
 
-    @Dynamic @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;of(Lio/github/opencubicchunks/cc_core/api/CubePos;I)Lnet/minecraft/core/SectionPos;"))
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_broadcastCubeChanges", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;of(Lio/github/opencubicchunks/cc_core/api/CubePos;I)Lnet/minecraft/core/SectionPos;"))
     private SectionPos cc_onBroadcastCubeChanges_sectionPos(CubePos cubePos, int sectionIndex) {
         return Coords.sectionPosByIndex(cubePos, sectionIndex);
     }
@@ -146,8 +157,11 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
         }
     }
 
-    @WrapOperation(method = { "lambda$scheduleFullChunkPromotion$4", "demoteFullChunk" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;onFullChunkStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/server/level/FullChunkStatus;)V"))
-    private void cc_onCallChunkMapOnFullChunkStatusChange(ChunkMap instance, ChunkPos chunkPos, FullChunkStatus fullChunkStatus, Operation<Void> original) {
+    @WrapOperation(method = { "lambda$scheduleFullChunkPromotion$4",
+        "demoteFullChunk" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;onFullChunkStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/server/level/FullChunkStatus;)V"))
+    private void cc_onCallChunkMapOnFullChunkStatusChange(
+            ChunkMap instance, ChunkPos chunkPos, FullChunkStatus fullChunkStatus, Operation<Void> original
+    ) {
         if (cc_cubePos != null) {
             ((CubicChunkMap) instance).cc_onFullChunkStatusChange(cc_cubePos, fullChunkStatus);
         } else {
@@ -156,8 +170,10 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     }
 
     @WrapOperation(method = "updateFutures", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkHolder$LevelChangeListener;onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
-    protected void cc_onUpdateFutures_onCallOnLevelChange(ChunkHolder.LevelChangeListener instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer,
-                                                          Operation<Void> original) {
+    protected void cc_onUpdateFutures_onCallOnLevelChange(
+            ChunkHolder.LevelChangeListener instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer,
+            Operation<Void> original
+    ) {
         if (cc_cubePos != null) {
             cc_onLevelChange.cc_onLevelChange(cc_cubePos, intSupplier, i, intConsumer);
         } else {

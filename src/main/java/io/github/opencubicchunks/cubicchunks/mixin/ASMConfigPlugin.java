@@ -61,8 +61,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         boolean developmentEnvironment = false;
         try {
             developmentEnvironment = !FMLEnvironment.production;
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
         MappingsProvider mappings = MappingsProvider.IDENTITY;
 
         // TODO: breaks on fabric (remapped at runtime)
@@ -77,8 +76,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         this.annotationParser = new AnnotationParser(classProvider);
     }
 
-    @Override public void onLoad(String mixinPackage) {
-    }
+    @Override public void onLoad(String mixinPackage) {}
 
     @Override public String getRefMapperConfig() {
         return null;
@@ -97,12 +95,11 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             var classTransform = handleError(this.annotationParser.buildContext().buildClassTarget(targetClass));
             var methodTransformsTarget = handleError(this.annotationParser.buildContext().buildMethodTargets(targetClass, "cc_dasm$"));
 
-            var methodTransforms = Stream.of(methodTransformsTarget, methodTransformsMixin)
-                .filter(Optional::isPresent).map(Optional::get)
-                .flatMap(Collection::stream).toList();
+            var methodTransforms = Stream.of(methodTransformsTarget, methodTransformsMixin).filter(Optional::isPresent).map(Optional::get)
+                    .flatMap(Collection::stream).toList();
 
             String key = mixinClassName + "|" + targetClassName;
-            if (classTransform.isPresent())  {
+            if (classTransform.isPresent()) {
                 // TODO: nice error
                 assert methodTransformsMixin.isEmpty() && methodTransforms.isEmpty() : "Whole class transform WITH method transforms?";
                 ClassTransform transform = classTransform.get();
@@ -112,8 +109,10 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     this.postApplyTargets.put(key, Either.left(transform));
                 }
             } else {
-                Collection<MethodTransform> preTransforms = this.preApplyTargets.computeIfAbsent(key, k -> Either.right(new ArrayList<>())).right().get();
-                Collection<MethodTransform> postTransforms = this.postApplyTargets.computeIfAbsent(key, k -> Either.right(new ArrayList<>())).right().get();
+                Collection<MethodTransform> preTransforms = this.preApplyTargets.computeIfAbsent(key, k -> Either.right(new ArrayList<>())).right()
+                        .get();
+                Collection<MethodTransform> postTransforms = this.postApplyTargets.computeIfAbsent(key, k -> Either.right(new ArrayList<>())).right()
+                        .get();
                 methodTransforms.forEach(transform -> {
                     if (transform.stage() == ApplicationStage.PRE_APPLY) {
                         preTransforms.add(transform);
@@ -132,10 +131,9 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         return true;
     }
 
-    @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) { }
+    @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
 
-    @Nullable
-    @Override public List<String> getMixins() {
+    @Nullable @Override public List<String> getMixins() {
         return null;
     }
 
@@ -150,7 +148,8 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
 
         try {
             // ugly hack to add class metadata to mixin
-            // based on https://github.com/Chocohead/OptiFabric/blob/54fc2ef7533e43d1982e14bc3302bcf156f590d8/src/main/java/me/modmuss50/optifabric/compat/fabricrendererapi
+            // based on
+            // https://github.com/Chocohead/OptiFabric/blob/54fc2ef7533e43d1982e14bc3302bcf156f590d8/src/main/java/me/modmuss50/optifabric/compat/fabricrendererapi
             // /RendererMixinPlugin.java#L25:L44
             Method addMethod = ClassInfo.class.getDeclaredMethod("addMethod", MethodNode.class, boolean.class);
             addMethod.setAccessible(true);
@@ -182,17 +181,17 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
             return;
 
         // Find all DASM-added method nodes and their corresponding MixinMerged method nodes
-        record PrefixMethodPair(MethodNode dasmAddedMethod, MethodNode mixinAddedMethod) { }
+        record PrefixMethodPair(MethodNode dasmAddedMethod, MethodNode mixinAddedMethod) {}
         List<PrefixMethodPair> methodPairs = new ArrayList<>();
         for (MethodNode methodNode : targetClass.methods) {
             if (methodNode.name.contains("cc_dasm$")) {
                 var methodNameWithoutPrefix = methodNode.name.substring(methodNode.name.indexOf("$") + 1);
                 var mixinAddedMethod = targetClass.methods.stream()
-                    .filter(m -> m.name.equals(methodNameWithoutPrefix) && m.desc.equals(methodNode.desc))
-                    .findFirst();
+                        .filter(m -> m.name.equals(methodNameWithoutPrefix) && m.desc.equals(methodNode.desc)).findFirst();
 
                 if (mixinAddedMethod.isEmpty()) {
-                    CubicChunks.LOGGER.info(String.format("Found DASM added method `%s` without a corresponding MixinMerged method", methodNameWithoutPrefix));
+                    CubicChunks.LOGGER
+                            .info(String.format("Found DASM added method `%s` without a corresponding MixinMerged method", methodNameWithoutPrefix));
                 }
                 methodPairs.add(new PrefixMethodPair(methodNode, mixinAddedMethod.orElse(null)));
             }
@@ -210,9 +209,8 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                 prefixMethodPair.dasmAddedMethod.access |= (ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) & prefixMethodPair.mixinAddedMethod.access;
             }
 
-            prefixMethodPair.dasmAddedMethod.name = prefixMethodPair.dasmAddedMethod.name
-                .replace("__init__", "<init>")
-                .replace("__clinit__", "<clinit>");
+            prefixMethodPair.dasmAddedMethod.name = prefixMethodPair.dasmAddedMethod.name.replace("__init__", "<init>").replace("__clinit__",
+                    "<clinit>");
 
             // remove the prefix
             prefixMethodPair.dasmAddedMethod.name = prefixMethodPair.dasmAddedMethod.name.substring("cc_dasm$".length());
@@ -234,7 +232,8 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         for (MethodNode method : targetClass.methods) {
             List<AnnotationNode> visibleAnnotations = method.visibleAnnotations;
             if (visibleAnnotations != null) {
-                if (visibleAnnotations.stream().anyMatch(annotationNode -> annotationNode.desc.equals("L" + Public.class.getName().replace('.', '/') + ";"))) {
+                if (visibleAnnotations.stream()
+                        .anyMatch(annotationNode -> annotationNode.desc.equals("L" + Public.class.getName().replace('.', '/') + ";"))) {
                     method.access &= ~(ACC_PRIVATE | ACC_PROTECTED);
                     method.access |= ACC_PUBLIC;
                 }
@@ -245,7 +244,8 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
     /**
      * @return Whether any transformation was done to the targetClass
      */
-    private boolean transformClass(String targetClassName, ClassNode targetClass, String mixinClassName, ApplicationStage stage) throws DasmException {
+    private boolean transformClass(String targetClassName, ClassNode targetClass, String mixinClassName, ApplicationStage stage)
+            throws DasmException {
         Either<ClassTransform, Collection<MethodTransform>> target = null;
         switch (stage) {
             case PRE_APPLY -> target = preApplyTargets.get(mixinClassName + "|" + targetClassName);

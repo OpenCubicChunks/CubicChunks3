@@ -47,7 +47,7 @@ public class StaticCache3D<T> {
 
     public void forEach(Consumer<T> action) {
         for (Object object : this.cache) {
-            action.accept((T)object);
+            action.accept((T) object);
         }
     }
 
@@ -55,7 +55,7 @@ public class StaticCache3D<T> {
         if (!this.contains(x, y, z)) {
             throw new IllegalArgumentException("Requested out of range value (" + x + "," + y + "," + z + ") from " + this);
         } else {
-            return (T)this.cache[this.getIndex(x, y, z)];
+            return (T) this.cache[this.getIndex(x, y, z)];
         }
     }
 
@@ -66,9 +66,9 @@ public class StaticCache3D<T> {
         return xIndex >= 0 && xIndex < this.sizeX && yIndex >= 0 && yIndex < this.sizeY && zIndex >= 0 && zIndex < this.sizeZ;
     }
 
-    @Override
-    public String toString() {
-        return String.format(Locale.ROOT, "StaticCache3D[%d, %d, %d, %d, %d, %d]", this.minX, this.minY, this.minZ, this.minX + this.sizeX, this.minY + this.sizeY, this.minZ + this.sizeZ);
+    @Override public String toString() {
+        return String.format(Locale.ROOT, "StaticCache3D[%d, %d, %d, %d, %d, %d]", this.minX, this.minY, this.minZ, this.minX + this.sizeX,
+                this.minY + this.sizeY, this.minZ + this.sizeZ);
     }
 
     private int getIndex(int x, int y, int z) {

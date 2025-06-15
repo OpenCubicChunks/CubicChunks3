@@ -22,7 +22,9 @@ public class RenderCube {
     public RenderCube(LevelCube wrapped) {
         throw new DasmFailedToApply();
     }
+
     public native BlockEntity getBlockEntity(BlockPos pos);
+
     // This method is modified with mixin
     public native BlockState getBlockState(BlockPos pos);
 }

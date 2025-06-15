@@ -67,7 +67,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * The vanilla {@link ServerChunkCache} class stores all loaded chunks on the server and has methods for getting chunks, ticking all chunks, handling block+light updates, managing chunkloading tickets, etc.
+ * The vanilla {@link ServerChunkCache} class stores all loaded chunks on the server and has methods for getting chunks, ticking all chunks, handling
+ * block+light updates, managing chunkloading tickets, etc.
  * This mixin adds versions of these methods for cubes, meaning that this class now stores and manages both cubes and chunks.
  */
 @Dasm(ChunkToCubeSet.class)
@@ -109,43 +110,60 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     @Shadow @Final private Set<ChunkHolder> chunkHoldersToBroadcast;
 
     @Inject(method = "<init>", at = @At("CTOR_HEAD"))
-    private void cc_onInit(ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper, StructureTemplateManager structureManager, Executor dispatcher,
-                        ChunkGenerator generator, int viewDistance, int simulationDistance, boolean sync, ChunkProgressListener progressListener,
-                        ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage, CallbackInfo ci) {
-        if (((CanBeCubic) level).cc_isCubic())  {
+    private void cc_onInit(
+            ServerLevel level, LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper,
+            StructureTemplateManager structureManager, Executor dispatcher, ChunkGenerator generator, int viewDistance, int simulationDistance,
+            boolean sync, ChunkProgressListener progressListener, ChunkStatusUpdateListener chunkStatusListener, Supplier overworldDataStorage,
+            CallbackInfo ci
+    ) {
+        if (((CanBeCubic) level).cc_isCubic()) {
             this.cc_setCubic();
         }
     }
 
-    @AddTransformToSets(ChunkToCubeSet.ServerChunkCache_redirects.class) @TransformFromMethod(@MethodSig("storeInCache(JLnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCubeSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(@MethodSig("storeInCache(JLnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     private native void cc_storeInCache(long pChunkPos, CubeAccess pChunk, ChunkStatus pChunkStatus);
 
     @TransformFromMethod(@MethodSig("getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     @Override @Nullable public native CubeAccess cc_getCube(int chunkX, @AddUnusedParam int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load);
 
     // mixin-into-dasm to replace call to getChunk with getCube
-    @Dynamic @Inject(method = "cc_dasm$cc_getCube", cancellable = true, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;supplyAsync(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"))
-    private void cc_getCube_supplyAsync(int pChunkX, int pChunkY, int pChunkZ, ChunkStatus pRequiredStatus, boolean pLoad, CallbackInfoReturnable<CubeAccess> cir) {
-        cir.setReturnValue(CompletableFuture.supplyAsync(() -> this.cc_getCube(pChunkX, pChunkY, pChunkZ, pRequiredStatus, pLoad), this.mainThreadProcessor).join());
+    @Dynamic
+    @Inject(method = "cc_dasm$cc_getCube", cancellable = true, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;supplyAsync(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"))
+    private void cc_getCube_supplyAsync(
+            int pChunkX, int pChunkY, int pChunkZ, ChunkStatus pRequiredStatus, boolean pLoad, CallbackInfoReturnable<CubeAccess> cir
+    ) {
+        cir.setReturnValue(CompletableFuture
+                .supplyAsync(() -> this.cc_getCube(pChunkX, pChunkY, pChunkZ, pRequiredStatus, pLoad), this.mainThreadProcessor).join());
     }
 
-    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of getCube
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_chunkAsLong(II)J"))
+    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the
+    // params of getCube
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_chunkAsLong(II)J"))
     private long cc_getCube_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
         return CloPos.cubeAsLong(pX, pY, pZ);
     }
 
-    // The second through fifth params are the params to the call being redirected; the next three params are the x/y/z coordinates in the params of getCube
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
-    private CompletableFuture cc_getCube_getChunkFutureMainThread(ServerChunkCache instance, int chunkX, int chunkZ, ChunkStatus requiredStatus, boolean load, int chunkXRepeated, int chunkY, int chunkZRepeated) {
+    // The second through fifth params are the params to the call being redirected; the next three params are the x/y/z coordinates in the params of
+    // getCube
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_getCube", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
+    private CompletableFuture cc_getCube_getChunkFutureMainThread(
+            ServerChunkCache instance, int chunkX, int chunkZ, ChunkStatus requiredStatus, boolean load, int chunkXRepeated, int chunkY,
+            int chunkZRepeated
+    ) {
         return this.cc_getCubeFutureMainThread(chunkX, chunkY, chunkZ, requiredStatus, load);
     }
 
     @TransformFromMethod(@MethodSig("getChunkNow(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     @Override @Nullable public native LevelCube cc_getCubeNow(int pChunkX, @AddUnusedParam int chunkY, int pChunkZ);
 
-    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of getCubeNow
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCubeNow", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_chunkAsLong(II)J"))
+    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the
+    // params of getCubeNow
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_getCubeNow", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_chunkAsLong(II)J"))
     private long cc_getCubeNow_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
         return CloPos.cubeAsLong(pX, pY, pZ);
     }
@@ -164,20 +182,16 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     // This method requires enough manual redirects that we just replace it entirely
-    @Override
-    public CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFuture(
-        int pX, int chunkY, int pZ, ChunkStatus pChunkStatus, boolean pLoad
-    ) {
+    @Override public CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFuture(int pX, int chunkY, int pZ, ChunkStatus pChunkStatus, boolean pLoad) {
         boolean flag = Thread.currentThread() == this.mainThread;
         CompletableFuture<ChunkResult<CubeAccess>> completablefuture;
         if (flag) {
             completablefuture = this.cc_getCubeFutureMainThread(pX, chunkY, pZ, pChunkStatus, pLoad);
             this.mainThreadProcessor.managedBlock(completablefuture::isDone);
         } else {
-            completablefuture = CompletableFuture.supplyAsync(
-                    () -> this.cc_getCubeFutureMainThread(pX, chunkY, pZ, pChunkStatus, pLoad), this.mainThreadProcessor
-                )
-                .thenCompose(p_8413_ -> p_8413_);
+            completablefuture = CompletableFuture
+                    .supplyAsync(() -> this.cc_getCubeFutureMainThread(pX, chunkY, pZ, pChunkStatus, pLoad), this.mainThreadProcessor)
+                    .thenCompose(p_8413_ -> p_8413_);
         }
 
         return completablefuture;
@@ -185,11 +199,13 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     @TransformFromMethod(@MethodSig("getChunkFutureMainThread(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Ljava/util/concurrent/CompletableFuture;"))
     private native CompletableFuture<ChunkResult<CubeAccess>> cc_getCubeFutureMainThread(
-        int pX, @AddUnusedParam int chunkY, int pZ, ChunkStatus pChunkStatus, boolean pLoad
+            int pX, @AddUnusedParam int chunkY, int pZ, ChunkStatus pChunkStatus, boolean pLoad
     );
 
-    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of cc_getCubeFutureMainThread
-    @Dynamic @Redirect(method = "cc_dasm$cc_getCubeFutureMainThread", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_fromChunkCoords(II)Lio/github/opencubicchunks/cc_core/api/CubePos;"))
+    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the
+    // params of cc_getCubeFutureMainThread
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_getCubeFutureMainThread", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_fromChunkCoords(II)Lio/github/opencubicchunks/cc_core/api/CubePos;"))
     private CubePos cc_getCubeFutureMainThread_chunkPosConstruct(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
         return CubePos.of(pX, pY, pZ);
     }
@@ -197,8 +213,10 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     @TransformFromMethod(@MethodSig("hasChunk(II)Z"))
     public native boolean cc_hasCube(int pX, @AddUnusedParam int y, int pZ);
 
-    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the params of cc_hasCube
-    @Dynamic @Redirect(method = "cc_dasm$cc_hasCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_fromChunkCoords(II)Lio/github/opencubicchunks/cc_core/api/CubePos;"))
+    // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the
+    // params of cc_hasCube
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_hasCube", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cc_core/api/CubePos;dummy_fromChunkCoords(II)Lio/github/opencubicchunks/cc_core/api/CubePos;"))
     private CubePos cc_hasCube_posAsLong(int pX, int pZ, int pXRepeated, int pY, int pZRepeated) {
         return CubePos.of(pX, pY, pZ);
     }
@@ -216,10 +234,12 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class) @TransformFromMethod(@MethodSig("tick(Ljava/util/function/BooleanSupplier;Z)V"))
+    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(@MethodSig("tick(Ljava/util/function/BooleanSupplier;Z)V"))
     public native void cc_tick(BooleanSupplier hasTimeLeft, boolean tickChunks);
 
-    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("broadcastChangedChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V"))
+    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("broadcastChangedChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V"))
     private native void cc_broadcastChangedClos(ProfilerFiller profiler);
 
     @Inject(method = "broadcastChangedChunks", at = @At("HEAD"), cancellable = true)
@@ -230,7 +250,8 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V"))
+    @AddTransformToSets(GlobalSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V"))
     private native void cc_tickClos(ProfilerFiller profiler, long timeInhabited);
 
     @Inject(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V", at = @At("HEAD"), cancellable = true)
@@ -269,22 +290,25 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         }
     }
 
-    @Override
-    @AddMethodToSets(containers = GlobalSet.ServerChunkCache_redirects.class, method = @MethodSig("onLightUpdate(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/SectionPos;)V"))
+    @Override @AddMethodToSets(containers = GlobalSet.ServerChunkCache_redirects.class, method = @MethodSig("onLightUpdate(Lnet/minecraft/world/level/LightLayer;Lnet/minecraft/core/SectionPos;)V"))
     public void cc_onLightUpdate(LightLayer pType, SectionPos pPos) {
         // TODO (P2) lighting
     }
 
-    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_addTicket(Ticket ticket, CloPos cloPos);
 
-    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_addTicketWithRadius(TicketType ticket, CloPos cloPos, int radius);
 
-    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_removeTicketWithRadius(TicketType ticket, CloPos cloPos, int radius);
 
-    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(useRedirectSets = ChunkToCloSet.class, value = @MethodSig("updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z"))
     public native boolean cc_updateCloForced(CloPos pPos, boolean pAdd);
 
     // Cube-specific methods that delegate to the corresponding Clo methods
@@ -309,6 +333,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     // TODO should probably be implemented properly, but is low priority (debug)
-    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class) @TransformFromMethod(@MethodSig("getChunkDebugData(Lnet/minecraft/world/level/ChunkPos;)Ljava/lang/String;"))
+    @AddTransformToSets(ChunkToCloSet.ServerChunkCache_redirects.class)
+    @TransformFromMethod(@MethodSig("getChunkDebugData(Lnet/minecraft/world/level/ChunkPos;)Ljava/lang/String;"))
     public native String cc_getChunkDebugData(CloPos pChunkPos);
 }

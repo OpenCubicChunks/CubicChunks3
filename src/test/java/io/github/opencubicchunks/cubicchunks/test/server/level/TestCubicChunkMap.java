@@ -7,7 +7,8 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 
 /**
- * We do not unit test {@link ChunkMap} as it is very tightly coupled with {@link ChunkGenerationTask}, {@link ChunkHolder} and {@link ServerChunkCache}.
+ * We do not unit test {@link ChunkMap} as it is very tightly coupled with {@link ChunkGenerationTask}, {@link ChunkHolder} and
+ * {@link ServerChunkCache}.
  *
  * @see IntegrationTestCubicChunkMap integration tests
  */

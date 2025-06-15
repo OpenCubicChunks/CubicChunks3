@@ -34,9 +34,11 @@ public abstract class MixinProcessorChunkProgressListener implements CloProgress
         cc_delegate = ((CloProgressListener) delegate);
     }
 
-    @AddTransformToSets(ChunkToCloSet.ProcessorChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.ProcessorChunkProgressListener_redirects.class)
+    @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
     @Override public native void cc_updateSpawnPos(CloPos center);
 
-    @AddTransformToSets(ChunkToCloSet.ProcessorChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCloSet.ProcessorChunkProgressListener_redirects.class)
+    @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }

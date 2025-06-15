@@ -67,8 +67,10 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
  * Should be used for DASM transforms that work with Clos (i.e. work with both Chunks and Cubes)
- * <br/><br/>
- * Clo-related field and type redirects, and method redirects containing Clo-related types in the signature or return type should be added to this set.
+ * <br/>
+ * <br/>
+ * Clo-related field and type redirects, and method redirects containing Clo-related types in the signature or return type should be added to this
+ * set.
  * <br/>
  * Other redirects may also be added to this set if they should only be applied in contexts working with both Chunks and Cubes.
  * Redirects applicable in all contexts should be added to {@link GlobalSet}.
@@ -112,61 +114,45 @@ public interface ChunkToCloSet extends GlobalSet {
         static LevelClo create(Level level, ChunkPos pos) {
             throw new DasmFailedToApply();
         }
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(Level.class),
-            @Ref(ChunkPos.class),
-            @Ref(UpgradeData.class),
-            @Ref(LevelChunkTicks.class),
-            @Ref(LevelChunkTicks.class),
-            @Ref(long.class),
-            @Ref(LevelChunkSection[].class),
-            @Ref(LevelChunk.PostLoadProcessor.class),
-            @Ref(BlendingData.class)
-        }))
-        static LevelClo create(Level level,
-                               CloPos pos,
-                               UpgradeData data,
-                               LevelChunkTicks<Block> blockTicks,
-                               LevelChunkTicks<Fluid> fluidTicks,
-                               long inhabitedTime,
-                               @Nullable LevelChunkSection[] sections,
-                               @Nullable LevelClo.PostLoadProcessor postLoad,
-                               @Nullable BlendingData blendingData) {
+
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(Level.class), @Ref(ChunkPos.class), @Ref(UpgradeData.class),
+            @Ref(LevelChunkTicks.class), @Ref(LevelChunkTicks.class), @Ref(long.class), @Ref(LevelChunkSection[].class),
+            @Ref(LevelChunk.PostLoadProcessor.class), @Ref(BlendingData.class) }))
+        static LevelClo create(
+                Level level, CloPos pos, UpgradeData data, LevelChunkTicks<Block> blockTicks, LevelChunkTicks<Fluid> fluidTicks, long inhabitedTime,
+                @Nullable LevelChunkSection[] sections, @Nullable LevelClo.PostLoadProcessor postLoad, @Nullable BlendingData blendingData
+        ) {
             throw new DasmFailedToApply();
         }
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ServerLevel.class), @Ref(ProtoChunk.class), @Ref(LevelChunk.PostLoadProcessor.class)  }))
+
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ServerLevel.class), @Ref(ProtoChunk.class),
+            @Ref(LevelChunk.PostLoadProcessor.class) }))
         static LevelClo create(ServerLevel level, ProtoClo clo, @Nullable LevelClo.PostLoadProcessor postLoad) {
             throw new DasmFailedToApply();
         }
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.PostLoadProcessor.class), to = @Ref(LevelClo.PostLoadProcessor.class))
-    interface LevelChunk$PostLoadProcessor_to_LevelClo$PostLoadProcessor_redirects { }
+    interface LevelChunk$PostLoadProcessor_to_LevelClo$PostLoadProcessor_redirects {}
 
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoClo.class))
     interface ProtoChunk_to_ProtoClo_redirects extends ChunkAccess_to_CloAccess_redirects {
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelHeightAccessor.class), @Ref(Registry.class), @Ref(BlendingData.class) }))
-        static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelHeightAccessor.class),
+            @Ref(Registry.class), @Ref(BlendingData.class) }))
+        static ProtoClo create(
+                CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+                @Nullable BlendingData blendingData
+        ) {
             throw new DasmFailedToApply();
         }
 
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = {
-            @Ref(ChunkPos.class),
-            @Ref(UpgradeData.class),
-            @Ref(LevelChunkSection[].class),
-            @Ref(ProtoChunkTicks.class),
-            @Ref(ProtoChunkTicks.class),
-            @Ref(LevelHeightAccessor.class),
-            @Ref(Registry.class),
-            @Ref(BlendingData.class)}))
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(ChunkPos.class), @Ref(UpgradeData.class), @Ref(LevelChunkSection[].class),
+            @Ref(ProtoChunkTicks.class), @Ref(ProtoChunkTicks.class), @Ref(LevelHeightAccessor.class), @Ref(Registry.class),
+            @Ref(BlendingData.class) }))
         static ProtoClo create(
-            CloPos cloPos,
-            UpgradeData upgradeData,
-            @Nullable LevelChunkSection[] sections,
-            ProtoChunkTicks<Block> blockTicks,
-            ProtoChunkTicks<Fluid> liquidTicks,
-            LevelHeightAccessor levelHeightAccessor,
-            Registry<Biome> biomeRegistry,
-            @Nullable BlendingData blendingData
+                CloPos cloPos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTicks,
+                ProtoChunkTicks<Fluid> liquidTicks, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+                @Nullable BlendingData blendingData
         ) {
             throw new DasmFailedToApply();
         }
@@ -174,7 +160,7 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ImposterProtoChunk.class), to = @Ref(ImposterProtoClo.class))
     interface ImposterProtoChunk_to_ImposterProtoClo_redirects {
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class)}))
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class) }))
         static ImposterProtoClo create(LevelClo wrapped, boolean allowWrites) {
             throw new DasmFailedToApply();
         }
@@ -184,17 +170,16 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
-    interface ChunkTrackingView_to_CloTrackingView_redirects {
-    }
+    interface ChunkTrackingView_to_CloTrackingView_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
-    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects implements ChunkTrackingView_to_CloTrackingView_redirects {
-    }
+    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects implements ChunkTrackingView_to_CloTrackingView_redirects {}
 
-    //region [Forge stuff]
+    // region [Forge stuff]
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
-    abstract class ChunkEvent$Load_to_Event_redirects { }
+    abstract class ChunkEvent$Load_to_Event_redirects {}
+
     @InterOwnerContainer(from = @Ref(ChunkEvent.Load.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Load_delegateConstruction {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class), @Ref(boolean.class) }))
@@ -202,10 +187,11 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
-    abstract class ChunkEvent$Unload_to_Event_redirects { }
+    abstract class ChunkEvent$Unload_to_Event_redirects {}
+
     @InterOwnerContainer(from = @Ref(ChunkEvent.Unload.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Unload_delegateConstruction {
-        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
+        @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class) }))
         static native Event create_ChunkEvent$Unload(LevelCube levelCube);
     }
 
@@ -214,87 +200,68 @@ public interface ChunkToCloSet extends GlobalSet {
         @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
         public native LevelClo cc_getCurrentlyLoading();
     }
+
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
     abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {}
-    //endregion
+    // endregion
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
-    }
+    class ChunkHolder_redirects extends GenerationChunkHolder_redirects {}
 
     @IntraOwnerContainer(@Ref(ProcessorChunkProgressListener.class))
-    class ProcessorChunkProgressListener_redirects {
-    }
+    class ProcessorChunkProgressListener_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkGenerationTask.class))
-    class ChunkGenerationTask_redirects {
-    }
+    class ChunkGenerationTask_redirects {}
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
-    class GenerationChunkHolder_redirects {
-    }
+    class GenerationChunkHolder_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkStorage.class))
-    class ChunkStorage_redirects {
-    }
+    class ChunkStorage_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkMap.class))
-    class ChunkMap_redirects extends ChunkStorage_redirects {
-    }
+    class ChunkMap_redirects extends ChunkStorage_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkMap.TrackedEntity.class))
-    class ChunkMap$TrackedEntity_redirects {
-    }
+    class ChunkMap$TrackedEntity_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerChunkCache.class))
-    class ServerChunkCache_redirects {
-    }
+    class ServerChunkCache_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerLevel.class))
-    class ServerLevel_redirects {
-    }
+    class ServerLevel_redirects {}
 
     @IntraOwnerContainer(@Ref(Entity.class))
-    class Entity_redirects {
-    }
+    class Entity_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerPlayer.class))
-    class ServerPlayer_redirects extends Entity_redirects {
-    }
+    class ServerPlayer_redirects extends Entity_redirects {}
 
     @IntraOwnerContainer(@Ref(PlayerChunkSender.class))
-    class PlayerChunkSender_redirects {
-    }
+    class PlayerChunkSender_redirects {}
 
     @InterOwnerContainer(from = @Ref(EventHooks.class), to = @Ref(CCEventHooks.class))
-    class EventHooks_to_CCEventHooks_redirects {
-    }
+    class EventHooks_to_CCEventHooks_redirects {}
 
     @InterOwnerContainer(from = @Ref(CommonHooks.class), to = @Ref(CCCommonHooks.class))
-    class CommonHooks_to_CCCommonHooks_redirects {
-    }
+    class CommonHooks_to_CCCommonHooks_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkTaskDispatcher.class))
-    class ChunkTaskDispatcher_redirects {
-    }
+    class ChunkTaskDispatcher_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkTaskPriorityQueue.class))
-    class ChunkTaskPriorityQueue_redirects {
-    }
+    class ChunkTaskPriorityQueue_redirects {}
 
     @IntraOwnerContainer(@Ref(SimulationChunkTracker.class))
-    class SimulationChunkTracker_redirects {
-    }
+    class SimulationChunkTracker_redirects {}
 
     @IntraOwnerContainer(@Ref(LoggerChunkProgressListener.class))
-    class LoggerChunkProgressListener_redirects {
-    }
+    class LoggerChunkProgressListener_redirects {}
 
     @IntraOwnerContainer(@Ref(StoringChunkProgressListener.class))
-    class StoringChunkProgressListener_redirects {
-    }
+    class StoringChunkProgressListener_redirects {}
 
     @IntraOwnerContainer(@Ref(TicketStorage.class))
-    class TicketStorage_redirects {
-    }
+    class TicketStorage_redirects {}
 }

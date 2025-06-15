@@ -52,7 +52,6 @@ public class TestCCClientboundLevelCubeWithLightPacket extends BaseTest {
         assertDeepEquals(CCClientboundLevelCubeWithLightPacket.STREAM_CODEC.decode(buf2), packet2);
     }
 
-
     @Disabled // TODO disabled until we can apply client-side mixins in tests properly
     @Test
     public void handlerTest() {
@@ -75,6 +74,7 @@ public class TestCCClientboundLevelCubeWithLightPacket extends BaseTest {
 
         handler.handle(packet, payloadContextMock);
 
-        ((ClientCubeCache) verify(clientChunkCacheMock, times(1))).cc_replaceWithPacketData(eq(pos.getX()), eq(pos.getY()), eq(pos.getZ()), any(), any(), any());
+        ((ClientCubeCache) verify(clientChunkCacheMock, times(1))).cc_replaceWithPacketData(eq(pos.getX()), eq(pos.getY()), eq(pos.getZ()), any(),
+                any(), any());
     }
 }

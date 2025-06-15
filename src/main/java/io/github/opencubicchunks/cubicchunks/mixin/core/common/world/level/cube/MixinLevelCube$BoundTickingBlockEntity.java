@@ -4,5 +4,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(targets = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$BoundTickingBlockEntity")
-public class MixinLevelCube$BoundTickingBlockEntity {
-}
+public class MixinLevelCube$BoundTickingBlockEntity {}

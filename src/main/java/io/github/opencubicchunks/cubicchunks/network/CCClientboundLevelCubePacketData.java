@@ -3,7 +3,6 @@ package io.github.opencubicchunks.cubicchunks.network;
 import java.util.Arrays;
 import java.util.Objects;
 
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -55,7 +54,7 @@ public class CCClientboundLevelCubePacketData {
     private static int calculateChunkSize(LevelCube cube) {
         int i = 0;
 
-        for(LevelChunkSection levelchunksection : cube.getSections()) {
+        for (LevelChunkSection levelchunksection : cube.getSections()) {
             i += levelchunksection.getSerializedSize();
         }
 
@@ -74,7 +73,8 @@ public class CCClientboundLevelCubePacketData {
 
     // Implement .equals for unit testing
     @Override public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass())
+            return false;
         CCClientboundLevelCubePacketData that = (CCClientboundLevelCubePacketData) o;
         return Objects.deepEquals(buffer, that.buffer);
     }

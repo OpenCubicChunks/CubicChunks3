@@ -24,9 +24,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.material.Fluid;
@@ -39,10 +39,10 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCubeAccess extends BaseTest {
     static class CubeAccessTestImpl extends CubeAccess {
-        public CubeAccessTestImpl(CubePos cubePos, UpgradeData upgradeData,
-                                  LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
-                                  long inhabitedTime, @Nullable LevelChunkSection[] chunkSections,
-                                  @Nullable BlendingData blendingData) {
+        public CubeAccessTestImpl(
+                CubePos cubePos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, long inhabitedTime,
+                @Nullable LevelChunkSection[] chunkSections, @Nullable BlendingData blendingData
+        ) {
             super(cubePos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, chunkSections, blendingData);
         }
 
@@ -104,13 +104,15 @@ public class TestCubeAccess extends BaseTest {
     }
 
     private void findBlocks(Random random) {
-        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
         var cubeAccess = new CubeAccessTestImpl(cubePos, mock(), mock(), mock(), 0L, new LevelChunkSection[CubicConstants.SECTION_COUNT], mock());
         Set<BlockPos> visitedPositions = new HashSet<>();
         Set<BlockPos> expectedPositions = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
-            BlockPos pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
-            if (!visitedPositions.add(pos)) continue;
+            BlockPos pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
+                    random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+            if (!visitedPositions.add(pos))
+                continue;
             if (random.nextBoolean()) {
                 cubeAccess.setBlockState(pos, Blocks.STONE.defaultBlockState());
                 expectedPositions.add(pos);
@@ -123,7 +125,8 @@ public class TestCubeAccess extends BaseTest {
         assertEquals(expectedPositions, foundPositions);
     }
 
-    @Test public void testFindBlocks() {
+    @Test
+    public void testFindBlocks() {
         var random = new Random(-99);
         for (int i = 0; i < 100; i++) {
             findBlocks(random);

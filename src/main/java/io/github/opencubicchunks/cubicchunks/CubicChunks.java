@@ -29,7 +29,7 @@ public class CubicChunks extends CubicChunksBase {
     public CubicChunks(IEventBus modEventBus) {
         ChunkMap.class.getName();
         // if (!(CubeMap.class.isAssignableFrom(ChunkMap.class))) {
-        //     throw new IllegalStateException("Mixin not applied!");
+        // throw new IllegalStateException("Mixin not applied!");
         // }
         EarlyConfig.getDiameterInSections();
 

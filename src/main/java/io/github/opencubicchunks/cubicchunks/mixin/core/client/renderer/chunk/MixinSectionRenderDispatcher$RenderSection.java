@@ -26,7 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * {@code RenderSection} represents a single {@link LevelChunkSection} to be rendered.
- * We modify it to check cubes instead of chunks when validating the presence of neighboring sections in cubic levels, and to use {@link RenderCubeRegion} instead of {@link RenderChunkRegion}.
+ * We modify it to check cubes instead of chunks when validating the presence of neighboring sections in cubic levels, and to use
+ * {@link RenderCubeRegion} instead of {@link RenderChunkRegion}.
  */
 @Mixin(SectionRenderDispatcher.RenderSection.class)
 public abstract class MixinSectionRenderDispatcher$RenderSection {
@@ -40,8 +41,11 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
         if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic()) {
             return;
         }
-        // TODO (P2) lighting: also check the cubic equivalent of LevelLightEngine.lightOnInColumn here (see vanilla doesChunkExistAt method) - sections currently sometimes fail to render due to this missing check
-        cir.setReturnValue(((CubicLevel) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_getCube(Coords.sectionToCube(SectionPos.x(sectionPosLong)), Coords.sectionToCube(SectionPos.y(sectionPosLong)), Coords.sectionToCube(SectionPos.z(sectionPosLong)), ChunkStatus.FULL, false) != null);
+        // TODO (P2) lighting: also check the cubic equivalent of LevelLightEngine.lightOnInColumn here (see vanilla doesChunkExistAt method) -
+        // sections currently sometimes fail to render due to this missing check
+        cir.setReturnValue(((CubicLevel) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_getCube(
+                Coords.sectionToCube(SectionPos.x(sectionPosLong)), Coords.sectionToCube(SectionPos.y(sectionPosLong)),
+                Coords.sectionToCube(SectionPos.z(sectionPosLong)), ChunkStatus.FULL, false) != null);
     }
 
     /**
@@ -54,7 +58,8 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dz = -1; dz <= 1; dz++) {
-                    if (dx == 0 && dy == 0 && dz == 0) continue;
+                    if (dx == 0 && dy == 0 && dz == 0)
+                        continue;
                     if (!this.doesChunkExistAt(SectionPos.offset(this.sectionNode, dx, dy, dz))) {
                         cir.setReturnValue(false);
                         return;
@@ -65,13 +70,14 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
         cir.setReturnValue(true);
     }
 
-
     /**
-     * Wrap creation of RenderChunkRegion to create a RenderCubeRegion in cubic worlds (return type stays the same because RenderCubeRegion extends RenderChunkRegion)
+     * Wrap creation of RenderChunkRegion to create a RenderCubeRegion in cubic worlds (return type stays the same because RenderCubeRegion extends
+     * RenderChunkRegion)
      */
     @WrapOperation(method = "createCompileTask", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/chunk/RenderRegionCache;createRegion(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/SectionPos;Z)Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;"))
-    @Nullable private RenderChunkRegion cc_onCreateCompileTask_createRegion(RenderRegionCache instance, Level level, SectionPos sectionPos, boolean bool,
-                                                                            Operation<RenderChunkRegion> original) {
+    @Nullable private RenderChunkRegion cc_onCreateCompileTask_createRegion(
+            RenderRegionCache instance, Level level, SectionPos sectionPos, boolean bool, Operation<RenderChunkRegion> original
+    ) {
         if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic())
             return original.call(instance, level, sectionPos, bool);
         return ((CubicRenderRegionCache) instance).cc_createRegion(level, sectionPos, bool);

@@ -18,13 +18,13 @@ public class GeneratePackageInfo {
     public static void generateFiles(SourceSet sourceSet) throws IOException {
         Map<Path, Path> packages = getPackages(sourceSet.getAllJava());
         String code = """
-            @ParametersAreNonnullByDefault
-            @MethodsReturnNonnullByDefault
-            package __PACKAGE__;
-                        
-            import javax.annotation.ParametersAreNonnullByDefault;
-                        
-            import io.github.opencubicchunks.cc_core.annotation.MethodsReturnNonnullByDefault;""";
+                @ParametersAreNonnullByDefault
+                @MethodsReturnNonnullByDefault
+                package __PACKAGE__;
+
+                import javax.annotation.ParametersAreNonnullByDefault;
+
+                import io.github.opencubicchunks.cc_core.annotation.MethodsReturnNonnullByDefault;""";
         for (Path pkg : packages.keySet()) {
             Path absolutePath = packages.get(pkg);
             Path file = absolutePath.resolve("package-info.java");
@@ -45,7 +45,8 @@ public class GeneratePackageInfo {
         for (File it : allJava) {
             Path javaClass = it.getCanonicalFile().toPath();
             if (javaClass.toString().contains("mixin/test")) {
-                // junit will try to load package-info files (when scanning for tests) causing mixin to throw as classes in mixin packages must not be loaded.
+                // junit will try to load package-info files (when scanning for tests) causing mixin to throw as classes in mixin packages must not be
+                // loaded.
                 continue;
             }
             for (Path srcPath : srcPaths) {

@@ -31,7 +31,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- *  We modify Entity to track its cube position, and to replace calls to chunk-specific methods with their corresponding cubic methods when in a cubic Level.
+ * We modify Entity to track its cube position, and to replace calls to chunk-specific methods with their corresponding cubic methods when in a cubic
+ * Level.
  */
 @Dasm(ChunkToCubeSet.class)
 @Mixin(Entity.class)
@@ -40,14 +41,18 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     @Shadow private BlockPos blockPosition;
 
     @Shadow public abstract Level level();
+
     @Shadow public abstract void teleportTo(double x, double y, double z);
+
     @Shadow public abstract AABB getBoundingBox();
+
     @Shadow public abstract int getId();
 
     @AddFieldToSets(containers = ChunkToCubeSet.Entity_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "chunkPosition"))
     private CubePos cc_cubePosition = CubePos.of(0, 0, 0);
 
-    @AddTransformToSets(ChunkToCubeSet.Entity_redirects.class) @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddTransformToSets(ChunkToCubeSet.Entity_redirects.class)
+    @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     public native CubePos cc_cubePosition();
 
     @AddMethodToSets(containers = ChunkToCloSet.Entity_redirects.class, method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
@@ -58,7 +63,8 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     // Update cube position when blockpos changes - this is the same location as where vanilla updates the chunk position
     @Inject(method = "setPosRaw", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;", opcode = Opcodes.PUTFIELD))
     private void cc_onSetPosRaw(double x, double y, double z, CallbackInfo ci) {
-        if (Coords.blockToCube(x) != cc_cubePosition.getX() || Coords.blockToCube(y) != cc_cubePosition.getY() || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
+        if (Coords.blockToCube(x) != cc_cubePosition.getX() || Coords.blockToCube(y) != cc_cubePosition.getY()
+                || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
             this.cc_cubePosition = CubePos.from(this.blockPosition);
         }
     }
@@ -66,7 +72,8 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     // In cubic levels, check for unloaded cubes instead of chunks
     @Inject(method = "touchingUnloadedChunk", at = @At("HEAD"), cancellable = true)
     private void cc_onTouchingUnloadedChunk(CallbackInfoReturnable<Boolean> cir) {
-        if (!((CanBeCubic) this.level).cc_isCubic()) return;
+        if (!((CanBeCubic) this.level).cc_isCubic())
+            return;
         AABB aabb = this.getBoundingBox().inflate(1.0);
         int minX = Mth.floor(aabb.minX);
         int maxX = Mth.ceil(aabb.maxX);

@@ -26,13 +26,12 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 // TODO (P2) the name is currently a lie; no light data :)
 public record CCClientboundLevelCubeWithLightPacket(CubePos pos, CCClientboundLevelCubePacketData cubeData) implements CustomPacketPayload {
-    public static final Type<CCClientboundLevelCubeWithLightPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(CubicChunks.MODID, "level_cube_with_light"));
+    public static final Type<CCClientboundLevelCubeWithLightPacket> TYPE = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(CubicChunks.MODID, "level_cube_with_light"));
 
     public static final StreamCodec<FriendlyByteBuf, CCClientboundLevelCubeWithLightPacket> STREAM_CODEC = StreamCodec.composite(
-        CUBE_POS_STREAM_CODEC, CCClientboundLevelCubeWithLightPacket::pos,
-        CCClientboundLevelCubePacketData.STREAM_CODEC, CCClientboundLevelCubeWithLightPacket::cubeData,
-        CCClientboundLevelCubeWithLightPacket::new
-    );
+            CUBE_POS_STREAM_CODEC, CCClientboundLevelCubeWithLightPacket::pos, CCClientboundLevelCubePacketData.STREAM_CODEC,
+            CCClientboundLevelCubeWithLightPacket::cubeData, CCClientboundLevelCubeWithLightPacket::new);
 
     @Override public Type<? extends CustomPacketPayload> type() {
         return TYPE;
@@ -43,8 +42,7 @@ public record CCClientboundLevelCubeWithLightPacket(CubePos pos, CCClientboundLe
     }
 
     public static class Handler implements IPayloadHandler<CCClientboundLevelCubeWithLightPacket> {
-        @Override
-        public void handle(CCClientboundLevelCubeWithLightPacket payload, IPayloadContext context) {
+        @Override public void handle(CCClientboundLevelCubeWithLightPacket payload, IPayloadContext context) {
             int x = payload.pos.getX();
             int y = payload.pos.getY();
             int z = payload.pos.getZ();
@@ -58,10 +56,8 @@ public record CCClientboundLevelCubeWithLightPacket(CubePos pos, CCClientboundLe
             // TODO P2 :: No block entity tags consumer
             Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> entityTagConsumer = (a) -> {};
 
-            ((ClientCubeCache)(level
-                .getChunkSource()))
-                .cc_replaceWithPacketData(
-                    x, y, z, payload.cubeData.getReadBuffer(), heightmaps, entityTagConsumer);
+            ((ClientCubeCache) (level.getChunkSource())).cc_replaceWithPacketData(x, y, z, payload.cubeData.getReadBuffer(), heightmaps,
+                    entityTagConsumer);
 
             // TODO P2 :: Vanilla does light updates at this point
 //            ClientboundLightUpdatePacketData clientboundlightupdatepacketdata = payload.getLightData();

@@ -10,9 +10,11 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ChunkTracker.class)
 public interface ChunkTrackerTestAccess {
-    @Dynamic @Invoker(remap = false, value = "cc_onSetLevel")
+    @Dynamic
+    @Invoker(remap = false, value = "cc_onSetLevel")
     void invoke_cc_onSetLevel(long pos, int level);
 
-    @Dynamic @Accessor(remap = false, value = "cc_existingCubesForCubeColumns")
+    @Dynamic
+    @Accessor(remap = false, value = "cc_existingCubesForCubeColumns")
     Long2ObjectMap<IntSet> get_cc_existingCubesForCubeColumns();
 }

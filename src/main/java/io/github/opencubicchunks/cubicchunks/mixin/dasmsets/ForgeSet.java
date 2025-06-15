@@ -10,6 +10,5 @@ import net.neoforged.neoforge.event.EventHooks;
 @RedirectSet
 public interface ForgeSet {
     @InterOwnerContainer(from = @Ref(EventHooks.class), to = @Ref(CCEventHooks.class))
-    class EventHooks_to_CCEventHooks_redirects {
-    }
+    class EventHooks_to_CCEventHooks_redirects {}
 }

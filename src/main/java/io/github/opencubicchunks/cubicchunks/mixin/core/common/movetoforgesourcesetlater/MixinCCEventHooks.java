@@ -5,5 +5,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(CCEventHooks.class)
-public class MixinCCEventHooks {
-}
+public class MixinCCEventHooks {}

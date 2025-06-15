@@ -10,4 +10,3 @@ import org.junit.jupiter.api.TestInstance;
 public class TestPlayerRespawnLogic extends BaseTest {
     // TODO: There are no tests here because the only way to test this is with integration tests.
 }
-

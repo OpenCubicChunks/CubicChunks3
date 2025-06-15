@@ -7,5 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SectionOcclusionGraph.GraphEvents.class)
 public interface SectionOcclusionGraph$GraphEventsAccess {
-    @Accessor("chunksWhichReceivedNeighbors") LongSet cc_chunksWhichReceivedNeighbors();
+    @Accessor("chunksWhichReceivedNeighbors")
+    LongSet cc_chunksWhichReceivedNeighbors();
 }

@@ -6,5 +6,4 @@ import org.spongepowered.asm.mixin.Mixin;
 // Needed for DASM to apply
 // TODO won't be necessary once we have dasm.json
 @Mixin(CloTrackingView.class)
-public interface MixinCloTrackingView {
-}
+public interface MixinCloTrackingView {}

@@ -46,7 +46,8 @@ public class TestBlockCollisions extends BaseTest {
         }
     }
 
-    @Test public void testSimpleCCBlockCollisions() {
+    @Test
+    public void testSimpleCCBlockCollisions() {
         Level level = mock();
         when(((CanBeCubic) level).cc_isCubic()).thenReturn(true);
         var blockGetter = DummyBlockGetter.mockBlockGetter(Blocks.STONE.defaultBlockState());
@@ -61,19 +62,23 @@ public class TestBlockCollisions extends BaseTest {
         var random = new Random(-8);
         for (int i = 0; i < 500; i++) {
             // We don't generate positions on the edge of the cube here since BlockCollisions tries to reach into neighboring cubes in that case
-            var blockPos = cubePos.asBlockPos(random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS-1), random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS-1), random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS-1));
+            var blockPos = cubePos.asBlockPos(random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS - 1),
+                    random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS - 1), random.nextInt(1, CubicConstants.DIAMETER_IN_BLOCKS - 1));
             int[] c = new int[] { 0 };
-            var blockCollisions = new BlockCollisions<Void>(level, (Entity) null, AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ())).inflate(-0.2), false, (pos, voxelShape) -> {
-                assertEquals(blockPos, pos);
-                c[0]++;
-                return null;
-            });
+            var blockCollisions = new BlockCollisions<Void>(level, (Entity) null,
+                    AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ())).inflate(-0.2), false,
+                    (pos, voxelShape) -> {
+                        assertEquals(blockPos, pos);
+                        c[0]++;
+                        return null;
+                    });
             blockCollisions.forEachRemaining((v) -> {});
             assertEquals(1, c[0], "block collision callback should be called exactly once");
         }
     }
 
-    @Test public void testCCBlockCollisionsAcrossCubeBorders() {
+    @Test
+    public void testCCBlockCollisionsAcrossCubeBorders() {
         Level level = mock();
         when(((CanBeCubic) level).cc_isCubic()).thenReturn(true);
         var emptyBlockGetter = DummyBlockGetter.mockBlockGetter(Blocks.AIR.defaultBlockState());
@@ -85,18 +90,21 @@ public class TestBlockCollisions extends BaseTest {
         when(((CubicLevel) level).cc_getCubeForCollisions(anyInt(), anyInt(), anyInt())).then(AdditionalAnswers.delegatesTo(cubeGetter));
 
         var cubePos = CubePos.of(-3, -1, -8);
-        var blockPos = cubePos.asBlockPos(CubicConstants.DIAMETER_IN_BLOCKS-1, CubicConstants.DIAMETER_IN_BLOCKS-1, CubicConstants.DIAMETER_IN_BLOCKS-1);
+        var blockPos = cubePos.asBlockPos(CubicConstants.DIAMETER_IN_BLOCKS - 1, CubicConstants.DIAMETER_IN_BLOCKS - 1,
+                CubicConstants.DIAMETER_IN_BLOCKS - 1);
         // AABB that reaches across the corner between 8 cubes
-        var aabb = AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX()+0.5, blockPos.getY()+0.5, blockPos.getZ()+0.5)).inflate(-0.2);
+        var aabb = AABB.unitCubeFromLowerCorner(new Vec3(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5)).inflate(-0.2);
         int[] c = new int[] { 0 };
         var blockCollisions = new BlockCollisions<Void>(level, (Entity) null, aabb, false, (pos, voxelShape) -> {
             var collidedCubePos = CubePos.from(pos);
             System.out.println(pos + " " + collidedCubePos);
-            assertEquals(1, ((collidedCubePos.getX() + collidedCubePos.getY() + collidedCubePos.getZ()) & 1), "should only collide with positions in solid cubes");
+            assertEquals(1, ((collidedCubePos.getX() + collidedCubePos.getY() + collidedCubePos.getZ()) & 1),
+                    "should only collide with positions in solid cubes");
             c[0]++;
             return null;
         });
         blockCollisions.forEachRemaining((v) -> {});
-        assertEquals(4, c[0], "block collision callback should be called exactly four times (four of eight cubes are solid at corner of 3d checkerboard");
+        assertEquals(4, c[0],
+                "block collision callback should be called exactly four times (four of eight cubes are solid at corner of 3d checkerboard");
     }
 }

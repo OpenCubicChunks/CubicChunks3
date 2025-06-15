@@ -14,8 +14,10 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
- * The {@link ChunkSource} class is the abstract parent class of both {@link ClientChunkCache} and {@link ServerChunkCache}, and contains a few methods common to both classes.
- * This mixin adds versions of chunk-related methods for cubes where necessary, as the subclasses of this class are used to track both cubes and chunks when cubic chunks is enabled.
+ * The {@link ChunkSource} class is the abstract parent class of both {@link ClientChunkCache} and {@link ServerChunkCache}, and contains a few
+ * methods common to both classes.
+ * This mixin adds versions of chunk-related methods for cubes where necessary, as the subclasses of this class are used to track both cubes and
+ * chunks when cubic chunks is enabled.
  */
 @Mixin(ChunkSource.class)
 public abstract class MixinChunkSource implements CubeSource, MarkableAsCubic {
@@ -30,11 +32,11 @@ public abstract class MixinChunkSource implements CubeSource, MarkableAsCubic {
     }
 
     public @Nullable LevelCube cc_getCube(int x, int y, int z, boolean forceLoad) {
-        return (LevelCube)this.cc_getCube(x, y, z, ChunkStatus.FULL, forceLoad);
+        return (LevelCube) this.cc_getCube(x, y, z, ChunkStatus.FULL, forceLoad);
     }
 
     public @Nullable LevelCube cc_getCubeNow(int x, int y, int z) {
-        return this.cc_getCube(x, y, z,false);
+        return this.cc_getCube(x, y, z, false);
     }
 
     // TODO: Phase 2 - getCubeForLighting

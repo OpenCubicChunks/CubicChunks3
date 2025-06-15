@@ -31,7 +31,8 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestVanillaCubicParity extends BaseTest {
     private static String stringifyMethod(Method method) {
-        return method.getName() + "(" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ") -> " + method.getReturnType().getName();
+        return method.getName() + "(" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ") -> "
+                + method.getReturnType().getName();
     }
 
     private static boolean isStatic(Method method) {
@@ -44,30 +45,18 @@ public class TestVanillaCubicParity extends BaseTest {
 
     private void testStaticParity(Class<?> vanillaClass, Class<?> cubicClass, Stream<Method> excludes) {
         // TODO we currently only compare method names; need to be able to apply DASM translation since static methods may have differing signatures
-        var excludesSet = excludes
-            .map(Method::getName)
-            .collect(Collectors.toSet());
-        var vanillaMethods = Arrays.stream(vanillaClass.getMethods())
-            .filter(method -> method.getDeclaringClass() == vanillaClass && isStatic(method))
-            .map(Method::getName)
-            .filter(s -> !excludesSet.contains(s))
-            .collect(Collectors.toSet());
-        Arrays.stream(cubicClass.getMethods())
-            .filter(method -> method.getDeclaringClass() == cubicClass && isStatic(method))
-            .map(Method::getName)
-            .forEach(vanillaMethods::remove); // We don't care about static methods that exist on the CC class but not the vanilla class.
+        var excludesSet = excludes.map(Method::getName).collect(Collectors.toSet());
+        var vanillaMethods = Arrays.stream(vanillaClass.getMethods()).filter(method -> method.getDeclaringClass() == vanillaClass && isStatic(method))
+                .map(Method::getName).filter(s -> !excludesSet.contains(s)).collect(Collectors.toSet());
+        Arrays.stream(cubicClass.getMethods()).filter(method -> method.getDeclaringClass() == cubicClass && isStatic(method)).map(Method::getName)
+                .forEach(vanillaMethods::remove); // We don't care about static methods that exist on the CC class but not the vanilla class.
         assertTrue(vanillaMethods.isEmpty(), () -> String.format("""
-            Expected parity in static methods between %s %s and %s %s.
-            Extra methods in %s:
-                %s
-            
-            """,
-            vanillaClass.isInterface() ? "interface" : "class",
-            vanillaClass.getName(),
-            cubicClass.isInterface() ? "interface" : "class",
-            cubicClass.getName(),
-            vanillaClass.getSimpleName(),
-            vanillaMethods.isEmpty() ? "[none]" : String.join("\n    ", vanillaMethods)));
+                Expected parity in static methods between %s %s and %s %s.
+                Extra methods in %s:
+                    %s
+
+                """, vanillaClass.isInterface() ? "interface" : "class", vanillaClass.getName(), cubicClass.isInterface() ? "interface" : "class",
+                cubicClass.getName(), vanillaClass.getSimpleName(), vanillaMethods.isEmpty() ? "[none]" : String.join("\n    ", vanillaMethods)));
     }
 
     private void testParityIncludingAncestors(Class<?> vanillaClass, Class<?> cubicClass) {
@@ -75,113 +64,72 @@ public class TestVanillaCubicParity extends BaseTest {
     }
 
     private void testParityIncludingAncestors(Class<?> vanillaClass, Class<?> cubicClass, Stream<Method> excludes) {
-        var excludesSet = excludes
-            .map(TestVanillaCubicParity::stringifyMethod)
-            .collect(Collectors.toSet());
+        var excludesSet = excludes.map(TestVanillaCubicParity::stringifyMethod).collect(Collectors.toSet());
         var vanillaMethods = Arrays.stream(vanillaClass.getMethods())
-            .filter(method -> method.getDeclaringClass() != Object.class && !isStatic(method))
-            .map(TestVanillaCubicParity::stringifyMethod)
-            .filter(s -> !excludesSet.contains(s))
-            .collect(Collectors.toSet());
-        var cubicMethods = Arrays.stream(cubicClass.getMethods())
-            .filter(method -> method.getDeclaringClass() != Object.class && !isStatic(method))
-            .map(TestVanillaCubicParity::stringifyMethod)
-            .filter(methodString -> !vanillaMethods.remove(methodString)) // Filter methodStrings that are NOT in vanillaMethods
-            .toList();
+                .filter(method -> method.getDeclaringClass() != Object.class && !isStatic(method)).map(TestVanillaCubicParity::stringifyMethod)
+                .filter(s -> !excludesSet.contains(s)).collect(Collectors.toSet());
+        var cubicMethods = Arrays.stream(cubicClass.getMethods()).filter(method -> method.getDeclaringClass() != Object.class && !isStatic(method))
+                .map(TestVanillaCubicParity::stringifyMethod).filter(methodString -> !vanillaMethods.remove(methodString)) // Filter methodStrings
+                                                                                                                           // that are NOT in
+                                                                                                                           // vanillaMethods
+                .toList();
         assertTrue(vanillaMethods.isEmpty() && cubicMethods.isEmpty(), () -> String.format("""
-            Expected parity in non-static methods between %s %s and %s %s.
-            Extra methods in %s:
-                %s
-            Extra methods in %s:
-                %s
-            
-            """,
-            vanillaClass.isInterface() ? "interface" : "class",
-            vanillaClass.getName(),
-            cubicClass.isInterface() ? "interface" : "class",
-            cubicClass.getName(),
-            vanillaClass.getSimpleName(),
-            vanillaMethods.isEmpty() ? "[none]" : String.join("\n    ", vanillaMethods),
-            cubicClass.getSimpleName(),
-            cubicMethods.isEmpty() ? "[none]" : String.join("\n    ", cubicMethods)));
+                Expected parity in non-static methods between %s %s and %s %s.
+                Extra methods in %s:
+                    %s
+                Extra methods in %s:
+                    %s
+
+                """, vanillaClass.isInterface() ? "interface" : "class", vanillaClass.getName(), cubicClass.isInterface() ? "interface" : "class",
+                cubicClass.getName(), vanillaClass.getSimpleName(), vanillaMethods.isEmpty() ? "[none]" : String.join("\n    ", vanillaMethods),
+                cubicClass.getSimpleName(), cubicMethods.isEmpty() ? "[none]" : String.join("\n    ", cubicMethods)));
     }
 
-    @Test public void testChunkAccessParity() throws NoSuchMethodException {
-        testParityIncludingAncestors(
-            ChunkAccess.class,
-            CloAccess.class,
-            Stream.concat(Stream.of(
-                    ChunkAccess.class.getMethod("getPos"),
-                    // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
-                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
-                    ChunkAccess.class.getDeclaredMethod("getLevel")
-            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
-        );
-        testStaticParity(
-            ChunkAccess.class,
-            CubeAccess.class
-        );
+    @Test
+    public void testChunkAccessParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(ChunkAccess.class, CloAccess.class, Stream.concat(Stream.of(ChunkAccess.class.getMethod("getPos"),
+                // TODO need to check existence; these would fail on Fabric
+                ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"), ChunkAccess.class.getDeclaredMethod("getLevel")),
+                Arrays.stream(IAttachmentHolder.class.getMethods())));
+        testStaticParity(ChunkAccess.class, CubeAccess.class);
     }
 
-    @Test public void testLevelChunkParity() throws NoSuchMethodException {
-        testParityIncludingAncestors(
-            LevelChunk.class,
-            LevelClo.class,
-            Stream.concat(Stream.of(
-                    ChunkAccess.class.getMethod("getPos"),
-                    // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
-                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
-                    LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class),
-                    LevelChunk.class.getMethod("setUnsavedListener", LevelChunk.UnsavedListener.class)
-            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
-        );
-        testStaticParity(
-            LevelChunk.class,
-            LevelCube.class
-        );
+    @Test
+    public void testLevelChunkParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(LevelChunk.class, LevelClo.class, Stream.concat(Stream.of(ChunkAccess.class.getMethod("getPos"),
+                // TODO need to check existence; these would fail on Fabric
+                ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"), LevelChunk.class.getMethod("getAuxLightManager", ChunkPos.class),
+                LevelChunk.class.getMethod("setUnsavedListener", LevelChunk.UnsavedListener.class)),
+                Arrays.stream(IAttachmentHolder.class.getMethods())));
+        testStaticParity(LevelChunk.class, LevelCube.class);
     }
 
-    @Test public void testProtoChunkParity() throws NoSuchMethodException {
-        testParityIncludingAncestors(
-            ProtoChunk.class,
-            ProtoClo.class,
-            Stream.concat(Stream.of(
-                    ChunkAccess.class.getMethod("getPos"),
-                    // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
-                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
-                    ChunkAccess.class.getDeclaredMethod("getLevel")
-            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
+    @Test
+    public void testProtoChunkParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(ProtoChunk.class, ProtoClo.class, Stream.concat(Stream.of(ChunkAccess.class.getMethod("getPos"),
+                // TODO need to check existence; these would fail on Fabric
+                ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"), ChunkAccess.class.getDeclaredMethod("getLevel")),
+                Arrays.stream(IAttachmentHolder.class.getMethods()))
 //                IAttachmentHolder.class.getMethods()
         );
-        testStaticParity(
-            ProtoChunk.class,
-            ProtoCube.class
-        );
+        testStaticParity(ProtoChunk.class, ProtoCube.class);
     }
 
-    @Test public void testImposterProtoChunkParity() throws NoSuchMethodException {
-        testParityIncludingAncestors(
-            ImposterProtoChunk.class,
-            ImposterProtoClo.class,
-            Stream.concat(Stream.of(
-                    ChunkAccess.class.getMethod("getPos"),
-                    ImposterProtoChunk.class.getMethod("getWrapped"),
-                    // TODO need to check existence; these would fail on Fabric
-                    ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
-                    ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
-                    ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"),
-                    ChunkAccess.class.getDeclaredMethod("getLevel")
-            ), Arrays.stream(IAttachmentHolder.class.getMethods()))
-        );
-        testStaticParity(
-            ImposterProtoChunk.class,
-            ImposterProtoCube.class
-        );
+    @Test
+    public void testImposterProtoChunkParity() throws NoSuchMethodException {
+        testParityIncludingAncestors(ImposterProtoChunk.class, ImposterProtoClo.class,
+                Stream.concat(Stream.of(ChunkAccess.class.getMethod("getPos"), ImposterProtoChunk.class.getMethod("getWrapped"),
+                        // TODO need to check existence; these would fail on Fabric
+                        ChunkAccess.class.getDeclaredMethod("writeAttachmentsToNBT", HolderLookup.Provider.class),
+                        ChunkAccess.class.getDeclaredMethod("readAttachmentsFromNBT", HolderLookup.Provider.class, CompoundTag.class),
+                        ChunkAccess.class.getDeclaredMethod("getAttachmentHolder"), ChunkAccess.class.getDeclaredMethod("getLevel")),
+                        Arrays.stream(IAttachmentHolder.class.getMethods())));
+        testStaticParity(ImposterProtoChunk.class, ImposterProtoCube.class);
     }
 }

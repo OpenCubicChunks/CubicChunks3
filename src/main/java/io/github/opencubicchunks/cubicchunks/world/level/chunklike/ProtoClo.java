@@ -27,7 +27,10 @@ import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.ProtoChunkTicks;
 
 public interface ProtoClo extends CloAccess {
-    static ProtoClo create(CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
+    static ProtoClo create(
+            CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+            @Nullable BlendingData blendingData
+    ) {
         if (cloPos.isCube()) {
             return new ProtoCube(cloPos.cubePos(), upgradeData, levelHeightAccessor, biomeRegistry, blendingData);
         } else {
@@ -36,19 +39,15 @@ public interface ProtoClo extends CloAccess {
     }
 
     static ProtoClo create(
-        CloPos cloPos,
-        UpgradeData upgradeData,
-        @Nullable LevelChunkSection[] sections,
-        ProtoChunkTicks<Block> blockTicks,
-        ProtoChunkTicks<Fluid> liquidTicks,
-        LevelHeightAccessor levelHeightAccessor,
-        Registry<Biome> biomeRegistry,
-        @Nullable BlendingData blendingData
+            CloPos cloPos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTicks,
+            ProtoChunkTicks<Fluid> liquidTicks, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+            @Nullable BlendingData blendingData
     ) {
         if (cloPos.isCube()) {
             return new ProtoCube(cloPos.cubePos(), upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
         } else {
-            return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry, blendingData);
+            return (ProtoClo) new ProtoChunk(cloPos.chunkPos(), upgradeData, sections, blockTicks, liquidTicks, levelHeightAccessor, biomeRegistry,
+                    blendingData);
         }
     }
 
@@ -62,8 +61,7 @@ public interface ProtoClo extends CloAccess {
 
     Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
-    @Nullable
-    CarvingMask getCarvingMask();
+    @Nullable CarvingMask getCarvingMask();
 
     CarvingMask getOrCreateCarvingMask();
 

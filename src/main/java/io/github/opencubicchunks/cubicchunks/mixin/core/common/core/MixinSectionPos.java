@@ -12,6 +12,7 @@ public abstract class MixinSectionPos {
 
     /**
      * Replaces {@link SectionPos}.chunk() in dasm-copied code in cases where a cube position should be returned, rather than a chunk position.
+     * 
      * @return The position of the cube containing this section, as a {@link CloPos}
      */
     public CloPos cc_cube() {
@@ -20,6 +21,7 @@ public abstract class MixinSectionPos {
 
     /**
      * Replaces {@link SectionPos}.chunk() in dasm-copied code in cases where a chunk position should still be returned, not a cube position.
+     * 
      * @return The position of the chunk containing this section, as a {@link CloPos}
      */
     public CloPos cc_chunk() {

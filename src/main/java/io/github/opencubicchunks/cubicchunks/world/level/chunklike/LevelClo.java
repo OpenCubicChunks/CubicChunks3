@@ -35,21 +35,20 @@ public interface LevelClo extends CloAccess {
             return (LevelClo) new LevelChunk(level, pos.chunkPos());
         }
     }
-    static LevelClo create(Level level,
-                           CloPos pos,
-                           UpgradeData data,
-                           LevelChunkTicks<Block> blockTicks,
-                           LevelChunkTicks<Fluid> fluidTicks,
-                           long inhabitedTime,
-                           @Nullable LevelChunkSection[] sections,
-                           @Nullable PostLoadProcessor postLoad,
-                           @Nullable BlendingData blendingData) {
+
+    static LevelClo create(
+            Level level, CloPos pos, UpgradeData data, LevelChunkTicks<Block> blockTicks, LevelChunkTicks<Fluid> fluidTicks, long inhabitedTime,
+            @Nullable LevelChunkSection[] sections, @Nullable PostLoadProcessor postLoad, @Nullable BlendingData blendingData
+    ) {
         if (pos.isCube()) {
-            return new LevelCube(level, pos.cubePos(), data, blockTicks, fluidTicks, inhabitedTime, sections, PostLoadProcessor.forCube(postLoad), blendingData);
+            return new LevelCube(level, pos.cubePos(), data, blockTicks, fluidTicks, inhabitedTime, sections, PostLoadProcessor.forCube(postLoad),
+                    blendingData);
         } else {
-            return (LevelClo) new LevelChunk(level, pos.chunkPos(), data, blockTicks, fluidTicks, inhabitedTime, sections, PostLoadProcessor.forChunk(postLoad), blendingData);
+            return (LevelClo) new LevelChunk(level, pos.chunkPos(), data, blockTicks, fluidTicks, inhabitedTime, sections,
+                    PostLoadProcessor.forChunk(postLoad), blendingData);
         }
     }
+
     static LevelClo create(ServerLevel level, ProtoClo clo, @Nullable PostLoadProcessor postLoad) {
         if (clo instanceof ProtoCube cube) {
             return new LevelCube(level, cube, PostLoadProcessor.forCube(postLoad));
@@ -62,8 +61,7 @@ public interface LevelClo extends CloAccess {
 
     FluidState getFluidState(int x, int y, int z);
 
-    @Nullable
-    BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
+    @Nullable BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
 
     void addAndRegisterBlockEntity(BlockEntity blockEntity);
 
@@ -74,7 +72,7 @@ public interface LevelClo extends CloAccess {
     boolean isEmpty();
 
     void replaceWithPacketData(
-        FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
+            FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
     );
 
     void replaceBiomes(FriendlyByteBuf buffer);
@@ -104,6 +102,7 @@ public interface LevelClo extends CloAccess {
     @FunctionalInterface
     interface PostLoadProcessor {
         void run(LevelClo chunk);
+
         /**
          * vanilla expects a (LevelChunk -> void) but this PostLoadProcessor is a (LevelClo -> void), so we delegate
          */

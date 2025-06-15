@@ -64,8 +64,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     // Fields matching LevelChunk
     static final Logger LOGGER = LogUtils.getLogger();
     private static final TickingBlockEntity NULL_TICKER = new TickingBlockEntity() {
-        @Override public void tick() {
-        }
+        @Override public void tick() {}
 
         @Override public boolean isRemoved() {
             return true;
@@ -95,21 +94,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
     }
 
     public LevelCube(
-        Level level,
-        CubePos pos,
-        UpgradeData data,
-        LevelChunkTicks<Block> blockTicks,
-        LevelChunkTicks<Fluid> fluidTicks,
-        long inhabitedTime,
-        @Nullable LevelChunkSection[] sections,
-        @Nullable LevelCube.PostLoadProcessor postLoad,
-        @Nullable BlendingData blendingData
+            Level level, CubePos pos, UpgradeData data, LevelChunkTicks<Block> blockTicks, LevelChunkTicks<Fluid> fluidTicks, long inhabitedTime,
+            @Nullable LevelChunkSection[] sections, @Nullable LevelCube.PostLoadProcessor postLoad, @Nullable BlendingData blendingData
     ) {
         super(pos, data, level, level.registryAccess().lookupOrThrow(Registries.BIOME), inhabitedTime, sections, blendingData);
         this.level = level;
         this.gameEventListenerRegistrySections = new Int2ObjectOpenHashMap<>();
 
-        for(Heightmap.Types heightmap$types : Heightmap.Types.values()) {
+        for (Heightmap.Types heightmap$types : Heightmap.Types.values()) {
             if (ChunkStatus.FULL.heightmapsAfter().contains(heightmap$types)) {
                 // TODO (P2) heightmaps
 //                this.heightmaps.put(heightmap$types, new Heightmap(this, heightmap$types));
@@ -122,30 +114,20 @@ public class LevelCube extends CubeAccess implements LevelClo {
     }
 
     public LevelCube(ServerLevel level, ProtoCube cube, @Nullable LevelCube.PostLoadProcessor postLoad) {
-        this(
-            level,
-            cube.cc_getCubePos(),
-            cube.getUpgradeData(),
-            cube.unpackBlockTicks(),
-            cube.unpackFluidTicks(),
-            cube.getInhabitedTime(),
-            cube.getSections(),
-            postLoad,
-            cube.getBlendingData()
-        );
+        this(level, cube.cc_getCubePos(), cube.getUpgradeData(), cube.unpackBlockTicks(), cube.unpackFluidTicks(), cube.getInhabitedTime(),
+                cube.getSections(), postLoad, cube.getBlendingData());
 
         if (!Collections.disjoint(cube.pendingBlockEntities.keySet(), cube.blockEntities.keySet())) {
             LOGGER.error("Cube at {} contains duplicated block entities", cube.cc_getCubePos());
         }
 
-
-        for(BlockEntity blockentity : cube.getBlockEntities().values()) {
+        for (BlockEntity blockentity : cube.getBlockEntities().values()) {
             this.setBlockEntity(blockentity);
         }
 
         this.pendingBlockEntities.putAll(cube.getBlockEntityNbts());
 
-        for(int i = 0; i < cube.getPostProcessing().length; ++i) {
+        for (int i = 0; i < cube.getPostProcessing().length; ++i) {
             this.postProcessing[i] = cube.getPostProcessing()[i];
         }
 
@@ -221,7 +203,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
                 boolean isOnlyAir = chunkSection.hasOnlyAir();
                 if (wasOnlyAir != isOnlyAir) {
                     this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, isOnlyAir);
-                    this.level.getChunkSource().onSectionEmptinessChanged(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()), isOnlyAir);
+                    this.level.getChunkSource().onSectionEmptinessChanged(SectionPos.blockToSectionCoord(pos.getX()),
+                            SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()), isOnlyAir);
                 }
 
                 if (LightEngine.hasDifferentLightProperties(this, pos, previousState, state)) {
@@ -256,18 +239,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
                     if (state.hasBlockEntity()) {
                         BlockEntity blockentity1 = this.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
                         if (blockentity1 != null && !blockentity1.isValidBlockState(state)) {
-                            LOGGER.warn(
-                                "Found mismatched block entity @ {}: type = {}, state = {}",
-                                pos,
-                                blockentity1.getType().builtInRegistryHolder().key().location(),
-                                state
-                            );
+                            LOGGER.warn("Found mismatched block entity @ {}: type = {}, state = {}", pos,
+                                    blockentity1.getType().builtInRegistryHolder().key().location(), state);
                             this.removeBlockEntity(pos);
                             blockentity1 = null;
                         }
 
                         if (blockentity1 == null) {
-                            blockentity1 = ((EntityBlock)block).newBlockEntity(pos, state);
+                            blockentity1 = ((EntityBlock) block).newBlockEntity(pos, state);
                             if (blockentity1 != null) {
                                 this.addAndRegisterBlockEntity(blockentity1);
                             }
@@ -285,7 +264,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
     }
 
     @TransformFromMethod(value = @MethodSig("addEntity(Lnet/minecraft/world/entity/Entity;)V"), owner = @Ref(LevelChunk.class))
-    @Deprecated @Override public native void addEntity(Entity entity);
+    @Deprecated
+    @Override public native void addEntity(Entity entity);
 
     @TransformFromMethod(value = @MethodSig("createBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
     @Nullable private native BlockEntity createBlockEntity(BlockPos pos);
@@ -293,11 +273,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
     @Override @Nullable public native BlockEntity getBlockEntity(BlockPos pos);
 
-    @TransformFromMethod(
-        value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
-            + "Lnet/minecraft/world/level/block/entity/BlockEntity;"),
-        owner = @Ref(LevelChunk.class)
-    )
+    @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
+            + "Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
     @Nullable public native BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
 
     @TransformFromMethod(value = @MethodSig("addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), owner = @Ref(LevelChunk.class))
@@ -319,10 +296,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @Override public native void removeBlockEntity(BlockPos pos);
 
     // TODO maybe shouldn't be dasm
-    @TransformFromMethod(
-        value = @MethodSig("removeGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"),
-        owner = @Ref(LevelChunk.class)
-    )
+    @TransformFromMethod(value = @MethodSig("removeGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"), owner = @Ref(LevelChunk.class))
     private native <T extends BlockEntity> void removeGameEventListener(T blockEntity, ServerLevel level);
 
     @TransformFromMethod(value = @MethodSig("removeGameEventListenerRegistry(I)V"), owner = @Ref(LevelChunk.class))
@@ -338,11 +312,11 @@ public class LevelCube extends CubeAccess implements LevelClo {
     public native boolean isEmpty();
 
     public void replaceWithPacketData(
-        FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
+            FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
     ) {
         this.clearAllBlockEntities();
 
-        for(LevelChunkSection levelchunksection : this.sections) {
+        for (LevelChunkSection levelchunksection : this.sections) {
             levelchunksection.read(buffer);
         }
 
@@ -378,17 +352,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
             }
         }
 
-        for(BlockPos blockpos1 : ImmutableList.copyOf(this.pendingBlockEntities.keySet())) {
+        for (BlockPos blockpos1 : ImmutableList.copyOf(this.pendingBlockEntities.keySet())) {
             this.getBlockEntity(blockpos1);
         }
 
         this.pendingBlockEntities.clear();
     }
 
-    @TransformFromMethod(
-        value = @MethodSig("promotePendingBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/block/entity/BlockEntity;"),
-        owner = @Ref(LevelChunk.class)
-    )
+    @TransformFromMethod(value = @MethodSig("promotePendingBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
     @Nullable private native BlockEntity promotePendingBlockEntity(BlockPos pos, CompoundTag tag);
 
     @TransformFromMethod(value = @MethodSig("unpackTicks(J)V"), owner = @Ref(LevelChunk.class))
@@ -420,39 +391,29 @@ public class LevelCube extends CubeAccess implements LevelClo {
     public native void registerAllBlockEntitiesAfterLevelLoad();
 
     // TODO (P3): GameEvent stuff is a bit concerning
-    @TransformFromMethod(
-        value = @MethodSig("addGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"),
-        owner = @Ref(LevelChunk.class)
-    )
+    @TransformFromMethod(value = @MethodSig("addGameEventListener(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/server/level/ServerLevel;)V"), owner = @Ref(LevelChunk.class))
     private native <T extends BlockEntity> void addGameEventListener(T blockEntity, ServerLevel level);
 
     @TransformFromMethod(value = @MethodSig("updateBlockEntityTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), owner = @Ref(LevelChunk.class))
     private native <T extends BlockEntity> void updateBlockEntityTicker(T blockEntity);
 
-    @TransformFromMethod(
-        value = @MethodSig("createTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/level/block/entity/BlockEntityTicker;)"
-            + "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;"),
-        owner = @Ref(LevelChunk.class)
-    )
+    @TransformFromMethod(value = @MethodSig("createTicker(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/level/block/entity/BlockEntityTicker;)"
+            + "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;"), owner = @Ref(LevelChunk.class))
     private native <T extends BlockEntity> TickingBlockEntity createTicker(T blockEntity, BlockEntityTicker<T> ticker);
 
     // TODO forge stuff
     // FORGE START
 //    private final net.neoforged.neoforge.attachment.AttachmentHolder.AsField attachmentHolder = new net.neoforged.neoforge.attachment.AttachmentHolder.AsField();
 //
-//    @Override
-//    public boolean hasData(net.neoforged.neoforge.attachment.AttachmentType<?> type) {
+//    @Override //    public boolean hasData(net.neoforged.neoforge.attachment.AttachmentType<?> type) {
 //        return attachmentHolder.hasData(type);
 //    }
 //
-//    @Override
-//    public <T> T getData(net.neoforged.neoforge.attachment.AttachmentType<T> type) {
+//    @Override //    public <T> T getData(net.neoforged.neoforge.attachment.AttachmentType<T> type) {
 //        return attachmentHolder.getData(type);
 //    }
 //
-//    @Override
-//    @Nullable
-//    public <T> T setData(net.neoforged.neoforge.attachment.AttachmentType<T> type, T data) {
+//    @Override //    @Nullable //    public <T> T setData(net.neoforged.neoforge.attachment.AttachmentType<T> type, T data) {
 //        setUnsaved(true);
 //        return attachmentHolder.setData(type, data);
 //    }

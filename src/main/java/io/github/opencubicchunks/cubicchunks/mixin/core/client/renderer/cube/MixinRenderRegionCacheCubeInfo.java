@@ -5,5 +5,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(RenderRegionCacheCubeInfo.class)
-public abstract class MixinRenderRegionCacheCubeInfo {
-}
+public abstract class MixinRenderRegionCacheCubeInfo {}

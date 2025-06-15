@@ -5,5 +5,4 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(LevelChunk.class)
-public abstract class MixinLevelChunk implements LevelClo {
-}
+public abstract class MixinLevelChunk implements LevelClo {}

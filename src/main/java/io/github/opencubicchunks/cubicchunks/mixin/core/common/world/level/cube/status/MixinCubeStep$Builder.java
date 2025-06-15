@@ -5,5 +5,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(CubeStep.Builder.class)
-public class MixinCubeStep$Builder {
-}
+public class MixinCubeStep$Builder {}

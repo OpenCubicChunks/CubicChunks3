@@ -5,5 +5,4 @@ import org.spongepowered.asm.mixin.Mixin;
 
 // Needed for DASM to apply
 @Mixin(CCChunkStatusTasks.class)
-public class MixinCCChunkStatusTasks {
-}
+public class MixinCCChunkStatusTasks {}

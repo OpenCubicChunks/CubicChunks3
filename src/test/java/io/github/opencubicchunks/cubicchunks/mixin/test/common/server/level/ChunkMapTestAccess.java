@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ChunkMap.class)
 public interface ChunkMapTestAccess {
-    @Accessor("visibleChunkMap") Long2ObjectLinkedOpenHashMap<ChunkHolder> visibleChunkMap();
+    @Accessor("visibleChunkMap")
+    Long2ObjectLinkedOpenHashMap<ChunkHolder> visibleChunkMap();
 
-    @Invoker @Nullable ChunkHolder invokeUpdateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
+    @Invoker
+    @Nullable ChunkHolder invokeUpdateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
 }

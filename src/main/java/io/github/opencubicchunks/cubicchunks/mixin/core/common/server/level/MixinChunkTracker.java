@@ -21,9 +21,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * {@link ChunkTracker} is a class that determines the edges and as well as the values to be propagated to the edges in {@link DynamicGraphMinFixedPoint}.
+ * {@link ChunkTracker} is a class that determines the edges and as well as the values to be propagated to the edges in
+ * {@link DynamicGraphMinFixedPoint}.
  * It marks all chunks in a 1 chunk radius around the center as edges. Edge chunks have 1 level higher than the center chunk.
- * <br><br>
+ * <br>
+ * <br>
  * This mixin replaces {@link ChunkPos} with {@link CloPos} and adds in logic to handle propagation for cubes.
  */
 @Mixin(ChunkTracker.class)
@@ -31,26 +33,27 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     protected boolean cc_isCubic;
     private int cc_noChunkLevel;
 
-    /** This is a list of all loaded cubes grouped by "big" column positions (32x32 columns) since cubes are 32x32x32.
-     * It is needed for quick lookups to determine which cubes are next to a column when propagating level. */
+    /**
+     * This is a list of all loaded cubes grouped by "big" column positions (32x32 columns) since cubes are 32x32x32.
+     * It is needed for quick lookups to determine which cubes are next to a column when propagating level.
+     */
     private Long2ObjectMap<IntSet> cc_existingCubesForCubeColumns;
 
     protected MixinChunkTracker() {
         super(0, 0, 0);
     }
 
-    @Override
-    public void cc_setCubic() {
+    @Override public void cc_setCubic() {
         cc_isCubic = true;
         cc_existingCubesForCubeColumns = new Long2ObjectLinkedOpenHashMap<>();
-        cc_noChunkLevel = levelCount-1;
+        cc_noChunkLevel = levelCount - 1;
     }
 
     @Override public boolean cc_isCubic() {
         return cc_isCubic;
     }
 
-    @Redirect(method="*", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/ChunkPos;INVALID_CHUNK_POS:J"))
+    @Redirect(method = "*", at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/ChunkPos;INVALID_CHUNK_POS:J"))
     private long cc_sentinelValue() {
         if (cc_isCubic)
             return CloPos.INVALID_CLO_POS;
@@ -58,12 +61,15 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     }
 
     @ModifyConstant(method = "computeLevelFromNeighbor", constant = @Constant(intValue = 1))
-    private int cc_dontIncrementLevelOnCubeChunkEdge(int constant, @Local(ordinal = 0, argsOnly = true) long startPos, @Local(ordinal = 1, argsOnly = true) long endPos) {
-        if (cc_isCubic && CloPos.isCube(startPos) && CloPos.isChunk(endPos)) return 0;
+    private int cc_dontIncrementLevelOnCubeChunkEdge(
+            int constant, @Local(ordinal = 0, argsOnly = true) long startPos, @Local(ordinal = 1, argsOnly = true) long endPos
+    ) {
+        if (cc_isCubic && CloPos.isCube(startPos) && CloPos.isChunk(endPos))
+            return 0;
         return constant;
     }
 
-    @Inject(method="checkNeighborsAfterUpdate", at=@At("HEAD"), cancellable = true)
+    @Inject(method = "checkNeighborsAfterUpdate", at = @At("HEAD"), cancellable = true)
     private void cc_onCheckNeighborsAfterUpdate(long pos, int level, boolean isDecreasing, CallbackInfo ci) {
         if (cc_isCubic) {
             ci.cancel();
@@ -73,16 +79,19 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
 
     /**
      * This computes the propagation of the level from neighbor to neighbor.
-     * <br><br>
+     * <br>
+     * <br>
      * We have to handle two cases: whether we are propagating to a column or a cube.
-     * <br><br>
+     * <br>
+     * <br>
      * However, it is important to note that you cannot propagate from a column to a cube. This is because
      * if we did do that, then a single column could potentially load an infinite amount of cubes. So only
      * cubes can propagate to a column, or cubes propagating to cubes.
      */
-    @Inject(method = "getComputedLevel", at=@At("HEAD"), cancellable = true)
+    @Inject(method = "getComputedLevel", at = @At("HEAD"), cancellable = true)
     private void cc_onGetComputedLevel(long pos, long excludedSourcePos, int level, CallbackInfoReturnable<Integer> cir) {
-        if (!cc_isCubic) return;
+        if (!cc_isCubic)
+            return;
         if (CloPos.isChunk(pos)) {
             int out = level;
 
@@ -163,13 +172,14 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
 
     /**
      * This function adds in new cubes and sorts them into the cube column map.
-     * <br><br>
+     * <br>
+     * <br>
      * It should be called from each implementation of {@link DynamicGraphMinFixedPoint#setLevel(long, int)} on a ChunkTracker subclass.
      * For CC, this is handled by:
      * <ul>
-     *     <li>{@link MixinFixedPlayerDistanceChunkTracker#cc_onSetLevel(long, int)}.</li>
-     *     <li>{@link MixinLoadingChunkTracker#cc_onSetLevel(long, int)}.</li>
-     *     <li>{@link MixinSimulationChunkTracker#cc_onSetLevel(long, int)}.</li>
+     * <li>{@link MixinFixedPlayerDistanceChunkTracker#cc_onSetLevel(long, int)}.</li>
+     * <li>{@link MixinLoadingChunkTracker#cc_onSetLevel(long, int)}.</li>
+     * <li>{@link MixinSimulationChunkTracker#cc_onSetLevel(long, int)}.</li>
      * </ul>
      */
     protected void cc_onSetLevel(long pos, int level) {

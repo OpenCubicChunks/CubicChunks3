@@ -41,9 +41,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * {@link ChunkGenerationTask} handles loading a given chunk at a given {@link ChunkStatus}, including generation if required, and loading neighboring chunks as required.
+ * {@link ChunkGenerationTask} handles loading a given chunk at a given {@link ChunkStatus}, including generation if required, and loading neighboring
+ * chunks as required.
  * <p/>
- * We modify it to support cube loading as well, loading both neighboring cubes and chunks as required, and preserving chunk-cube load order invariants
+ * We modify it to support cube loading as well, loading both neighboring cubes and chunks as required, and preserving chunk-cube load order
+ * invariants
  * (cube status never exceeds the status of any chunks intersecting it)
  */
 @Dasm(GlobalSet.class)
@@ -57,7 +59,8 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     @Shadow @Final private StaticCache2D<GenerationChunkHolder> cache;
     @AddFieldToSets(containers = ChunkToCubeSet.ChunkGenerationTask_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "pos"))
     private CubePos cc_cubePos;
-    // scheduledChunkStatus must be one status higher than the scheduled status for cubes until the target status is reached, to ensure load order invariants are preserved
+    // scheduledChunkStatus must be one status higher than the scheduled status for cubes until the target status is reached, to ensure load order
+    // invariants are preserved
     // we use the vanilla field for cube status, since that is the status of the actual cube that is being generated
     @Nullable public ChunkStatus cc_scheduledChunkStatus;
     @AddFieldToSets(containers = ChunkToCubeSet.ChunkGenerationTask_redirects.class, field = @FieldSig(type = @Ref(StaticCache2D.class), name = "cache"))
@@ -82,15 +85,15 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         int cubeRadius = CubePyramid.CC_GENERATION_PYRAMID_CUBES.getStepTo(targetStatus).getAccumulatedRadiusOf(ChunkStatus.EMPTY);
         int cubeDiameter = cubeRadius * 2 + 1;
         int chunkDiameter = cubeDiameter * CubicConstants.DIAMETER_IN_SECTIONS;
-        // We directly use the StaticCache2D constructor, as the `create` factory method only allows for odd dimensions, and `chunkDiameter` is even (for cube sizes greater than 16)
-        StaticCache2D<GenerationChunkHolder> staticcache2d = new StaticCache2D<>(
-            Coords.cubeToSection(pos.getX() - cubeRadius, 0), Coords.cubeToSection(pos.getZ() - cubeRadius, 0), chunkDiameter, chunkDiameter, (x, z) -> chunkMap.acquireGeneration(ChunkPos.asLong(x, z))
-        );
+        // We directly use the StaticCache2D constructor, as the `create` factory method only allows for odd dimensions, and `chunkDiameter` is even
+        // (for cube sizes greater than 16)
+        StaticCache2D<GenerationChunkHolder> staticcache2d = new StaticCache2D<>(Coords.cubeToSection(pos.getX() - cubeRadius, 0),
+                Coords.cubeToSection(pos.getZ() - cubeRadius, 0), chunkDiameter, chunkDiameter,
+                (x, z) -> chunkMap.acquireGeneration(ChunkPos.asLong(x, z)));
         var chunkGenerationTask = new ChunkGenerationTask(chunkMap, targetStatus, null, staticcache2d);
         ((MixinChunkGenerationTask) (Object) chunkGenerationTask).cc_cubePos = pos;
-        ((MixinChunkGenerationTask) (Object) chunkGenerationTask).cc_cubeCache = StaticCache3D.create(
-            pos.getX(), pos.getY(), pos.getZ(), cubeRadius, (x, y, z) -> chunkMap.acquireGeneration(CubePos.asLong(x, y, z))
-        );
+        ((MixinChunkGenerationTask) (Object) chunkGenerationTask).cc_cubeCache = StaticCache3D.create(pos.getX(), pos.getY(), pos.getZ(), cubeRadius,
+                (x, y, z) -> chunkMap.acquireGeneration(CubePos.asLong(x, y, z)));
         return chunkGenerationTask;
     }
 
@@ -113,7 +116,8 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     /**
      * Cube equivalent to {@code scheduleNextLayer}.
-     * Loads chunks one status higher than cubes until chunks have reached the target status, as otherwise cubes could reach a status before their intersecting chunks do.
+     * Loads chunks one status higher than cubes until chunks have reached the target status, as otherwise cubes could reach a status before their
+     * intersecting chunks do.
      */
     private void cc_scheduleNextLayer() {
         ChunkStatus nextChunkStatus;
@@ -169,7 +173,8 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
         if (this.targetStatus == ChunkStatus.EMPTY) {
             cir.setReturnValue(true);
         } else {
-            ChunkStatus currentCubeStatus = this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ()).getPersistedStatus();
+            ChunkStatus currentCubeStatus = this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ())
+                    .getPersistedStatus();
             if (currentCubeStatus != null && !currentCubeStatus.isBefore(this.targetStatus)) {
                 ChunkDependencies cubeDependencies = CubePyramid.CC_LOADING_PYRAMID_CUBES.getStepTo(this.targetStatus).accumulatedDependencies();
                 int cubeRadius = cubeDependencies.getRadius();
@@ -211,16 +216,19 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     @Inject(method = "getCenter", at = @At("HEAD"), cancellable = true)
     private void cc_onGetCenter(CallbackInfoReturnable<GenerationChunkHolder> cir) {
-        if (cc_cubePos != null) cir.setReturnValue(this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ()));
+        if (cc_cubePos != null)
+            cir.setReturnValue(this.cc_cubeCache.get(this.cc_cubePos.getX(), this.cc_cubePos.getY(), this.cc_cubePos.getZ()));
     }
 
     /**
-     * Cubic equivalent of {@code scheduleLayer}; schedules both cubes and chunks at given statuses (Chunk status will be higher to preserve load order invariants)
+     * Cubic equivalent of {@code scheduleLayer}; schedules both cubes and chunks at given statuses (Chunk status will be higher to preserve load
+     * order invariants)
      */
     // TODO this could be two methods I guess? does it matter?
     private void cc_scheduleLayer(@Nullable ChunkStatus chunkStatus, @Nullable ChunkStatus cubeStatus, boolean needsGeneration) {
         try (Zone zone = Profiler.get().zone("scheduleLayer")) {
-            zone.addText(() -> String.format("Chunk: %s, Cube: %s", chunkStatus == null ? "null" : chunkStatus.getName(), cubeStatus == null ? "null" : cubeStatus.getName()));
+            zone.addText(() -> String.format("Chunk: %s, Cube: %s", chunkStatus == null ? "null" : chunkStatus.getName(),
+                    cubeStatus == null ? "null" : cubeStatus.getName()));
             if (cubeStatus != null) {
                 int cubeRadius = this.cc_getCubeRadiusForLayer(cubeStatus, needsGeneration);
                 for (int cubeX = this.cc_cubePos.getX() - cubeRadius; cubeX <= this.cc_cubePos.getX() + cubeRadius; cubeX++) {
@@ -256,7 +264,8 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
 
     @Inject(method = "scheduleLayer", at = @At("HEAD"))
     private void cc_onScheduleLayer(ChunkStatus status, boolean needsGeneration, CallbackInfo ci) {
-        if (cc_cubePos == null) return;
+        if (cc_cubePos == null)
+            return;
         throw new IllegalStateException("shouldn't call vanilla scheduleLayer for cube generation task");
     }
 
@@ -274,7 +283,9 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     @Shadow protected abstract boolean canLoadWithoutGeneration();
 
     @Inject(method = "scheduleChunkInLayer", at = @At("HEAD"), cancellable = true)
-    private void cc_onScheduleChunkInLayer(ChunkStatus status, boolean needsGeneration, GenerationChunkHolder chunk, CallbackInfoReturnable<Boolean> cir) {
+    private void cc_onScheduleChunkInLayer(
+            ChunkStatus status, boolean needsGeneration, GenerationChunkHolder chunk, CallbackInfoReturnable<Boolean> cir
+    ) {
         if (((GenerationCloHolder) chunk).cc_getCubePos() != null) {
             cir.setReturnValue(cc_scheduleCubeInLayer(status, needsGeneration, chunk));
         }

@@ -20,14 +20,16 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class MixinChunkMap$TrackedEntity {
     @Shadow @Final Entity entity;
 
-    //region [cc_updatePlayer dasm + mixin]
-    @AddTransformToSets(ChunkToCloSet.ChunkMap$TrackedEntity_redirects.class) @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    // region [cc_updatePlayer dasm + mixin]
+    @AddTransformToSets(ChunkToCloSet.ChunkMap$TrackedEntity_redirects.class)
+    @TransformFromMethod(@MethodSig("updatePlayer(Lnet/minecraft/server/level/ServerPlayer;)V"))
     public native void cc_updatePlayer(ServerPlayer player);
 
-    @Dynamic @Redirect(method = "cc_dasm$cc_updatePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
+    @Dynamic
+    @Redirect(method = "cc_dasm$cc_updatePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
     private boolean cc_updatePlayer_isChunkTracked(ChunkMap instance, ServerPlayer player, int x, int z) {
         // FIXME entity clo position once implemented
-        return false; //((CubicChunkMap) instance).cc_isChunkTracked(player, this.entity.chunkPosition().x, 0, this.entity.chunkPosition().z);
+        return false; // ((CubicChunkMap) instance).cc_isChunkTracked(player, this.entity.chunkPosition().x, 0, this.entity.chunkPosition().z);
     }
-    //endregion
+    // endregion
 }

@@ -23,17 +23,13 @@ public interface CloTrackingView extends ChunkTrackingView {
             return false;
         }
 
-        @Override public void cc_forEach(Consumer<CloPos> action) {
-        }
+        @Override public void cc_forEach(Consumer<CloPos> action) {}
 
-        @Override
-        public boolean contains(int x, int z, boolean searchAllChunks) {
+        @Override public boolean contains(int x, int z, boolean searchAllChunks) {
             return false;
         }
 
-        @Override
-        public void forEach(Consumer<ChunkPos> action) {
-        }
+        @Override public void forEach(Consumer<ChunkPos> action) {}
     };
 
     @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
@@ -42,10 +38,11 @@ public interface CloTrackingView extends ChunkTrackingView {
     }
 
     @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView_to_CloTrackingView_redirects.class, method = @MethodSig("difference(Lnet/minecraft/server/level/ChunkTrackingView;Lnet/minecraft/server/level/ChunkTrackingView;Ljava/util/function/Consumer;Ljava/util/function/Consumer;)V"))
-    static void cc_difference(CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker) {
+    static void cc_difference(
+            CloTrackingView oldCloTrackingView, CloTrackingView newCloTrackingView, Consumer<CloPos> chunkDropper, Consumer<CloPos> chunkMarker
+    ) {
         if (!oldCloTrackingView.equals(newCloTrackingView)) {
-            if (oldCloTrackingView instanceof Positioned oldPositioned
-                && newCloTrackingView instanceof Positioned newPositioned) {
+            if (oldCloTrackingView instanceof Positioned oldPositioned && newCloTrackingView instanceof Positioned newPositioned) {
                 if (oldPositioned.cc_cubeIntersects(newPositioned)) {
                     int minCubeX = Math.min(oldPositioned.minX(), newPositioned.minX());
                     int minCubeY = Math.min(oldPositioned.minY(), newPositioned.minY());
@@ -54,7 +51,7 @@ public interface CloTrackingView extends ChunkTrackingView {
                     int maxCubeY = Math.max(oldPositioned.maxY(), newPositioned.maxY());
                     int maxCubeZ = Math.max(oldPositioned.maxZ(), newPositioned.maxZ());
 
-                    for(int cubeX = minCubeX; cubeX <= maxCubeX; ++cubeX) {
+                    for (int cubeX = minCubeX; cubeX <= maxCubeX; ++cubeX) {
                         for (int cubeZ = minCubeZ; cubeZ <= maxCubeZ; ++cubeZ) {
                             for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                                 for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
@@ -91,7 +88,7 @@ public interface CloTrackingView extends ChunkTrackingView {
                     int maxCubeX = Math.max(oldPositioned.maxX(), newPositioned.maxX());
                     int maxCubeZ = Math.max(oldPositioned.maxZ(), newPositioned.maxZ());
 
-                    for(int cubeX = minCubeX; cubeX <= maxCubeX; ++cubeX) {
+                    for (int cubeX = minCubeX; cubeX <= maxCubeX; ++cubeX) {
                         for (int cubeZ = minCubeZ; cubeZ <= maxCubeZ; ++cubeZ) {
                             for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                                 for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
@@ -148,20 +145,28 @@ public interface CloTrackingView extends ChunkTrackingView {
         return cc_isWithinDistance(centerCubeX, centerCubeY, centerCubeZ, viewDistanceCubes, cubeX, cubeY, cubeZ, false);
     }
 
-    static boolean cc_isWithinDistance(int centerCubeX, int centerCubeY, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeY, int cubeZ, boolean includeOuterChunksAdjacentToViewBorder) {
+    static boolean cc_isWithinDistance(
+            int centerCubeX, int centerCubeY, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeY, int cubeZ,
+            boolean includeOuterChunksAdjacentToViewBorder
+    ) {
         int i = includeOuterChunksAdjacentToViewBorder ? 2 : 1;
         int dx = Math.max(0, Math.abs(cubeX - centerCubeX) - i);
         int dy = Math.max(0, Math.abs(cubeY - centerCubeY) - i);
         int dz = Math.max(0, Math.abs(cubeZ - centerCubeZ) - i);
-        return dx*dx + dy*dy + dz*dz < viewDistanceCubes * viewDistanceCubes;
+        return dx * dx + dy * dy + dz * dz < viewDistanceCubes * viewDistanceCubes;
     }
 
-    static boolean cc_isWithinDistanceCubeColumn(int centerCubeX, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeZ, boolean includeOuterChunksAdjacentToViewBorder) {
+    static boolean cc_isWithinDistanceCubeColumn(
+            int centerCubeX, int centerCubeZ, int viewDistanceCubes, int cubeX, int cubeZ, boolean includeOuterChunksAdjacentToViewBorder
+    ) {
         return cc_isWithinDistance(centerCubeX, 0, centerCubeZ, viewDistanceCubes, cubeX, 0, cubeZ, includeOuterChunksAdjacentToViewBorder);
     }
 
     @Dasm(ChunkToCloSet.class)
-    record Positioned(CloPos center, @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects.class, method = @MethodSig("viewDistance()I")) int viewDistanceCubes) implements CloTrackingView {
+    record Positioned(
+            CloPos center,
+            @AddMethodToSets(containers = ChunkToCloSet.ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects.class, method = @MethodSig("viewDistance()I")) int viewDistanceCubes
+    ) implements CloTrackingView {
         int minX() {
             return this.center.getX() - this.viewDistanceCubes - 1;
         }
@@ -186,15 +191,14 @@ public interface CloTrackingView extends ChunkTrackingView {
             return this.center.getZ() + this.viewDistanceCubes + 1;
         }
 
-        @Override
-        public boolean contains(int chunkX, int chunkZ, boolean searchAllChunks) {
-            return cc_isWithinDistanceCubeColumn(this.center.getX(), this.center.getZ(), this.viewDistanceCubes, Coords.sectionToCube(chunkX), Coords.sectionToCube(chunkZ), searchAllChunks);
+        @Override public boolean contains(int chunkX, int chunkZ, boolean searchAllChunks) {
+            return cc_isWithinDistanceCubeColumn(this.center.getX(), this.center.getZ(), this.viewDistanceCubes, Coords.sectionToCube(chunkX),
+                    Coords.sectionToCube(chunkZ), searchAllChunks);
         }
 
-        @Override
-        public void forEach(Consumer<ChunkPos> action) {
-            for(int x = this.minX(); x <= this.maxX(); ++x) {
-                for(int z = this.minZ(); z <= this.maxZ(); ++z) {
+        @Override public void forEach(Consumer<ChunkPos> action) {
+            for (int x = this.minX(); x <= this.maxX(); ++x) {
+                for (int z = this.minZ(); z <= this.maxZ(); ++z) {
                     if (this.cc_contains(x, center.getY(), z)) {
                         for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                             for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
@@ -207,23 +211,22 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
 
         private boolean cc_cubeIntersects(CloTrackingView.Positioned other) {
-            return this.minX() <= other.maxX() && this.maxX() >= other.minX()
-                && this.minY() <= other.maxY() && this.maxY() >= other.minY()
-                && this.minZ() <= other.maxZ() && this.maxZ() >= other.minZ();
+            return this.minX() <= other.maxX() && this.maxX() >= other.minX() && this.minY() <= other.maxY() && this.maxY() >= other.minY()
+                    && this.minZ() <= other.maxZ() && this.maxZ() >= other.minZ();
         }
 
         private boolean cc_chunkIntersects(CloTrackingView.Positioned other) {
-            return this.minX() <= other.maxX() && this.maxX() >= other.minX()
-                && this.minZ() <= other.maxZ() && this.maxZ() >= other.minZ();
+            return this.minX() <= other.maxX() && this.maxX() >= other.minX() && this.minZ() <= other.maxZ() && this.maxZ() >= other.minZ();
         }
 
         @Override public boolean cc_contains(int cubeX, int cubeY, int cubeZ, boolean searchAllChunks) {
-            return cc_isWithinDistance(this.center.getX(), this.center.getY(), this.center.getZ(), this.viewDistanceCubes, cubeX, cubeY, cubeZ, searchAllChunks);
+            return cc_isWithinDistance(this.center.getX(), this.center.getY(), this.center.getZ(), this.viewDistanceCubes, cubeX, cubeY, cubeZ,
+                    searchAllChunks);
         }
 
         @Override public void cc_forEach(Consumer<CloPos> action) {
-            for(int x = this.minX(); x <= this.maxX(); ++x) {
-                for(int z = this.minZ(); z <= this.maxZ(); ++z) {
+            for (int x = this.minX(); x <= this.maxX(); ++x) {
+                for (int z = this.minZ(); z <= this.maxZ(); ++z) {
                     if (this.cc_contains(x, center.getY(), z)) {
                         for (int dx = 0; dx < CubicConstants.DIAMETER_IN_SECTIONS; dx++) {
                             for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
@@ -231,7 +234,7 @@ public interface CloTrackingView extends ChunkTrackingView {
                             }
                         }
                     }
-                    for(int y = this.minY(); y <= this.maxY(); ++y) {
+                    for (int y = this.minY(); y <= this.maxY(); ++y) {
                         if (this.cc_contains(x, y, z)) {
                             action.accept(CloPos.cube(x, y, z));
                         }
@@ -241,9 +244,9 @@ public interface CloTrackingView extends ChunkTrackingView {
         }
 
         private void cc_forEachCubesOnly(Consumer<CloPos> action) {
-            for(int x = this.minX(); x <= this.maxX(); ++x) {
-                for(int z = this.minZ(); z <= this.maxZ(); ++z) {
-                    for(int y = this.minY(); y <= this.maxY(); ++y) {
+            for (int x = this.minX(); x <= this.maxX(); ++x) {
+                for (int z = this.minZ(); z <= this.maxZ(); ++z) {
+                    for (int y = this.minY(); y <= this.maxY(); ++y) {
                         if (this.cc_contains(x, y, z)) {
                             action.accept(CloPos.cube(x, y, z));
                         }

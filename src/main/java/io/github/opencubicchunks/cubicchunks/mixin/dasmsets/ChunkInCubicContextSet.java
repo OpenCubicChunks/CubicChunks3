@@ -9,6 +9,5 @@ import net.minecraft.world.level.chunk.status.ChunkStatusTasks;
 @RedirectSet
 public interface ChunkInCubicContextSet extends GlobalSet {
     @InterOwnerContainer(from = @Ref(ChunkStatusTasks.class), to = @Ref(CCChunkStatusTasks.class))
-    class ChunkStatusTasks_to_CCChunkStatusTasks_redirects {
-    }
+    class ChunkStatusTasks_to_CCChunkStatusTasks_redirects {}
 }

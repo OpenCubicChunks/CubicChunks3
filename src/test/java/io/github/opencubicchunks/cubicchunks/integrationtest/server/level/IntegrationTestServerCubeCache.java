@@ -50,7 +50,8 @@ import org.mockito.Mockito;
 /**
  * Integration tests for getting chunks and cubes from {@link ServerChunkCache}.
  * <p>
- * This test is strongly dependent on {@link DistanceManager} and {@link ChunkMap} as well; errors here should probably be ignored unless {@link IntegrationTestCubicChunkMap} passes.
+ * This test is strongly dependent on {@link DistanceManager} and {@link ChunkMap} as well; errors here should probably be ignored unless
+ * {@link IntegrationTestCubicChunkMap} passes.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class IntegrationTestServerCubeCache extends BaseTest {
@@ -58,15 +59,18 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         return ChunkStatus.getStatusList().stream();
     }
 
-    private CloseableReference<ServerChunkCache> createServerChunkCache(boolean vanillaTest) throws IOException, NoSuchFieldException, IllegalAccessException {
+    private CloseableReference<ServerChunkCache> createServerChunkCache(boolean vanillaTest)
+            throws IOException, NoSuchFieldException, IllegalAccessException {
         // Worldgen internals
         var randomStateMockedStatic = Mockito.mockStatic(RandomState.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
         NoiseBasedChunkGenerator noiseBasedChunkGeneratorMock = mock();
         when(noiseBasedChunkGeneratorMock.generatorSettings()).thenReturn(mock());
         if (vanillaTest) {
             // These methods are currently only called when running vanilla tests
-            when(noiseBasedChunkGeneratorMock.createBiomes(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
-            when(noiseBasedChunkGeneratorMock.fillFromNoise(any(),any(),any(),any())).thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
+            when(noiseBasedChunkGeneratorMock.createBiomes(any(), any(), any(), any()))
+                    .thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
+            when(noiseBasedChunkGeneratorMock.fillFromNoise(any(), any(), any(), any()))
+                    .thenAnswer(i -> CompletableFuture.completedFuture(i.getArguments()[3]));
         }
 
         ServerLevel serverLevelMock;
@@ -85,23 +89,16 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         // We seem to need an actual directory, not a mock
         LevelStorageSource.LevelStorageAccess levelStorageAccessMock = mock(Mockito.RETURNS_DEEP_STUBS);
         when(levelStorageAccessMock.getDimensionPath(any())).thenReturn(Files.createTempDirectory("cc_test"));
-        var serverChunkCache = new ServerChunkCache(
-            serverLevelMock,
-            levelStorageAccessMock,
-            mock(Mockito.RETURNS_DEEP_STUBS),
-            mock(Mockito.RETURNS_DEEP_STUBS),
-            // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
-            // (which occurs when using RETURNS_DEEP_STUBS)
-            Runnable::run,
-            noiseBasedChunkGeneratorMock,
-            10, // server view distance
-            10, // simulation distance
-            false, // sync - not relevant for tests; false should be faster
-            // Need to mock an implementation of the interface, so that it also implements CloProgressListener
-            Mockito.<ProcessorChunkProgressListener>mock(Mockito.RETURNS_DEEP_STUBS),
-            mock(Mockito.RETURNS_DEEP_STUBS),
-            mock(Mockito.RETURNS_DEEP_STUBS)
-        );
+        var serverChunkCache = new ServerChunkCache(serverLevelMock, levelStorageAccessMock, mock(Mockito.RETURNS_DEEP_STUBS),
+                mock(Mockito.RETURNS_DEEP_STUBS),
+                // We run everything on the main thread as Mockito has race conditions when multiple threads call into it
+                // (which occurs when using RETURNS_DEEP_STUBS)
+                Runnable::run, noiseBasedChunkGeneratorMock, 10, // server view distance
+                10, // simulation distance
+                false, // sync - not relevant for tests; false should be faster
+                // Need to mock an implementation of the interface, so that it also implements CloProgressListener
+                Mockito.<ProcessorChunkProgressListener>mock(Mockito.RETURNS_DEEP_STUBS), mock(Mockito.RETURNS_DEEP_STUBS),
+                mock(Mockito.RETURNS_DEEP_STUBS));
         var f = serverLevelMock.getClass().getSuperclass().getDeclaredField("chunkSource");
         f.setAccessible(true);
         f.set(serverLevelMock, serverChunkCache);
@@ -113,7 +110,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      * Get a single chunk in a non-cubic ServerChunkCache
      */
     public void singleGetChunkVanilla(ChunkStatus status) throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(true)) {
+        try (var serverChunkCacheRef = createServerChunkCache(true)) {
             var serverChunkCache = serverChunkCacheRef.value();
             var chunkAccess = serverChunkCache.getChunk(0, 0, status, true);
             assertNotNull(chunkAccess);
@@ -126,14 +123,15 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         }
     }
 
-    @ParameterizedTest @MethodSource("chunkStatuses")
+    @ParameterizedTest
+    @MethodSource("chunkStatuses")
     public void getChunkVanilla(ChunkStatus status) throws Exception {
         singleGetChunkVanilla(status);
     }
 
     @Test
     public void getChunkNowVanilla() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(true)) {
+        try (var serverChunkCacheRef = createServerChunkCache(true)) {
             var serverChunkCache = serverChunkCacheRef.value();
             // Present chunk
             ChunkPos pos = new ChunkPos(5, -123);
@@ -155,7 +153,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
 
     @Test
     public void hasChunkVanilla() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(true)) {
+        try (var serverChunkCacheRef = createServerChunkCache(true)) {
             var serverChunkCache = serverChunkCacheRef.value();
             // Non-present chunk
             ChunkPos pos = new ChunkPos(-12, 65);
@@ -181,7 +179,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      * Get a single chunk in a cubic ServerChunkCache
      */
     public void singleGetChunk(ChunkStatus status) throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             var chunkAccess = serverChunkCache.getChunk(0, 0, status, true);
             assertNotNull(chunkAccess);
@@ -194,7 +192,8 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         }
     }
 
-    @ParameterizedTest @MethodSource("chunkStatuses")
+    @ParameterizedTest
+    @MethodSource("chunkStatuses")
     public void getChunk(ChunkStatus status) throws Exception {
         singleGetChunk(status);
     }
@@ -204,7 +203,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      */
     @Test
     public void getChunkNow() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             // Present chunk
             serverChunkCache.getChunk(5, -123, ChunkStatus.FULL, true);
@@ -228,7 +227,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      */
     @Test
     public void hasChunk() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             ChunkPos pos = new ChunkPos(-12, 65);
             // Non-present chunk
@@ -248,7 +247,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      * Get a single cube in a cubic ServerChunkCache
      */
     public void singleGetCube(ChunkStatus status) throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = ((ServerCubeCache) serverChunkCacheRef.value());
             var chunkAccess = serverChunkCache.cc_getCube(0, 0, 0, status, true);
             assertNotNull(chunkAccess);
@@ -261,7 +260,8 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         }
     }
 
-    @ParameterizedTest @MethodSource("chunkStatuses")
+    @ParameterizedTest
+    @MethodSource("chunkStatuses")
     public void getCube(ChunkStatus status) throws Exception {
         singleGetCube(status);
     }
@@ -271,7 +271,7 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      */
     @Test
     public void getCubeNow() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
 
@@ -326,11 +326,11 @@ public class IntegrationTestServerCubeCache extends BaseTest {
      */
     @Test
     public void hasCube() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             ServerChunkCache serverChunkCache = serverChunkCacheRef.value();
             var serverCubeCache = ((ServerCubeCache) serverChunkCache);
             // Non-present cube
-            CubePos cubePos = CubePos.of(-12,  98, 65);
+            CubePos cubePos = CubePos.of(-12, 98, 65);
             assertFalse(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ()));
             // check its chunks
             for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
@@ -357,7 +357,8 @@ public class IntegrationTestServerCubeCache extends BaseTest {
 
             // Neighbor cube, expected to be false as hasChunk checks for FULL
             cubePos = CubePos.of(cubePos.getX() - 1, cubePos.getY(), cubePos.getZ());
-            assertFalse(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ())); // Expected false as hasCube checks for full status
+            assertFalse(serverCubeCache.cc_hasCube(cubePos.getX(), cubePos.getY(), cubePos.getZ())); // Expected false as hasCube checks for full
+                                                                                                     // status
             // check its chunks
             for (int localChunkX = 0; localChunkX < CubicConstants.DIAMETER_IN_SECTIONS; localChunkX++) {
                 for (int localChunkZ = 0; localChunkZ < CubicConstants.DIAMETER_IN_SECTIONS; localChunkZ++) {
@@ -372,8 +373,9 @@ public class IntegrationTestServerCubeCache extends BaseTest {
     /**
      * Get a cube and nearby cubes and chunks in a cubic ServerChunkCache
      */
-    @Test public void getCubeAndNeighboringCubesAndChunks() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+    @Test
+    public void getCubeAndNeighboringCubesAndChunks() throws Exception {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
             var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
@@ -400,13 +402,14 @@ public class IntegrationTestServerCubeCache extends BaseTest {
         }
     }
 
-    @Test public void testAddCubicTicketWithRadius() throws Exception {
-        try(var serverChunkCacheRef = createServerChunkCache(false)) {
+    @Test
+    public void testAddCubicTicketWithRadius() throws Exception {
+        try (var serverChunkCacheRef = createServerChunkCache(false)) {
             var serverChunkCache = serverChunkCacheRef.value();
             var cubicServerChunkCache = ((ServerCubeCache) serverChunkCache);
             int spawnRadius = Coords.sectionToCube(11);
             cubicServerChunkCache.cc_addTicketWithRadius(TicketType.START, CloPos.cube(0, 0, 0), spawnRadius);
-            serverChunkCache.tick(()->true, false);
+            serverChunkCache.tick(() -> true, false);
             var cubeAccess = cubicServerChunkCache.cc_getCube(0, 0, 0, ChunkStatus.FULL, true);
             assertNotNull(cubeAccess);
             assertTrue(cubeAccess.getPersistedStatus().isOrAfter(ChunkStatus.FULL));

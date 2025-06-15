@@ -1,6 +1,5 @@
 package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
-
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -10,7 +9,6 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
-import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.world.level.MixinLevel;
@@ -45,9 +43,11 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
     @Shadow @Final private ServerChunkCache chunkSource;
 
     @Inject(method = "<init>", at = @At("CTOR_HEAD"))
-    private void cc_onInit(MinecraftServer server, Executor dispatcher, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey dimension,
-                           LevelStem levelStem, ChunkProgressListener progressListener, boolean isDebug, long biomeZoomSeed, List customSpawners, boolean tickTime,
-                           RandomSequences randomSequences, CallbackInfo ci) {
+    private void cc_onInit(
+            MinecraftServer server, Executor dispatcher, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData,
+            ResourceKey dimension, LevelStem levelStem, ChunkProgressListener progressListener, boolean isDebug, long biomeZoomSeed,
+            List customSpawners, boolean tickTime, RandomSequences randomSequences, CallbackInfo ci
+    ) {
         // TODO conditionally mark as cubic based on dimension, config, level data, etc
     }
 
@@ -55,11 +55,14 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         return ((ServerCubeCache) this.chunkSource);
     }
 
-    @AddTransformToSets(ChunkToCloSet.ServerLevel_redirects.class) @TransformFromMethod(@MethodSig("startTickingChunk(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @AddTransformToSets(ChunkToCloSet.ServerLevel_redirects.class)
+    @TransformFromMethod(@MethodSig("startTickingChunk(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
     public native void cc_startTickingClo(LevelClo chunk);
 
     @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
-    private void cc_onSetDefaultSpawnPos_removeTicketWithRadius(ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos) {
+    private void cc_onSetDefaultSpawnPos_removeTicketWithRadius(
+            ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos
+    ) {
         if (cc_isCubic) {
             ((ServerCubeCache) instance).cc_removeTicketWithRadius(ticket, CloPos.cube(pos), radius);
         } else {
@@ -68,7 +71,9 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
     }
 
     @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;addTicketWithRadius(Lnet/minecraft/server/level/TicketType;Lnet/minecraft/world/level/ChunkPos;I)V"))
-    private void cc_onSetDefaultSpawnPos_addicketWithRadius(ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos) {
+    private void cc_onSetDefaultSpawnPos_addicketWithRadius(
+            ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos
+    ) {
         if (cc_isCubic) {
             ((ServerCubeCache) instance).cc_addTicketWithRadius(ticket, CloPos.cube(pos), radius);
         } else {
@@ -80,7 +85,8 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
     public void cc_tickClo(LevelClo levelClo, int randomTickSpeed) {
         if (levelClo instanceof LevelCube levelCube) {
             cc_tickCube(levelCube, randomTickSpeed);
-        } {
+        }
+        {
             // TODO (P2) chunk ticking for anything that still needs to happen on chunks (probably just the forge event for mods?)
         }
     }

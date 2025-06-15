@@ -7,9 +7,9 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 
 /**
- * We do not unit test {@link ChunkGenerationTask} as it is very tightly coupled with {@link ChunkHolder}, {@link ChunkMap} and {@link ServerChunkCache}.
+ * We do not unit test {@link ChunkGenerationTask} as it is very tightly coupled with {@link ChunkHolder}, {@link ChunkMap} and
+ * {@link ServerChunkCache}.
  *
  * @see IntegrationTestCubicChunkMap integration tests
  */
-public class TestCloGenerationTask {
-}
+public class TestCloGenerationTask {}

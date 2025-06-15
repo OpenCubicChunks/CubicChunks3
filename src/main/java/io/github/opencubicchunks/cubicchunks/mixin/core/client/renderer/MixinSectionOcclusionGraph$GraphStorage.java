@@ -11,12 +11,14 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(targets = "net.minecraft.client.renderer.SectionOcclusionGraph$GraphStorage")
 public class MixinSectionOcclusionGraph$GraphStorage {
     /**
-     * Wrap reading of sectionGridSizeY when constructing {@link Octree} to ensure that the Octree does not have special-cased Y axis behavior (as occurs in vanilla worlds due to the height limit)
+     * Wrap reading of sectionGridSizeY when constructing {@link Octree} to ensure that the Octree does not have special-cased Y axis behavior (as
+     * occurs in vanilla worlds due to the height limit)
      */
     @WrapOperation(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/ViewArea;sectionGridSizeY:I"))
     private int cc_onInit_constructOctree_getMinY(ViewArea instance, Operation<Integer> original) {
         if (((CanBeCubic) instance.getLevelHeightAccessor()).cc_isCubic()) {
-            // Passing MAX_VALUE for sectionGridSizeY when constructing the Octree ensures that the Y axis is not special-cased and behaves the same as the X and Z axes.
+            // Passing MAX_VALUE for sectionGridSizeY when constructing the Octree ensures that the Y axis is not special-cased and behaves the same
+            // as the X and Z axes.
             return Integer.MAX_VALUE;
         }
         return original.call(instance);

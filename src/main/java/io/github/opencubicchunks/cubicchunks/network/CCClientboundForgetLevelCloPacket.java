@@ -14,18 +14,17 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 public record CCClientboundForgetLevelCloPacket(CloPos pos) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<CCClientboundForgetLevelCloPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(CubicChunks.MODID, "forget_clo"));
+    public static final CustomPacketPayload.Type<CCClientboundForgetLevelCloPacket> TYPE = new CustomPacketPayload.Type<>(
+            ResourceLocation.fromNamespaceAndPath(CubicChunks.MODID, "forget_clo"));
 
-    public static final StreamCodec<ByteBuf, CCClientboundForgetLevelCloPacket> STREAM_CODEC = StreamCodec.composite(
-        CLO_POS_STREAM_CODEC, CCClientboundForgetLevelCloPacket::pos,
-        CCClientboundForgetLevelCloPacket::new
-    );
+    public static final StreamCodec<ByteBuf, CCClientboundForgetLevelCloPacket> STREAM_CODEC = StreamCodec.composite(CLO_POS_STREAM_CODEC,
+            CCClientboundForgetLevelCloPacket::pos, CCClientboundForgetLevelCloPacket::new);
 
     @Override public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public static class Handler implements IPayloadHandler<CCClientboundForgetLevelCloPacket>{
+    public static class Handler implements IPayloadHandler<CCClientboundForgetLevelCloPacket> {
         @Override public void handle(CCClientboundForgetLevelCloPacket payload, IPayloadContext context) {
             var clientChunkCache = ((ClientChunkCache) context.player().level().getChunkSource());
             // TODO P2: queueLightRemoval - look at vanilla packet handler

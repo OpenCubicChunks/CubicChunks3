@@ -24,9 +24,11 @@ public abstract class MixinStoringChunkProgressListener implements CloProgressLi
     @AddFieldToSets(containers = GlobalSet.StoringChunkProgressListener_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "spawnPos"))
     private CloPos cc_spawnPos;
 
-    @AddTransformToSets(ChunkToCloSet.StoringChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.StoringChunkProgressListener_redirects.class)
+    @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
     @Override public native void cc_updateSpawnPos(CloPos center);
 
-    @AddTransformToSets(ChunkToCloSet.StoringChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCloSet.StoringChunkProgressListener_redirects.class)
+    @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }

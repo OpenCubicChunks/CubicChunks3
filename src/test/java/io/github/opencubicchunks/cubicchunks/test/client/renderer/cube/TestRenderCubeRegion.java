@@ -30,20 +30,20 @@ import org.mockito.Answers;
 public class TestRenderCubeRegion extends BaseTest {
     // These two tests are mostly just a copy of the tests in TestLevelCube
     private void singleCubeGetBlockState(Random random) {
-        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
         Level levelMock = mock(Answers.RETURNS_DEEP_STUBS);
         var cube = new LevelCube(levelMock, cubePos);
         Map<BlockPos, BlockState> states = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
-            var pos = cubePos
-                .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+            var pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
+                    random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             var state = random.nextBoolean() ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
             states.put(pos, state);
             cube.setBlockState(pos, state);
         }
         var arr = new RenderCube[27];
         arr[RenderCubeRegion.index(-1, -1, -1, 0, 0, 0)] = new RenderCube(cube);
-        var renderCubeRegion = new RenderCubeRegion(levelMock, cubePos.getX()-1, cubePos.getY()-1, cubePos.getZ()-1, arr, null);
+        var renderCubeRegion = new RenderCubeRegion(levelMock, cubePos.getX() - 1, cubePos.getY() - 1, cubePos.getZ() - 1, arr, null);
 
         for (var pos : states.keySet()) {
             assertEquals(states.get(pos), renderCubeRegion.getBlockState(pos));
@@ -51,21 +51,21 @@ public class TestRenderCubeRegion extends BaseTest {
     }
 
     private void singleCubeGetFluidState(Random random) {
-        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
         Level levelMock = mock(Answers.RETURNS_DEEP_STUBS);
         var cube = new LevelCube(levelMock, cubePos);
         Set<BlockPos> positions = new HashSet<>();
         var state = Blocks.ANDESITE_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true);
         for (int i = 0; i < 100; i++) {
-            var pos = cubePos
-                .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+            var pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
+                    random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             positions.add(pos);
             cube.setBlockState(pos, state);
         }
 
         var arr = new RenderCube[27];
         arr[RenderCubeRegion.index(-1, -1, -1, 0, 0, 0)] = new RenderCube(cube);
-        var renderCubeRegion = new RenderCubeRegion(levelMock, cubePos.getX()-1, cubePos.getY()-1, cubePos.getZ()-1, arr, null);
+        var renderCubeRegion = new RenderCubeRegion(levelMock, cubePos.getX() - 1, cubePos.getY() - 1, cubePos.getZ() - 1, arr, null);
 
         for (var pos : positions) {
             assertEquals(state, renderCubeRegion.getBlockState(pos));
@@ -74,7 +74,8 @@ public class TestRenderCubeRegion extends BaseTest {
     }
 
     @Disabled // TODO disabled until we can apply client-side mixins in tests properly
-    @Test public void testSingleCubeGetBlockAndFluidState() {
+    @Test
+    public void testSingleCubeGetBlockAndFluidState() {
         var random = new Random(-511);
         for (int i = 0; i < 100; i++) {
             singleCubeGetBlockState(random);

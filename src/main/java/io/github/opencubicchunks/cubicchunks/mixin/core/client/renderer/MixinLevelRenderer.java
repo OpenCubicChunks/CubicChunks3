@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Dasm(ChunkToCubeSet.class)
 @Mixin(LevelRenderer.class)
 public abstract class MixinLevelRenderer implements CubicLevelRenderer {
-    @AddTransformToSets(ChunkToCubeSet.LevelRenderer_redirects.class) @TransformFromMethod(@MethodSig("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCubeSet.LevelRenderer_redirects.class)
+    @TransformFromMethod(@MethodSig("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V"))
     public native void cc_onCubeReadyToRender(CubePos cubePos);
 }

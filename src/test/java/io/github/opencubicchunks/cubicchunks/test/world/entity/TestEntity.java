@@ -26,7 +26,8 @@ import org.mockito.AdditionalAnswers;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestEntity extends BaseTest {
-    @Test public void testCubePos() {
+    @Test
+    public void testCubePos() {
         Level level = mock();
         when(((CanBeCubic) level).cc_isCubic()).thenReturn(true);
         when(level.enabledFeatures()).thenReturn(FeatureFlags.DEFAULT_FLAGS);
@@ -34,7 +35,7 @@ public class TestEntity extends BaseTest {
         var entity = EntityType.GIANT.create(level, EntitySpawnReason.MOB_SUMMONED);
         var random = new Random(742);
         for (int i = 0; i < 1000; i++) {
-            var pos = new BlockPos(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+            var pos = new BlockPos(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
             entity.setPos(pos.getX(), pos.getY(), pos.getZ());
             assertEquals(CubePos.from(pos), ((EntityCubePosGetter) entity).cc_cubePosition());
         }
@@ -42,8 +43,10 @@ public class TestEntity extends BaseTest {
 
     // TODO (P2) test teleport methods
 
-    // Not really a unit test since it depends on CubicLevelReader, but touchingUnloadedChunk is essentially just a wrapper around LevelReader.hasChunksAt anyway
-    @Test public void testTouchingUnloadedChunk() {
+    // Not really a unit test since it depends on CubicLevelReader, but touchingUnloadedChunk is essentially just a wrapper around
+    // LevelReader.hasChunksAt anyway
+    @Test
+    public void testTouchingUnloadedChunk() {
         var random = new Random(743);
         var cubePositions = new LongAVLTreeSet();
         for (int x = -5; x <= 5; x++) {
@@ -59,18 +62,23 @@ public class TestEntity extends BaseTest {
         var levelReader = new TestCubicLevelReader.DummyLevelReader(mock(), cubePositions);
         when(((CanBeCubic) level).cc_isCubic()).thenReturn(true);
         when(level.enabledFeatures()).thenReturn(FeatureFlags.DEFAULT_FLAGS);
-        when(((CubicLevelReader) level).cc_hasCubesAt(anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).then(AdditionalAnswers.delegatesTo(levelReader));
+        when(((CubicLevelReader) level).cc_hasCubesAt(anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt()))
+                .then(AdditionalAnswers.delegatesTo(levelReader));
         var entity = EntityType.GIANT.create(level, EntitySpawnReason.MOB_SUMMONED);
         for (int i = 0; i < 500; i++) {
-            var cubePos = CubePos.of(random.nextInt(10)-5, random.nextInt(10)-5, random.nextInt(10)-5);
+            var cubePos = CubePos.of(random.nextInt(10) - 5, random.nextInt(10) - 5, random.nextInt(10) - 5);
             // Horizontal center of cube, at bottom
-            var blockPos = cubePos.asBlockPos(CubicConstants.DIAMETER_IN_BLOCKS/2, 1, CubicConstants.DIAMETER_IN_BLOCKS/2);
+            var blockPos = cubePos.asBlockPos(CubicConstants.DIAMETER_IN_BLOCKS / 2, 1, CubicConstants.DIAMETER_IN_BLOCKS / 2);
             entity.setPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
             assertEquals(!cubePositions.contains(cubePos.asLong()), entity.touchingUnloadedChunk());
             // Horizontal center of cube, at top (overlapping cube above)
-            blockPos = cubePos.asBlockPos(CubicConstants.DIAMETER_IN_BLOCKS/2, CubicConstants.DIAMETER_IN_BLOCKS - 1, CubicConstants.DIAMETER_IN_BLOCKS/2);
+            blockPos = cubePos.asBlockPos(CubicConstants.DIAMETER_IN_BLOCKS / 2, CubicConstants.DIAMETER_IN_BLOCKS - 1,
+                    CubicConstants.DIAMETER_IN_BLOCKS / 2);
             entity.setPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-            assertEquals(!(cubePositions.contains(cubePos.asLong()) && cubePositions.contains(CubePos.asLong(cubePos.getX(), cubePos.getY() + 1, cubePos.getZ()))), entity.touchingUnloadedChunk());
+            assertEquals(
+                    !(cubePositions.contains(cubePos.asLong())
+                            && cubePositions.contains(CubePos.asLong(cubePos.getX(), cubePos.getY() + 1, cubePos.getZ()))),
+                    entity.touchingUnloadedChunk());
         }
     }
 }

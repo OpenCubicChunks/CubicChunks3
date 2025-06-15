@@ -5,5 +5,6 @@ import net.minecraft.core.BlockPos;
 
 public interface CubicLevel extends CubicLevelAccessor {
     LevelCube cc_getCubeAt(BlockPos blockPos);
+
     LevelCube cc_getCube(int x, int y, int z);
 }

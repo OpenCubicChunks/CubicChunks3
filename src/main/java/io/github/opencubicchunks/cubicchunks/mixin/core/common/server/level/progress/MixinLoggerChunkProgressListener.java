@@ -15,9 +15,11 @@ import org.spongepowered.asm.mixin.Mixin;
 @Dasm(ChunkToCloSet.class)
 @Mixin(LoggerChunkProgressListener.class)
 public abstract class MixinLoggerChunkProgressListener implements CloProgressListener {
-    @AddTransformToSets(ChunkToCloSet.LoggerChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddTransformToSets(ChunkToCloSet.LoggerChunkProgressListener_redirects.class)
+    @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
     @Override public native void cc_updateSpawnPos(CloPos center);
 
-    @AddTransformToSets(ChunkToCloSet.LoggerChunkProgressListener_redirects.class) @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @AddTransformToSets(ChunkToCloSet.LoggerChunkProgressListener_redirects.class)
+    @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
     @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }

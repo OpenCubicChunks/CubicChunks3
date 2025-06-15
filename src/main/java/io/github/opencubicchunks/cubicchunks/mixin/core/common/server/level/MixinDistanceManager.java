@@ -25,7 +25,8 @@ import org.spongepowered.asm.mixin.injection.At;
  * {@link DistanceManager} contains the main ticket hashmap and stores all the chunks that are loaded.
  * A ticket inside {@link DistanceManager} means that something is either requested to be loaded or is already loaded and needs to stay loaded.
  * It informs {@link ChunkMap} of what chunks it needs to generate/load/unload to satisfy the tickets.
- * <br><br>
+ * <br>
+ * <br>
  * This mixin mostly just replaces calls to ChunkPos with CloPos.
  */
 @Dasm(ChunkToCloSet.class)
@@ -38,8 +39,7 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
     @Shadow @Final private DistanceManager.FixedPlayerDistanceChunkTracker naturalSpawnChunkCounter;
     @Shadow @Final private DistanceManager.PlayerTicketTracker playerTicketManager;
 
-    @Override
-    public void cc_setCubic() {
+    @Override public void cc_setCubic() {
         cc_isCubic = true;
         ((MarkableAsCubic) this.loadingChunkTracker).cc_setCubic();
         ((MarkableAsCubic) this.simulationChunkTracker).cc_setCubic();
@@ -53,12 +53,12 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
 
     /**
      * This function replaces the addTicket call with a cubic version instead.
-     *
      * This requires replacing the ChunkPos with a CloPos.
      */
     @WrapWithCondition(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/TicketStorage;addTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     private boolean cc_replaceTicketTypeOnAddPlayer(TicketStorage instance, Ticket ticket, ChunkPos chunkPos, SectionPos sectionPos) {
-        if(!cc_isCubic) return true;
+        if (!cc_isCubic)
+            return true;
         CloPos cloPos = CloPos.section(sectionPos);
         ((CubicTicketStorage) instance).cc_addTicket(ticket, cloPos);
         return false;
@@ -66,12 +66,12 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
 
     /**
      * This function replaces the removeTicket call with a cubic version instead.
-     *
      * This requires replacing ChunkPos with a CloPos.
      */
     @WrapWithCondition(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/TicketStorage;removeTicket(Lnet/minecraft/server/level/Ticket;Lnet/minecraft/world/level/ChunkPos;)V"))
     private boolean cc_replaceTicketTypeOnRemovePlayer(TicketStorage instance, Ticket ticket, ChunkPos chunkPos, SectionPos sectionPos) {
-        if(!cc_isCubic) return true;
+        if (!cc_isCubic)
+            return true;
         CloPos cloPos = CloPos.section(sectionPos);
         ((CubicTicketStorage) instance).cc_removeTicket(ticket, cloPos);
         return false;
@@ -82,7 +82,8 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
      */
     @WrapOperation(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;toLong()J"))
     private long cc_replaceTicketTypeOnAddPlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos sectionPos) {
-        if(!cc_isCubic) return original.call(chunkPos);
+        if (!cc_isCubic)
+            return original.call(chunkPos);
         return CloPos.section(sectionPos).toLong();
     }
 
@@ -91,7 +92,8 @@ public abstract class MixinDistanceManager implements MarkableAsCubic {
      */
     @WrapOperation(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ChunkPos;toLong()J"))
     private long cc_replaceTicketTypeOnRemovePlayer(ChunkPos chunkPos, Operation<Long> original, SectionPos sectionPos) {
-        if(!cc_isCubic) return original.call(chunkPos);
+        if (!cc_isCubic)
+            return original.call(chunkPos);
         return CloPos.section(sectionPos).toLong();
     }
 

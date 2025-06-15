@@ -14,9 +14,13 @@ public class CCNetworkHandler {
         final PayloadRegistrar registrar = event.registrar(CubicChunks.MODID);
 
         // Note that by default handlers run on the main thread.
-        registrar.playToClient(CCClientboundLevelCubeWithLightPacket.TYPE, CCClientboundLevelCubeWithLightPacket.STREAM_CODEC, new CCClientboundLevelCubeWithLightPacket.Handler());
-        registrar.playToClient(CCClientboundLevelChunkPacket.TYPE, CCClientboundLevelChunkPacket.STREAM_CODEC, new CCClientboundLevelChunkPacket.Handler());
-        registrar.playToClient(CCClientboundForgetLevelCloPacket.TYPE, CCClientboundForgetLevelCloPacket.STREAM_CODEC, new CCClientboundForgetLevelCloPacket.Handler());
-        registrar.playToClient(CCClientboundSetCubeCacheCenterPacket.TYPE, CCClientboundSetCubeCacheCenterPacket.STREAM_CODEC, new CCClientboundSetCubeCacheCenterPacket.Handler());
+        registrar.playToClient(CCClientboundLevelCubeWithLightPacket.TYPE, CCClientboundLevelCubeWithLightPacket.STREAM_CODEC,
+                new CCClientboundLevelCubeWithLightPacket.Handler());
+        registrar.playToClient(CCClientboundLevelChunkPacket.TYPE, CCClientboundLevelChunkPacket.STREAM_CODEC,
+                new CCClientboundLevelChunkPacket.Handler());
+        registrar.playToClient(CCClientboundForgetLevelCloPacket.TYPE, CCClientboundForgetLevelCloPacket.STREAM_CODEC,
+                new CCClientboundForgetLevelCloPacket.Handler());
+        registrar.playToClient(CCClientboundSetCubeCacheCenterPacket.TYPE, CCClientboundSetCubeCacheCenterPacket.STREAM_CODEC,
+                new CCClientboundSetCubeCacheCenterPacket.Handler());
     }
 }

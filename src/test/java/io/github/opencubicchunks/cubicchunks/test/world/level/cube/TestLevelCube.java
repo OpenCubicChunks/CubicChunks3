@@ -36,12 +36,12 @@ public class TestLevelCube extends BaseTest {
     // TODO (P2 or P3) postProcessGeneration - currently a method stub
 
     private void simpleGetSetBlockState(Random random) {
-        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
         var cube = new LevelCube(mock(Answers.RETURNS_DEEP_STUBS), cubePos);
         Map<BlockPos, BlockState> states = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
-            var pos = cubePos
-                .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+            var pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
+                    random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             var state = random.nextBoolean() ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
             states.put(pos, state);
             cube.setBlockState(pos, state);
@@ -54,13 +54,13 @@ public class TestLevelCube extends BaseTest {
 
     // Mojang's fluid stuff is so jank and half-implemented
     private void fluidState(Random random) {
-        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
+        CubePos cubePos = CubePos.of(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
         var cube = new LevelCube(mock(Answers.RETURNS_DEEP_STUBS), cubePos);
         Set<BlockPos> positions = new HashSet<>();
         var state = Blocks.ANDESITE_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true);
         for (int i = 0; i < 100; i++) {
-            var pos = cubePos
-                .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+            var pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
+                    random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
             positions.add(pos);
             cube.setBlockState(pos, state);
         }
@@ -72,9 +72,9 @@ public class TestLevelCube extends BaseTest {
     }
 
     private void methodCallsAndBlockEntities(Random random) {
-        CubePos cubePos = CubePos.of(random.nextInt(20000)-10000, random.nextInt(20000)-10000, random.nextInt(20000)-10000);
-        var pos = cubePos
-            .asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
+        CubePos cubePos = CubePos.of(random.nextInt(20000) - 10000, random.nextInt(20000) - 10000, random.nextInt(20000) - 10000);
+        var pos = cubePos.asBlockPos(random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS), random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS),
+                random.nextInt(CubicConstants.DIAMETER_IN_BLOCKS));
         var cube = new LevelCube(mock(Answers.RETURNS_DEEP_STUBS), cubePos);
         BlockState state1 = spy(Blocks.FURNACE.defaultBlockState());
         BlockState state2 = spy(Blocks.STONE.defaultBlockState());
@@ -91,7 +91,8 @@ public class TestLevelCube extends BaseTest {
         verify(state2, times(1)).onPlace(any(), eq(pos), eq(state1), eq(false));
     }
 
-    @Test public void testGetSetBlockStateAndFluidState() {
+    @Test
+    public void testGetSetBlockStateAndFluidState() {
         var random = new Random(-102);
         for (int i = 0; i < 100; i++) {
             simpleGetSetBlockState(random);

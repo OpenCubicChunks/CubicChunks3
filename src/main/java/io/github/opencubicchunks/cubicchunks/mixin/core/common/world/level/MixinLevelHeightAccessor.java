@@ -8,7 +8,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(LevelHeightAccessor.class)
 public interface MixinLevelHeightAccessor {
     @Shadow int getMinY();
+
     @Shadow int getMaxY();
+
     default int getMinBuildHeight() {
         return getMinY();
     }
