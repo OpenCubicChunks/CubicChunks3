@@ -17,16 +17,13 @@ import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.utils.Coords;
-import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.exception.DasmFailedToApply;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
 import io.github.opencubicchunks.cubicchunks.server.level.CloHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
 import io.github.opencubicchunks.cubicchunks.server.level.CubicChunkMap;
-import io.github.opencubicchunks.cubicchunks.world.level.chunklike.CloAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.chunklike.LevelClo;
-import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.core.BlockPos;
@@ -39,7 +36,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -167,26 +163,5 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
         } else {
             original.call(instance, chunkPos, intSupplier, i, intConsumer);
         }
-    }
-
-    // TODO dasm inheritance
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public CubeAccess cc_getLatestCube() {
-        return super.cc_getLatestCube();
-    }
-
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public CloAccess cc_getLatestClo() {
-        return super.cc_getLatestClo();
-    }
-
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
-    @Override public CloPos cc_getCloPos() {
-        return super.cc_getCloPos();
-    }
-
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkHolder_redirects.class, method = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public CubeAccess cc_getCubeIfPresent(ChunkStatus status) {
-        return super.cc_getCubeIfPresent(status);
     }
 }

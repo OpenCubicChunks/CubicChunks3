@@ -525,23 +525,4 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
 
     @AddTransformToSets(ChunkToCloSet.ChunkMap_redirects.class) @TransformFromMethod(@MethodSig("waitForLightBeforeSending(Lnet/minecraft/world/level/ChunkPos;I)V"))
     public native void cc_waitForLightBeforeSending(CloPos cloPos, int p_301130_);
-
-    // TODO these three are temporary - needs dasm subclass method redirect inheritance for non-overriden methods
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkMap_redirects.class,
-        method = @MethodSig("isOldChunkAround(Lnet/minecraft/world/level/ChunkPos;I)Z"))
-    public boolean cc_isOldChunkAround(CloPos pos, int radius) {
-        return super.cc_isOldChunkAround(pos, radius);
-    }
-
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkMap_redirects.class,
-        method = @MethodSig("read(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;"))
-    public CompletableFuture<Optional<CompoundTag>> cc_read(CloPos cloPos) {
-        return super.cc_read(cloPos);
-    }
-
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkMap_redirects.class,
-        method = @MethodSig("write(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/nbt/CompoundTag;)V"))
-    public void cc_write(CloPos cloPos, CompoundTag chunkData) {
-        super.cc_write(cloPos, chunkData);
-    }
 }

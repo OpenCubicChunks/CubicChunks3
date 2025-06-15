@@ -195,10 +195,7 @@ public interface ChunkToCubeSet extends GlobalSet {
     interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects { }
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    abstract class ChunkHolder_redirects {
-        // TODO dasm inheritance
-        @FieldRedirect(@FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
-        protected CubePos cc_cubePos;
+    abstract class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
     }
 
     // Forge stuff
@@ -236,6 +233,8 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
     class GenerationChunkHolder_redirects {
+        @FieldRedirect(@FieldSig(name = "pos", type = @Ref(ChunkPos.class)))
+        protected CubePos cc_cubePos;
     }
 
     @IntraOwnerContainer(@Ref(ChunkMap.class))
@@ -246,16 +245,12 @@ public interface ChunkToCubeSet extends GlobalSet {
     class ServerChunkCache_redirects {
     }
 
-    @IntraOwnerContainer(@Ref(ServerLevel.class))
-    class ServerLevel_redirects {
+    @IntraOwnerContainer(@Ref(Entity.class))
+    class Entity_redirects {
     }
 
     @IntraOwnerContainer(@Ref(ServerPlayer.class))
-    class ServerPlayer_redirects {
-    }
-
-    @IntraOwnerContainer(@Ref(Entity.class))
-    class Entity_redirects {
+    class ServerPlayer_redirects extends Entity_redirects {
     }
 
     @IntraOwnerContainer(@Ref(ClientChunkCache.class))
@@ -272,6 +267,10 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @IntraOwnerContainer(@Ref(Level.class))
     class Level_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerLevel.class))
+    class ServerLevel_redirects extends Level_redirects {
     }
 
     @IntraOwnerContainer(@Ref(LevelRenderer.class))

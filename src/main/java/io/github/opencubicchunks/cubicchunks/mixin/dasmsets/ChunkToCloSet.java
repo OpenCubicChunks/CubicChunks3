@@ -107,11 +107,7 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelClo.class))
-    interface LevelChunk_to_LevelClo_redirects {
-        // TODO unnecessary once we have DASM redirect inheritance
-        @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
-        CloPos cc_getCloPos();
-
+    interface LevelChunk_to_LevelClo_redirects extends ChunkAccess_to_CloAccess_redirects {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(Level.class), @Ref(CloPos.class) }))
         static LevelClo create(Level level, ChunkPos pos) {
             throw new DasmFailedToApply();
@@ -147,7 +143,7 @@ public interface ChunkToCloSet extends GlobalSet {
     interface LevelChunk$PostLoadProcessor_to_LevelClo$PostLoadProcessor_redirects { }
 
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoClo.class))
-    interface ProtoChunk_to_ProtoClo_redirects {
+    interface ProtoChunk_to_ProtoClo_redirects extends ChunkAccess_to_CloAccess_redirects {
         // TODO unnecessary once we have DASM redirect inheritance
         @MethodRedirect(@MethodSig("getPos()Lnet/minecraft/world/level/ChunkPos;"))
         CloPos cc_getCloPos();
@@ -193,14 +189,13 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
     interface ChunkTrackingView_to_CloTrackingView_redirects {
-
     }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
-    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects {
-
+    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects implements ChunkTrackingView_to_CloTrackingView_redirects {
     }
-    // Forge stuff
+
+    //region [Forge stuff]
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
     abstract class ChunkEvent$Load_to_Event_redirects { }
@@ -217,6 +212,7 @@ public interface ChunkToCloSet extends GlobalSet {
         @ConstructorToFactoryRedirect(@ConstructorMethodSig(args = { @Ref(LevelChunk.class)}))
         static native Event create_ChunkEvent$Unload(LevelCube levelCube);
     }
+    //endregion
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
     abstract class GenerationChunkHolder_Forge_Jank_redirects {
@@ -225,10 +221,9 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    class ChunkHolder_redirects {
+    class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
     }
 
-    // TODO dasm inheritance
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
     abstract class ChunkHolder_Forge_Jank_redirects {
         @FieldToMethodRedirect(value = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)), setter = "cc_setCurrentlyLoading")
@@ -247,16 +242,16 @@ public interface ChunkToCloSet extends GlobalSet {
     class GenerationChunkHolder_redirects {
     }
 
+    @IntraOwnerContainer(@Ref(ChunkStorage.class))
+    class ChunkStorage_redirects {
+    }
+
     @IntraOwnerContainer(@Ref(ChunkMap.class))
-    class ChunkMap_redirects {
+    class ChunkMap_redirects extends ChunkStorage_redirects {
     }
 
     @IntraOwnerContainer(@Ref(ChunkMap.TrackedEntity.class))
     class ChunkMap$TrackedEntity_redirects {
-    }
-
-    @IntraOwnerContainer(@Ref(ChunkStorage.class))
-    class ChunkStorage_redirects {
     }
 
     @IntraOwnerContainer(@Ref(ServerChunkCache.class))
@@ -267,12 +262,12 @@ public interface ChunkToCloSet extends GlobalSet {
     class ServerLevel_redirects {
     }
 
-    @IntraOwnerContainer(@Ref(ServerPlayer.class))
-    class ServerPlayer_redirects {
-    }
-
     @IntraOwnerContainer(@Ref(Entity.class))
     class Entity_redirects {
+    }
+
+    @IntraOwnerContainer(@Ref(ServerPlayer.class))
+    class ServerPlayer_redirects extends Entity_redirects {
     }
 
     @IntraOwnerContainer(@Ref(PlayerChunkSender.class))
