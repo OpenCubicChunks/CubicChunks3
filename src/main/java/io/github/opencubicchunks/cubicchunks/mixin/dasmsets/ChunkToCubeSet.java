@@ -2,6 +2,8 @@ package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.ConstructorToFactoryRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.FieldRedirect;
@@ -168,7 +170,10 @@ public interface ChunkToCubeSet extends GlobalSet {
     abstract class ChunkPyramid$Builder_to_CubePyramid$Builder_redirects { }
 
     @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CubeHolder.LevelChangeListener.class))
-    interface ChunkHolder$LevelChangeListener_to_CubeHolder$LevelChangeListener_redirects { }
+    interface ChunkHolder$LevelChangeListener_to_CubeHolder$LevelChangeListener_redirects {
+        @MethodRedirect(@MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
+        void cc_onLevelChange(CubePos cubePos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter);
+    }
 
     @TypeRedirect(from = @Ref(ChunkHolder.PlayerProvider.class), to = @Ref(CubeHolder.PlayerProvider.class))
     interface ChunkHolder$PlayerProvider_to_CubeHolder$PlayerProvider_redirects {

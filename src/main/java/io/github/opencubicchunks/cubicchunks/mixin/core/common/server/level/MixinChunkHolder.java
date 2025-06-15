@@ -159,7 +159,7 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
     protected void cc_onUpdateFutures_onCallOnLevelChange(ChunkHolder.LevelChangeListener instance, ChunkPos chunkPos, IntSupplier intSupplier, int i, IntConsumer intConsumer,
                                                           Operation<Void> original) {
         if (cc_cubePos != null) {
-            cc_onLevelChange.onLevelChange(cc_cubePos, intSupplier, i, intConsumer);
+            cc_onLevelChange.cc_onLevelChange(cc_cubePos, intSupplier, i, intConsumer);
         } else {
             original.call(instance, chunkPos, intSupplier, i, intConsumer);
         }

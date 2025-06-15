@@ -10,8 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 public interface CubeHolder {
     @FunctionalInterface
     interface LevelChangeListener {
-        // FIXME rename to have cc_ prefix again - currently removed due to a DASM bug with how lambdas are handled
-        void onLevelChange(CubePos cubePos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter);
+        void cc_onLevelChange(CubePos cubePos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter);
     }
 
     interface PlayerProvider {
