@@ -1,7 +1,7 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <option name="LINE_SEPARATOR" value="&#10;" />
-    <option name="RIGHT_MARGIN" value="190" />
+    <option name="RIGHT_MARGIN" value="150" />
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORMATTER_TAGS_ENABLED" value="true" />
     <GroovyCodeStyleSettings>
@@ -30,14 +30,7 @@
       <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="2147483647" />
       <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
         <value>
-          <package name="io.github.opencubicchunks.cubicchunks.utils.Coords" withSubpackages="false" static="true" />
           <package name="org.objectweb.asm.Opcodes" withSubpackages="false" static="true" />
-          <package name="io.github.opencubicchunks.cubicchunks.chunk.util.Utils" withSubpackages="false" static="true" />
-          <package name="io.github.opencubicchunks.cubicchunks.utils.Utils" withSubpackages="false" static="true" />
-          <package name="io.github.opencubicchunks.cubicchunks.utils.Bits" withSubpackages="false" static="true" />
-          <package name="io.github.opencubicchunks.cubicchunks.utils.AddressTools" withSubpackages="false" static="true" />
-          <package name="io.github.opencubicchunks.cubicchunks.utils.MathUtil" withSubpackages="false" static="true" />
-          <package name="java.util.Math" withSubpackages="false" static="true" />
         </value>
       </option>
       <option name="IMPORT_LAYOUT_TABLE">

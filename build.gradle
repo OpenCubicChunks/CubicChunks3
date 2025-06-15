@@ -1,3 +1,4 @@
+import io.github.opencubicchunks.gradle.FixAnnotationsFormatterStep
 import io.github.opencubicchunks.gradle.GeneratePackageInfo
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
@@ -11,6 +12,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
+    id("com.diffplug.spotless") version "7.0.4"
+    id "checkstyle"
     id 'net.neoforged.moddev' version '2.0.90'
     id("io.github.opencubicchunks.javaheaders").version("1.2.8")
     id("io.github.opencubicchunks.gradle.mcGitVersion")
@@ -379,6 +382,28 @@ test {
 //tasks.named("check") {
 //    dependsOn longRunTest
 //}
+
+spotless {
+    java {
+        // Specified explicitly to ignore CubicChunksCore and src_old
+        target(
+                "src/*/java/**/*.java",
+                "buildSrc/src/*/java/**/*.java"
+        )
+
+        eclipse().configFile('config/eclipse_formatter.xml')
+        // Eclipse JDT puts all annotations on their own lines; we merge some of them back onto the same line as their target.
+        addStep(new FixAnnotationsFormatterStep())
+
+        importOrder("\\#", "java", "javax", "")
+        removeUnusedImports()
+    }
+}
+
+tasks.withType(Checkstyle) {
+    // Auto-formatting might fix some Checkstyle violations, so don't run Checkstyle unless spotlessCheck passes
+    dependsOn spotlessCheck
+}
 
 publishing {
     publications {
