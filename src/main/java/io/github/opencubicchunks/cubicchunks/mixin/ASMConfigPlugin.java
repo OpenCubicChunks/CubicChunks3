@@ -187,7 +187,9 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         List<PrefixMethodPair> methodPairs = new ArrayList<>();
         for (MethodNode methodNode : targetClass.methods) {
             if (methodNode.name.contains("cc_dasm$")) {
-                var methodNameWithoutPrefix = methodNode.name.substring(methodNode.name.indexOf("$") + 1);
+                var methodNameWithoutPrefix = methodNode.name.substring(methodNode.name.indexOf("$") + 1)
+                    .replace("__init__", "<init>").replace("__clinit__", "<clinit>");
+
                 var mixinAddedMethod = targetClass.methods.stream()
                         .filter(m -> m.name.equals(methodNameWithoutPrefix) && m.desc.equals(methodNode.desc)).findFirst();
 

@@ -63,25 +63,14 @@ public record CubeStep(
         @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(ChunkStatusTask.class), name = "task"))
         private CubeStatusTask task = (worldGenContext, step, cache, cube) -> CompletableFuture.completedFuture(cube);
 
-        // TODO these should be dasm-copied but for some reason it didn't work when I tried
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
         protected Builder(ChunkStatus status) {
-            if (status.getParent() != status) {
-                throw new IllegalArgumentException("Not starting with the first status: " + status);
-            } else {
-                this.status = status;
-                this.parent = null;
-                this.directDependenciesByRadius = new ChunkStatus[0];
-            }
+            throw new DasmFailedToApply();
         }
 
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/status/ChunkStep;)V"))
         protected Builder(ChunkStatus status, CubeStep parent) {
-            if (parent.targetStatus.getIndex() != status.getIndex() - 1) {
-                throw new IllegalArgumentException("Out of order status: " + status);
-            } else {
-                this.status = status;
-                this.parent = parent;
-                this.directDependenciesByRadius = new ChunkStatus[] { parent.targetStatus };
-            }
+            throw new DasmFailedToApply();
         }
 
         // TODO could be mixin + DASM
