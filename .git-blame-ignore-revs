@@ -1,3 +1,12 @@
+# CursedFlames 6/16/25, 9:03 PM fix @Nullable positioning
+d95daf7862219eb29af58efb91c7b83786bc6a3c
+# CursedFlames 6/15/25, 9:39 PM miscellaneous formatting tweaks
+f0a545efbc0ad887d8c422064519f894088917eb
+# CursedFlames 6/15/25, 9:39 PM fix checkstyle issues
+e304943e85ddd728336d87cdc9478a488aac0d0d
+# CursedFlames 6/15/25, 7:53 PM apply spotless
+b28ab3d41f91d530ce07407e899895fd304fa930
+
 # Bartosz Skrzypczak 9/15/21, 4:06 AM Method and field renames, some formatting cleanup
 82a3a28ed9125c99b6b0b6b627ba17e448885751
 # Bartosz Skrzypczak 9/14/21, 11:42 PM Class renames part 2, code changes
