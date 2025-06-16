@@ -87,7 +87,6 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         try {
             ClassNode targetClass = MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
             ClassNode mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-            mixinClass.name = targetClass.name;
 
             // PRE_APPLY
             handleError(this.annotationParser.findDasmAnnotations(mixinClass));

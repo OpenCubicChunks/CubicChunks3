@@ -6,13 +6,14 @@ import java.util.concurrent.CompletableFuture;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(ChunkStorage.class))
 @Mixin(ChunkStorage.class)
 public abstract class MixinChunkStorage {
     @AddMethodToSets(containers = ChunkToCloSet.ChunkStorage_redirects.class, method = @MethodSig("isOldChunkAround(Lnet/minecraft/world/level/ChunkPos;I)Z"))

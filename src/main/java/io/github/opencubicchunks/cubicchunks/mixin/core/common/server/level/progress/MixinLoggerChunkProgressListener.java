@@ -3,6 +3,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.pro
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(LoggerChunkProgressListener.class))
 @Mixin(LoggerChunkProgressListener.class)
 public abstract class MixinLoggerChunkProgressListener implements CloProgressListener {
     @AddTransformToSets(ChunkToCloSet.LoggerChunkProgressListener_redirects.class)

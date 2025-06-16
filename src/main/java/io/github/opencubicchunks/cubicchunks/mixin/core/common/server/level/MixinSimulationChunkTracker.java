@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(SimulationChunkTracker.class))
 @Mixin(SimulationChunkTracker.class)
 public abstract class MixinSimulationChunkTracker extends MixinChunkTracker implements SimulationCloTracker {
     @AddTransformToSets(ChunkToCloSet.SimulationChunkTracker_redirects.class)

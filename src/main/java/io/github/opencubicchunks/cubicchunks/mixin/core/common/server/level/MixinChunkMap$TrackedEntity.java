@@ -3,6 +3,7 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
 import net.minecraft.server.level.ChunkMap;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(ChunkMap.TrackedEntity.class))
 @Mixin(ChunkMap.TrackedEntity.class)
 public abstract class MixinChunkMap$TrackedEntity {
     @Shadow @Final Entity entity;

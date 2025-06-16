@@ -95,7 +95,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * neighboring chunks.
  * This mixin adds cubic chunks equivalents for methods where necessary, to allow ChunkMap to work with CLOs (i.e. both chunks and cubes).
  */
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(ChunkMap.class))
 @Mixin(ChunkMap.class)
 public abstract class MixinChunkMap extends MixinChunkStorage implements GeneratingCubeMap, CubicChunkMap, CubeHolder.PlayerProvider {
     @Shadow public abstract ReportedException debugFuturesAndCreateReportedException(IllegalStateException exception, String details);

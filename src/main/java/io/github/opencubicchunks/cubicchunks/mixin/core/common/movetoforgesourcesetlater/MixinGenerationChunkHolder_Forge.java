@@ -14,7 +14,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Dasm(GlobalSet.class)
+@Dasm(value = GlobalSet.class, target = @Ref(GenerationChunkHolder.class))
 @Mixin(GenerationChunkHolder.class)
 public class MixinGenerationChunkHolder_Forge {
     protected CubePos cc_cubePos;

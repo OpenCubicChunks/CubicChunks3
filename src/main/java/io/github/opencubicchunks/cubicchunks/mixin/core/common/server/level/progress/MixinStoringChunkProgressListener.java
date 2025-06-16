@@ -18,7 +18,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(StoringChunkProgressListener.class))
 @Mixin(StoringChunkProgressListener.class)
 public abstract class MixinStoringChunkProgressListener implements CloProgressListener {
     @AddFieldToSets(containers = GlobalSet.StoringChunkProgressListener_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "spawnPos"))

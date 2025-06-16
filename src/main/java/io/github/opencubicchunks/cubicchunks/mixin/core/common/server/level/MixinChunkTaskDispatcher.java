@@ -16,7 +16,7 @@ import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
 import net.minecraft.server.level.ChunkTaskDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(ChunkTaskDispatcher.class))
 @Mixin(ChunkTaskDispatcher.class)
 public class MixinChunkTaskDispatcher implements CubeHolder.LevelChangeListener, CloTaskDispatcher {
     @AddTransformToSets(ChunkToCloSet.ChunkTaskDispatcher_redirects.class)

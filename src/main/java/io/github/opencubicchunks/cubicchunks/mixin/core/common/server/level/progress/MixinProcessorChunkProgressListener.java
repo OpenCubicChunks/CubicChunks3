@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(ProcessorChunkProgressListener.class))
 @Mixin(ProcessorChunkProgressListener.class)
 public abstract class MixinProcessorChunkProgressListener implements CloProgressListener {
     // We need a field referencing the delegate as a CloProgressListener, otherwise we end up trying to access a field of the wrong type

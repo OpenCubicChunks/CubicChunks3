@@ -71,7 +71,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * block+light updates, managing chunkloading tickets, etc.
  * This mixin adds versions of these methods for cubes, meaning that this class now stores and manages both cubes and chunks.
  */
-@Dasm(ChunkToCubeSet.class)
+@Dasm(value = ChunkToCubeSet.class, target = @Ref(ServerChunkCache.class))
 @Mixin(ServerChunkCache.class)
 public abstract class MixinServerChunkCache extends MixinChunkSource implements ServerCubeCache {
     // Cube equivalents for cached chunks

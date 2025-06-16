@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * We modify Entity to track its cube position, and to replace calls to chunk-specific methods with their corresponding cubic methods when in a cubic
  * Level.
  */
-@Dasm(ChunkToCubeSet.class)
+@Dasm(value = ChunkToCubeSet.class, target = @Ref(Entity.class))
 @Mixin(Entity.class)
 public abstract class MixinEntity implements EntityCubePosGetter {
     @Shadow private Level level;

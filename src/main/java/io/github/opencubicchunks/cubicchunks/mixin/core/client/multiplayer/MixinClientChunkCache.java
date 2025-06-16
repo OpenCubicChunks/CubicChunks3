@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * center and range of the chunk storage.
  * This mixin adds versions of these methods for cubes, meaning that this class now stores both cubes and chunks.
  */
-@Dasm(ChunkToCubeSet.class)
+@Dasm(value = ChunkToCubeSet.class, target = @Ref(ClientChunkCache.class))
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements ClientCubeCache {
     @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class, field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))

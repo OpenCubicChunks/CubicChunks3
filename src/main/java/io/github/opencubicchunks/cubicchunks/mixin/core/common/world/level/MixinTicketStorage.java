@@ -13,7 +13,7 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.TicketStorage;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(TicketStorage.class))
 @Mixin(TicketStorage.class)
 public class MixinTicketStorage implements CubicTicketStorage {
     // TODO (P2) codec nonsense for save/load

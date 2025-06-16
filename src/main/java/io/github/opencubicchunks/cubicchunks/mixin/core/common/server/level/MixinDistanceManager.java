@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCloSet;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
  * <br>
  * This mixin mostly just replaces calls to ChunkPos with CloPos.
  */
-@Dasm(ChunkToCloSet.class)
+@Dasm(value = ChunkToCloSet.class, target = @Ref(DistanceManager.class))
 @Mixin(DistanceManager.class)
 public abstract class MixinDistanceManager implements MarkableAsCubic {
     protected boolean cc_isCubic;

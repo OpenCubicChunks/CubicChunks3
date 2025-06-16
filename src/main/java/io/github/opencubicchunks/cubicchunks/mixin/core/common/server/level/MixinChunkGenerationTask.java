@@ -48,7 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * invariants
  * (cube status never exceeds the status of any chunks intersecting it)
  */
-@Dasm(GlobalSet.class)
+@Dasm(value = GlobalSet.class, target = @Ref(ChunkGenerationTask.class))
 @Mixin(ChunkGenerationTask.class)
 public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     @Shadow @Final private ChunkPos pos;

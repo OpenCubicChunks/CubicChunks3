@@ -267,7 +267,7 @@ dependencies {
         targetConfiguration = "testArchivesOutput"
     }
 
-    libraries("io.github.notstirred:dasm:2.5.2") {
+    libraries("io.github.notstirred:dasm:2.5.4") {
         transitive = false
     }
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")

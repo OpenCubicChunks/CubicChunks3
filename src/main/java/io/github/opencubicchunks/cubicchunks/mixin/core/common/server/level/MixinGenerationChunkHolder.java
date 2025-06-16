@@ -49,7 +49,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * This mixin adds cubic chunks equivalents for methods where necessary, to allow GenerationChunkHolder to dynamically wrap either a chunk or a cube
  * (i.e. a CLO).
  */
-@Dasm(ChunkToCubeSet.class)
+@Dasm(value = ChunkToCubeSet.class, target = @Ref(GenerationChunkHolder.class))
 @Mixin(GenerationChunkHolder.class)
 public abstract class MixinGenerationChunkHolder implements GenerationCloHolder {
     @Shadow @Final protected ChunkPos pos;
