@@ -189,7 +189,9 @@ neoForge {
         configureEach {
             jvmArguments = args
             // systemProperty 'forge.logging.markers', 'REGISTRIES'
-            systemProperty 'forge.logging.console.level', 'debug'
+            systemProperty 'forge.logging.console.level', 'info'
+            logLevel = org.slf4j.event.Level.INFO
+
             systemProperty 'terminal.ansi', 'true'
         }
 

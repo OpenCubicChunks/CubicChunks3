@@ -301,7 +301,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                     logger.warn(notification.message);
                     break;
                 case ERROR:
-                    logger.error(notification.message);
+                    logger.fatal(notification.message);
                     break;
                 default:
                     throw new IllegalStateException("Unknown enum variant: " + notification.kind);
