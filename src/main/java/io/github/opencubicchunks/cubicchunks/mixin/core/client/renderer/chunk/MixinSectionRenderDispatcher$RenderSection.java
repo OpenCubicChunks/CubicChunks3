@@ -77,7 +77,7 @@ public abstract class MixinSectionRenderDispatcher$RenderSection {
      * RenderChunkRegion)
      */
     @WrapOperation(method = "createCompileTask", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/chunk/RenderRegionCache;createRegion(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/SectionPos;Z)Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;"))
-    @Nullable private RenderChunkRegion cc_onCreateCompileTask_createRegion(
+    private @Nullable RenderChunkRegion cc_onCreateCompileTask_createRegion(
             RenderRegionCache instance, Level level, SectionPos sectionPos, boolean bool, Operation<RenderChunkRegion> original
     ) {
         if (!((CanBeCubic) ((SectionRenderDispatcherAccess) this$0).cc_getLevel()).cc_isCubic()) {

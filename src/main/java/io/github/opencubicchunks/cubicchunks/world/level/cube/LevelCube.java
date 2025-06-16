@@ -81,8 +81,8 @@ public class LevelCube extends CubeAccess implements LevelClo {
     private final Map<BlockPos, RebindableTickingBlockEntityWrapper> tickersInLevel = Maps.newHashMap();
     private boolean loaded;
     final Level level;
-    @Nullable private Supplier<FullChunkStatus> fullStatus;
-    @Nullable private PostLoadProcessor postLoad;
+    private @Nullable Supplier<FullChunkStatus> fullStatus;
+    private @Nullable PostLoadProcessor postLoad;
     private final Int2ObjectMap<GameEventListenerRegistry> gameEventListenerRegistrySections;
     private final LevelChunkTicks<Block> blockTicks;
     private final LevelChunkTicks<Fluid> fluidTicks;
@@ -186,7 +186,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
     // TODO might be dasm-able eventually, if we get more powerful mixin tools
     @SuppressWarnings({ "checkstyle:CyclomaticComplexity", "checkstyle:NPathComplexity" }) // <-- copies structure of vanilla method
-    @Nullable @Override public BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
+    @Override public @Nullable BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
         var chunkSection = this.getSection(Coords.blockToIndex(pos));
         boolean wasOnlyAir = chunkSection.hasOnlyAir();
         if (wasOnlyAir && state.isAir()) {
@@ -269,14 +269,14 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @Override public native void addEntity(Entity entity);
 
     @TransformFromMethod(value = @MethodSig("createBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
-    @Nullable private native BlockEntity createBlockEntity(BlockPos pos);
+    private native @Nullable BlockEntity createBlockEntity(BlockPos pos);
 
     @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
-    @Override @Nullable public native BlockEntity getBlockEntity(BlockPos pos);
+    @Override public native @Nullable BlockEntity getBlockEntity(BlockPos pos);
 
     @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
             + "Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
-    @Nullable public native BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
+    public native @Nullable BlockEntity getBlockEntity(BlockPos pos, LevelChunk.EntityCreationType creationType);
 
     @TransformFromMethod(value = @MethodSig("addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), owner = @Ref(LevelChunk.class))
     public native void addAndRegisterBlockEntity(BlockEntity blockEntity);
@@ -291,7 +291,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @Override public native void setBlockEntity(BlockEntity blockEntity);
 
     @TransformFromMethod(value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;"), owner = @Ref(LevelChunk.class))
-    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
+    @Override public native @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
     @TransformFromMethod(value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"), owner = @Ref(LevelChunk.class))
     @Override public native void removeBlockEntity(BlockPos pos);
@@ -362,7 +362,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     }
 
     @TransformFromMethod(value = @MethodSig("promotePendingBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(LevelChunk.class))
-    @Nullable private native BlockEntity promotePendingBlockEntity(BlockPos pos, CompoundTag tag);
+    private native @Nullable BlockEntity promotePendingBlockEntity(BlockPos pos, CompoundTag tag);
 
     @TransformFromMethod(value = @MethodSig("unpackTicks(J)V"), owner = @Ref(LevelChunk.class))
     public native void unpackTicks(long pos);
@@ -415,7 +415,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
 //        return attachmentHolder.getData(type);
 //    }
 //
-//    @Override @Nullable public <T> T setData(net.neoforged.neoforge.attachment.AttachmentType<T> type, T data) {
+//    @Override public <T> @Nullable T setData(net.neoforged.neoforge.attachment.AttachmentType<T> type, T data) {
 //        setUnsaved(true);
 //        return attachmentHolder.setData(type, data);
 //    }

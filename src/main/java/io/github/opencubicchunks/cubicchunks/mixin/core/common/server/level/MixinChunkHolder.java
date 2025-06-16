@@ -69,29 +69,29 @@ public abstract class MixinChunkHolder extends MixinGenerationChunkHolder implem
         throw new DasmFailedToApply();
     }
 
-    @Shadow @Nullable public abstract LevelChunk getTickingChunk();
+    @Shadow public abstract @Nullable LevelChunk getTickingChunk();
 
     @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class)
     @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    @Nullable public native LevelCube cc_getTickingCube();
+    public native @Nullable LevelCube cc_getTickingCube();
 
     @AddMethodToSets(containers = ChunkToCloSet.ChunkHolder_redirects.class, method = @MethodSig("getTickingChunk()Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    @Nullable public LevelClo cc_getTickingClo() {
+    public @Nullable LevelClo cc_getTickingClo() {
         if (cc_cubePos != null) {
             return cc_getTickingCube();
         }
         return (LevelClo) getTickingChunk();
     }
 
-    @Shadow @Nullable public abstract LevelChunk getChunkToSend();
+    @Shadow public abstract @Nullable LevelChunk getChunkToSend();
 
     @AddTransformToSets(ChunkToCubeSet.ChunkHolder_redirects.class)
     @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    @Nullable public native LevelCube cc_getCubeToSend();
+    public native @Nullable LevelCube cc_getCubeToSend();
 
     @AddTransformToSets(ChunkToCloSet.ChunkHolder_redirects.class)
     @TransformFromMethod(owner = @Ref(ChunkHolder.class), value = @MethodSig("getChunkToSend()Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    @Nullable public LevelClo cc_getCloToSend() {
+    public @Nullable LevelClo cc_getCloToSend() {
         if (cc_cubePos != null) {
             return cc_getCubeToSend();
         }

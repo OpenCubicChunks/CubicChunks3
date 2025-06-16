@@ -32,7 +32,7 @@ public class CubeLevel {
     public static final int MAX_LEVEL = FULL_CHUNK_LEVEL + RADIUS_AROUND_FULL_CUBE;
 
     @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class, method = @MethodSig("generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
-    @Nullable public static ChunkStatus cubeGenerationStatus(int level) {
+    public static @Nullable ChunkStatus cubeGenerationStatus(int level) {
         return getStatusAroundFullCube(level - FULL_CHUNK_LEVEL, null);
     }
 

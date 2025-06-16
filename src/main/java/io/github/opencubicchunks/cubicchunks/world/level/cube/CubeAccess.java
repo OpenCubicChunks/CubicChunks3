@@ -65,10 +65,10 @@ public abstract class CubeAccess implements CloAccess {
     @Nullable @Deprecated
     private BiomeGenerationSettings carverBiomeSettings;
     // TODO (P3) NoiseChunk might need to be different
-    @Nullable protected NoiseChunk noiseChunk;
+    protected @Nullable NoiseChunk noiseChunk;
 
     protected final UpgradeData upgradeData;
-    @Nullable protected BlendingData blendingData;
+    protected @Nullable BlendingData blendingData;
     protected final Map<Heightmap.Types, Heightmap> heightmaps = Maps.newEnumMap(Heightmap.Types.class);
     protected ChunkSkyLightSources skyLightSources;
     private final Map<Structure, StructureStart> structureStarts = Maps.newHashMap();
@@ -115,9 +115,9 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
     @TransformFromMethod(owner = @Ref(ChunkAccess.class), value = @MethodSig("setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;"))
-    @Override @Nullable public native BlockState setBlockState(BlockPos pos, BlockState state);
+    @Override public native @Nullable BlockState setBlockState(BlockPos pos, BlockState state);
 
-    @Override @Nullable public abstract BlockState setBlockState(BlockPos pos, BlockState state, int flags);
+    @Override public abstract @Nullable BlockState setBlockState(BlockPos pos, BlockState state, int flags);
 
     @Override public abstract void setBlockEntity(BlockEntity blockEntity);
 
@@ -171,7 +171,7 @@ public abstract class CubeAccess implements CloAccess {
     }
 
     @TransformFromMethod(value = @MethodSig("getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)Lnet/minecraft/world/level/levelgen/structure/StructureStart;"), owner = @Ref(ChunkAccess.class))
-    @Override @Nullable public native StructureStart getStartForStructure(Structure structure);
+    @Override public native @Nullable StructureStart getStartForStructure(Structure structure);
 
     @TransformFromMethod(value = @MethodSig("setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V"), owner = @Ref(ChunkAccess.class))
     @Override public native void setStartForStructure(Structure structure, StructureStart structureStart);
@@ -235,9 +235,9 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native void setBlockEntityNbt(CompoundTag tag);
 
     @TransformFromMethod(value = @MethodSig("getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"), owner = @Ref(ChunkAccess.class))
-    @Override @Nullable public native CompoundTag getBlockEntityNbt(BlockPos pos);
+    @Override public native @Nullable CompoundTag getBlockEntityNbt(BlockPos pos);
 
-    @Override @Nullable public abstract CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
+    @Override public abstract @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
     @TransformFromMethod(value = @MethodSig("findBlockLightSources(Ljava/util/function/BiConsumer;)V"), owner = @Ref(ChunkAccess.class))
     @Override public native void findBlockLightSources(BiConsumer<BlockPos, BlockState> output);
@@ -290,7 +290,7 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native boolean isOldNoiseGeneration();
 
     @TransformFromMethod(value = @MethodSig("getBlendingData()Lnet/minecraft/world/level/levelgen/blending/BlendingData;"), owner = @Ref(ChunkAccess.class))
-    @Override @Nullable public native BlendingData getBlendingData();
+    @Override public native @Nullable BlendingData getBlendingData();
 
     @TransformFromMethod(value = @MethodSig("getInhabitedTime()J"), owner = @Ref(ChunkAccess.class))
     @Override public native long getInhabitedTime();
@@ -339,7 +339,7 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFromMethod(value = @MethodSig("hasAnyStructureReferences()Z"), owner = @Ref(ChunkAccess.class))
     @Override public native boolean hasAnyStructureReferences();
 
-    @Override @Nullable public BelowZeroRetrogen getBelowZeroRetrogen() {
+    @Override public @Nullable BelowZeroRetrogen getBelowZeroRetrogen() {
         return null; // No below-zero retrogen in cubic worlds :)
     }
 

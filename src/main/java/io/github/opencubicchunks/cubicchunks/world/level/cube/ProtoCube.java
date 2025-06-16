@@ -47,11 +47,11 @@ import net.minecraft.world.ticks.TickContainerAccess;
 @Dasm(ChunkToCubeSet.class)
 public class ProtoCube extends CubeAccess implements ProtoClo {
     // Fields matching ProtoChunk
-    @Nullable private volatile LevelLightEngine lightEngine;
+    private volatile @Nullable LevelLightEngine lightEngine;
     private volatile ChunkStatus status;
     private final List<CompoundTag> entities;
-    @Nullable private CarvingMask carvingMask;
-    @Nullable private BelowZeroRetrogen belowZeroRetrogen;
+    private @Nullable CarvingMask carvingMask;
+    private @Nullable BelowZeroRetrogen belowZeroRetrogen;
     private final ProtoChunkTicks<Block> blockTicks;
     private final ProtoChunkTicks<Fluid> fluidTicks;
 
@@ -92,7 +92,7 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @TransformFromMethod(value = @MethodSig("getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"), owner = @Ref(ProtoChunk.class))
     @Override public native FluidState getFluidState(BlockPos pos);
 
-    @Nullable @Override public BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
+    @Override public @Nullable BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -115,7 +115,7 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native void setBlockEntity(BlockEntity blockEntity);
 
     @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(ProtoChunk.class))
-    @Override @Nullable public native BlockEntity getBlockEntity(BlockPos pos);
+    @Override public native @Nullable BlockEntity getBlockEntity(BlockPos pos);
 
     @TransformFromMethod(value = @MethodSig("getBlockEntities()Ljava/util/Map;"), owner = @Ref(ProtoChunk.class))
     @Override public native Map<BlockPos, BlockEntity> getBlockEntities();
@@ -157,13 +157,13 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
     @Override public native Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
     @TransformFromMethod(value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;"), owner = @Ref(ProtoChunk.class))
-    @Override @Nullable public native CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
+    @Override public native @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
     @TransformFromMethod(value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"), owner = @Ref(ProtoChunk.class))
     @Override public native void removeBlockEntity(BlockPos pos);
 
     @TransformFromMethod(value = @MethodSig("getCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;"), owner = @Ref(ProtoChunk.class))
-    @Override @Nullable public native CarvingMask getCarvingMask();
+    @Override public native @Nullable CarvingMask getCarvingMask();
 
     @TransformFromMethod(value = @MethodSig("getOrCreateCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;"), owner = @Ref(ProtoChunk.class))
     @Override public native CarvingMask getOrCreateCarvingMask();

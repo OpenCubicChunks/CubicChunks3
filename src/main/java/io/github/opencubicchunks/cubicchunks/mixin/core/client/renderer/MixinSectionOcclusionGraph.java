@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SectionOcclusionGraph.class)
 public abstract class MixinSectionOcclusionGraph {
     private boolean cc_isCubic = false;
-    @Shadow @Nullable private ViewArea viewArea;
+    @Shadow private @Nullable ViewArea viewArea;
 
     @Shadow protected abstract boolean isInViewDistance(long centerSectionPos, long sectionPos);
 

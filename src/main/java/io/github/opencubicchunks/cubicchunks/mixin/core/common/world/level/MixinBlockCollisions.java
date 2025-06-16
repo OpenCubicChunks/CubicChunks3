@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BlockCollisions.class)
 public class MixinBlockCollisions {
     @Shadow @Final private CollisionGetter collisionGetter;
-    @Shadow @Nullable private BlockGetter cachedBlockGetter;
+    @Shadow private @Nullable BlockGetter cachedBlockGetter;
     @Shadow private long cachedBlockGetterPos;
     private boolean cc_isCubic;
 
@@ -41,7 +41,7 @@ public class MixinBlockCollisions {
         }
     }
 
-    @Nullable private BlockGetter cc_getCube(int x, int y, int z) {
+    private @Nullable BlockGetter cc_getCube(int x, int y, int z) {
         int cubeX = Coords.blockToCube(x);
         int cubeY = Coords.blockToCube(y);
         int cubeZ = Coords.blockToCube(z);
@@ -57,7 +57,7 @@ public class MixinBlockCollisions {
     }
 
     @WrapOperation(method = "computeNext", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/BlockCollisions;getChunk(II)Lnet/minecraft/world/level/BlockGetter;"))
-    @Nullable private BlockGetter cc_onComputeNext_getChunk(
+    private @Nullable BlockGetter cc_onComputeNext_getChunk(
             BlockCollisions instance, int x, int z, Operation<BlockGetter> original, @Local(ordinal = 1) int y
     ) {
         if (!cc_isCubic) {

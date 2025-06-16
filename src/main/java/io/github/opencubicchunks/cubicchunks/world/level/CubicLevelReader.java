@@ -13,19 +13,19 @@ public interface CubicLevelReader extends CubicCollisionGetter {
 
     @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus chunkStatus, boolean forceLoad);
 
-    @Nullable default CubeAccess cc_getCube(BlockPos blockPos) {
+    default @Nullable CubeAccess cc_getCube(BlockPos blockPos) {
         return this.cc_getCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()), Coords.blockToCube(blockPos.getZ()));
     }
 
-    @Nullable default CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ) {
+    default @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ) {
         return this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.FULL, true);
     }
 
-    @Nullable default CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus requiredStatus) {
+    default @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus requiredStatus) {
         return this.cc_getCube(cubeX, cubeY, cubeZ, requiredStatus, true);
     }
 
-    @Override @Nullable default BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
+    @Override default @Nullable BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
         return this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.EMPTY, false);
     }
 

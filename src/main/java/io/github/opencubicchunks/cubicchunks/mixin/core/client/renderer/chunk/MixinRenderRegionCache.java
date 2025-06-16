@@ -35,7 +35,7 @@ public abstract class MixinRenderRegionCache implements CubicRenderRegionCache {
     @Shadow private final Long2ObjectMap<RenderRegionCacheCubeInfo> chunkInfoCache = new Long2ObjectOpenHashMap<>();
 
     // TODO can we possibly do this with DASM + mixin? probably not?
-    @Override @Nullable public RenderCubeRegion cc_createRegion(Level level, SectionPos sectionPos, boolean nullForEmpty) {
+    @Override public @Nullable RenderCubeRegion cc_createRegion(Level level, SectionPos sectionPos, boolean nullForEmpty) {
         int centerCubeX = Coords.sectionToCube(sectionPos.getX());
         int centerCubeY = Coords.sectionToCube(sectionPos.getY());
         int centerCubeZ = Coords.sectionToCube(sectionPos.getZ());

@@ -91,7 +91,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     @Shadow @Final public ServerLevel level;
 
-    @Shadow @Nullable protected abstract ChunkHolder getVisibleChunkIfPresent(long pChunkPos);
+    @Shadow protected abstract @Nullable ChunkHolder getVisibleChunkIfPresent(long pChunkPos);
 
     @Shadow @Final Thread mainThread;
 
@@ -103,7 +103,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
 
     @Shadow private long lastInhabitedUpdate;
 
-    @Shadow @Nullable private NaturalSpawner.SpawnState lastSpawnState;
+    @Shadow private @Nullable NaturalSpawner.SpawnState lastSpawnState;
 
     @Shadow protected abstract void getFullChunk(long chunkPos, Consumer<LevelChunk> fullChunkGetter);
 
@@ -126,7 +126,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     private native void cc_storeInCache(long pChunkPos, CubeAccess pChunk, ChunkStatus pChunkStatus);
 
     @TransformFromMethod(@MethodSig("getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Override @Nullable public native CubeAccess cc_getCube(int chunkX, @AddUnusedParam int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load);
+    @Override public native @Nullable CubeAccess cc_getCube(int chunkX, @AddUnusedParam int chunkY, int chunkZ, ChunkStatus requiredStatus, boolean load);
 
     // mixin-into-dasm to replace call to getChunk with getCube
     @Dynamic @Inject(method = "cc_dasm$cc_getCube", cancellable = true, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;supplyAsync(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"))
@@ -155,7 +155,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     @TransformFromMethod(@MethodSig("getChunkNow(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    @Override @Nullable public native LevelCube cc_getCubeNow(int pChunkX, @AddUnusedParam int chunkY, int pChunkZ);
+    @Override public native @Nullable LevelCube cc_getCubeNow(int pChunkX, @AddUnusedParam int chunkY, int pChunkZ);
 
     // The first two params are the x and z coordinates inside the call being redirected; the next three params are the x/y/z coordinates in the
     // params of getCubeNow
@@ -216,7 +216,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
     }
 
     // TODO (P2) - lighting; currently unused. can probably be done with dasm and @AddUnusedParam
-    @Nullable public LightChunk cc_getCubeForLighting(int pChunkX, int chunkY, int pChunkZ) {
+    public @Nullable LightChunk cc_getCubeForLighting(int pChunkX, int chunkY, int pChunkZ) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 

@@ -80,7 +80,7 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     );
 
     @WrapOperation(method = "updateHighestAllowedStatus", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkLevel;generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
-    @Nullable protected ChunkStatus cc_onUpdateHighestAllowedStatus_generationStatus(int level, Operation<ChunkStatus> original) {
+    protected @Nullable ChunkStatus cc_onUpdateHighestAllowedStatus_generationStatus(int level, Operation<ChunkStatus> original) {
         if (cc_cubePos != null) {
             return CubeLevel.cubeGenerationStatus(level);
         }
@@ -107,20 +107,20 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
     @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getChunkIfPresentUnchecked(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public native CubeAccess cc_getCubeIfPresentUnchecked(ChunkStatus status);
+    public native @Nullable CubeAccess cc_getCubeIfPresentUnchecked(ChunkStatus status);
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
     @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public native CubeAccess cc_getCubeIfPresent(ChunkStatus status);
+    public native @Nullable CubeAccess cc_getCubeIfPresent(ChunkStatus status);
 
-    @Shadow @Nullable public abstract ChunkAccess getLatestChunk();
+    @Shadow public abstract @Nullable ChunkAccess getLatestChunk();
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
     @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public native CubeAccess cc_getLatestCube();
+    public native @Nullable CubeAccess cc_getLatestCube();
 
     @AddMethodToSets(containers = ChunkToCloSet.GenerationChunkHolder_redirects.class, method = @MethodSig("getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    @Nullable public CloAccess cc_getLatestClo() {
+    public @Nullable CloAccess cc_getLatestClo() {
         if (cc_cubePos != null) {
             return cc_getLatestCube();
         }

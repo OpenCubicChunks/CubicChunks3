@@ -90,7 +90,7 @@ public class TestCubeAccess extends BaseTest {
             return null;
         }
 
-        @Nullable @Override public BlockEntity getBlockEntity(BlockPos pos) {
+        @Override public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
             return null;
         }
 

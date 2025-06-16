@@ -53,7 +53,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     @Shadow @Final private ChunkPos pos;
     @Shadow @Final private GeneratingChunkMap chunkMap;
-    @Shadow @Nullable private ChunkStatus scheduledStatus;
+    @Shadow private @Nullable ChunkStatus scheduledStatus;
     @Shadow @Final public ChunkStatus targetStatus;
     @Shadow private volatile boolean markedForCancellation;
     @Shadow @Final private StaticCache2D<GenerationChunkHolder> cache;
@@ -62,7 +62,7 @@ public abstract class MixinChunkGenerationTask implements CloGenerationTask {
     // scheduledChunkStatus must be one status higher than the scheduled status for cubes until the target status is reached, to ensure load order
     // invariants are preserved
     // we use the vanilla field for cube status, since that is the status of the actual cube that is being generated
-    @Nullable public ChunkStatus cc_scheduledChunkStatus;
+    public @Nullable ChunkStatus cc_scheduledChunkStatus;
     @AddFieldToSets(containers = ChunkToCubeSet.ChunkGenerationTask_redirects.class, field = @FieldSig(type = @Ref(StaticCache2D.class), name = "cache"))
     private StaticCache3D<GenerationChunkHolder> cc_cubeCache;
 

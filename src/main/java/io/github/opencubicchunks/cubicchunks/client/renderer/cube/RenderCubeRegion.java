@@ -49,7 +49,7 @@ public class RenderCubeRegion extends RenderChunkRegion {
                 .getFluidState();
     }
 
-    @Nullable @Override public BlockEntity getBlockEntity(BlockPos pos) {
+    @Override public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
         return this.getCube(Coords.blockToCube(pos.getX()), Coords.blockToCube(pos.getY()), Coords.blockToCube(pos.getZ())).getBlockEntity(pos);
     }
 

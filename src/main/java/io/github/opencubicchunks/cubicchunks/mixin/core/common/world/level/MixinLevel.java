@@ -45,7 +45,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Dasm(ChunkToCloSet.class)
 @Mixin(Level.class)
 public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAccessor {
-    @Shadow @Nullable public abstract ChunkAccess getChunk(int chunkX, int chunkZ, ChunkStatus requestedStatus, boolean forceLoad);
+    @Shadow public abstract @Nullable ChunkAccess getChunk(int chunkX, int chunkZ, ChunkStatus requestedStatus, boolean forceLoad);
 
     @Shadow public abstract long getDayTime();
 
@@ -67,7 +67,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         return (LevelCube) this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.FULL);
     }
 
-    @Nullable @Override public CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus status, boolean forceLoad) {
+    @Override public @Nullable CubeAccess cc_getCube(int cubeX, int cubeY, int cubeZ, ChunkStatus status, boolean forceLoad) {
         CubeAccess cubeaccess = ((CubeSource) this.getChunkSource()).cc_getCube(cubeX, cubeY, cubeZ, status, forceLoad);
         if (cubeaccess == null && forceLoad) {
             throw new IllegalStateException("Should always be able to create a cube!");
@@ -83,7 +83,7 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         }
     }
 
-    @Override @Nullable public BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
+    @Override public @Nullable BlockGetter cc_getCubeForCollisions(int cubeX, int cubeY, int cubeZ) {
         return this.cc_getCube(cubeX, cubeY, cubeZ, ChunkStatus.FULL, false);
     }
 

@@ -45,11 +45,11 @@ public class TestCubicDistanceManager extends BaseTest {
             return false;
         }
 
-        @Nullable @Override protected ChunkHolder getChunk(long chunkPos) {
+        @Override protected @Nullable ChunkHolder getChunk(long chunkPos) {
             return null;
         }
 
-        @Nullable @Override protected ChunkHolder updateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel) {
+        @Override protected @Nullable ChunkHolder updateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel) {
             return null;
         }
     }

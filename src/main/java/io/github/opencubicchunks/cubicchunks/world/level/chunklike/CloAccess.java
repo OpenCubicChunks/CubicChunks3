@@ -161,5 +161,5 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
 //    static record PackedTicks(SerializableTickContainer<Block> blocks, SerializableTickContainer<Fluid> fluids);
 
     // TODO forge method
-//    @Nullable public net.minecraft.world.level.LevelAccessor getWorldForge() { return null; }
+//    public @Nullable net.minecraft.world.level.LevelAccessor getWorldForge() { return null; }
 }

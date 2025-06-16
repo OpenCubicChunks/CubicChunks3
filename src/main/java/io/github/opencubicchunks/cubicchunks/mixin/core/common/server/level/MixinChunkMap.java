@@ -278,7 +278,7 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
     // region [cc_updateCubeScheduling dasm + mixin]
     @AddTransformToSets(ChunkToCubeSet.ChunkMap_redirects.class)
     @TransformFromMethod(useRedirectSets = ChunkToCubeSet.class, value = @MethodSig("updateChunkScheduling(JILnet/minecraft/server/level/ChunkHolder;I)Lnet/minecraft/server/level/ChunkHolder;"))
-    @Nullable public native ChunkHolder cc_updateCubeScheduling(long cubePos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
+    public native @Nullable ChunkHolder cc_updateCubeScheduling(long cubePos, int newLevel, @Nullable ChunkHolder holder, int oldLevel);
 
     @Inject(method = "updateChunkScheduling", at = @At("HEAD"), cancellable = true)
     private void cc_onUpdateChunkScheduling(long cloPos, int newLevel, ChunkHolder holder, int oldLevel, CallbackInfoReturnable<ChunkHolder> cir) {

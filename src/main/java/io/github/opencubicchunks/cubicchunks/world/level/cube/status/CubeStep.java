@@ -57,7 +57,7 @@ public record CubeStep(
     public static class Builder {
         private final ChunkStatus status;
         @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(CubeStep.class), name = "parent"))
-        @Nullable private final CubeStep parent;
+        private final @Nullable CubeStep parent;
         private ChunkStatus[] directDependenciesByRadius;
         private int blockStateWriteRadius = -1;
         @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(ChunkStatusTask.class), name = "task"))

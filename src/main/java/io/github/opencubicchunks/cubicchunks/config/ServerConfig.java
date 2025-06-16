@@ -86,7 +86,7 @@ public class ServerConfig extends BaseConfig {
         write(configPath, createDefaultConfig());
     }
 
-//    @Nullable public static ServerConfig getConfig(LevelStorageSource.LevelStorageAccess levelStorageAccess) {
+//    public static @Nullable ServerConfig getConfig(LevelStorageSource.LevelStorageAccess levelStorageAccess) {
 //        File configPath = getConfigPath(((LevelStorageAccessAccess) levelStorageAccess).getLevelPath());
 //        if (configPath.exists()) {
 //            var config = createDefaultConfig();

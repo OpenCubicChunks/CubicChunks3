@@ -134,7 +134,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
 
     @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
 
-    @Nullable @Override public List<String> getMixins() {
+    @Override public @Nullable List<String> getMixins() {
         return null;
     }
 
