@@ -88,6 +88,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         return null;
     }
 
+    @SuppressWarnings("checkstyle:CyclomaticComplexity") // I'm to lazy to fix this as the class is hopefully being deleted soon
     @Override public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         try {
             ClassNode targetClass = MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
