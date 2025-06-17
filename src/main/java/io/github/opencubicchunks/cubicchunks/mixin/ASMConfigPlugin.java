@@ -38,6 +38,7 @@ import io.github.notstirred.dasm.util.NotifyStack;
 import io.github.notstirred.dasm.util.Pair;
 import io.github.opencubicchunks.cc_core.annotation.Public;
 import io.github.opencubicchunks.cubicchunks.CubicChunks;
+import io.github.opencubicchunks.cubicchunks.util.asm.FactoryFromConstructor;
 import net.minecraft.Util;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
@@ -185,6 +186,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
 
     @Override public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         doPublicAnnotation(targetClass);
+        doFactoryFromConstructorAnnotation(targetClass);
 
         // Apply POST_APPLY dasm transforms
         boolean wasTransformed;
@@ -256,6 +258,43 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
                         .anyMatch(annotationNode -> annotationNode.desc.equals("L" + Public.class.getName().replace('.', '/') + ";"))) {
                     method.access &= ~(ACC_PRIVATE | ACC_PROTECTED);
                     method.access |= ACC_PUBLIC;
+                }
+            }
+        }
+    }
+
+    private void doFactoryFromConstructorAnnotation(ClassNode targetClass) {
+        // Generate constructor calls matching the signature of methods annotated with @FactoryFromConstructor
+        for (MethodNode method : targetClass.methods) {
+            List<AnnotationNode> annotations = method.invisibleAnnotations;
+            if (annotations != null) {
+                if (annotations.stream().anyMatch(
+                        annotationNode -> annotationNode.desc.equals("L" + FactoryFromConstructor.class.getName().replace('.', '/') + ";"))) {
+                    if ((method.access & ACC_STATIC) == 0) {
+                        throw new IllegalStateException("Tried to generate a factory method on a non-static dst");
+                    }
+                    method.access &= ~ACC_NATIVE;
+                    Type methodType = Type.getMethodType(method.desc);
+                    Type returnType = methodType.getReturnType();
+                    Type[] argumentTypes = methodType.getArgumentTypes();
+
+                    method.instructions.clear();
+                    method.visitTypeInsn(NEW, returnType.getInternalName());
+                    method.visitInsn(DUP);
+                    for (int i = 0; i < argumentTypes.length; i++) {
+                        Type argumentType = argumentTypes[i];
+                        switch (argumentType.getSort()) {
+                            case Type.OBJECT, Type.ARRAY -> method.visitVarInsn(ALOAD, i);
+                            case Type.LONG -> method.visitVarInsn(LLOAD, i);
+                            case Type.INT, Type.SHORT, Type.BYTE, Type.BOOLEAN, Type.CHAR -> method.visitVarInsn(ILOAD, i);
+                            case Type.DOUBLE -> method.visitVarInsn(DLOAD, i);
+                            case Type.FLOAT -> method.visitVarInsn(FLOAD, i);
+                            default -> throw new IllegalStateException("Unexpected sort: " + argumentType.getSort());
+                        }
+                    }
+                    method.visitMethodInsn(INVOKESPECIAL, returnType.getInternalName(), "<init>",
+                            method.desc.substring(0, method.desc.lastIndexOf(')') + 1) + "V", false);
+                    method.visitInsn(ARETURN);
                 }
             }
         }
