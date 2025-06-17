@@ -22,6 +22,9 @@ import javax.annotation.Nullable;
 
 import com.mojang.datafixers.util.Either;
 import io.github.notstirred.dasm.annotation.AnnotationParser;
+import io.github.notstirred.dasm.annotation.AnnotationUtil;
+import io.github.notstirred.dasm.annotation.parse.RefImpl;
+import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.transform.ApplicationStage;
 import io.github.notstirred.dasm.api.provider.MappingsProvider;
 import io.github.notstirred.dasm.exception.DasmException;
@@ -30,6 +33,7 @@ import io.github.notstirred.dasm.transformer.Transformer;
 import io.github.notstirred.dasm.transformer.data.ClassTransform;
 import io.github.notstirred.dasm.transformer.data.MethodTransform;
 import io.github.notstirred.dasm.util.CachingClassProvider;
+import io.github.notstirred.dasm.util.Format;
 import io.github.notstirred.dasm.util.NotifyStack;
 import io.github.notstirred.dasm.util.Pair;
 import io.github.opencubicchunks.cc_core.annotation.Public;
@@ -39,6 +43,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -87,6 +92,17 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         try {
             ClassNode targetClass = MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
             ClassNode mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
+
+            // Helpfully crash if dasm target doesn't make sense for a mixin class. This uses a ton of mostly static dasm internals.
+            AnnotationNode dasmAnnotation = AnnotationUtil.getAnnotationIfPresent(mixinClass.invisibleAnnotations, Dasm.class);
+            if (dasmAnnotation != null) {
+                Optional<Type> dasmTarget = RefImpl
+                        .parseOptionalRefAnnotation((AnnotationNode) AnnotationUtil.getAnnotationValues(dasmAnnotation, Dasm.class).get("target"));
+                if (dasmTarget.isEmpty() || dasmTarget.get().equals(Type.getType(Dasm.SELF_TARGET.class))) {
+                    throw new RuntimeException("Mixin class " + Format.formatObjectType(Type.getObjectType(mixinClass.name))
+                            + " with @Dasm annotation should probably have a @Dasm(value = Set.class, target = ...) targeting the mixin target class");
+                }
+            }
 
             // PRE_APPLY
             handleError(this.annotationParser.findDasmAnnotations(mixinClass));
