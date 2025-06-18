@@ -34,6 +34,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseRailBlock;
@@ -54,6 +55,7 @@ import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.TickContainerAccess;
 import org.jetbrains.annotations.NotNull;
@@ -313,6 +315,7 @@ public class LevelCube extends CubeAccess implements LevelClo {
     @TransformFromMethod(value = @MethodSig("isEmpty()Z"), owner = @Ref(LevelChunk.class))
     public native boolean isEmpty();
 
+    // TODO this should maybe be dasm + mixin, there's a lot of vanilla code duplication here
     public void replaceWithPacketData(
             FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> outputTagConsumer
     ) {
@@ -326,12 +329,15 @@ public class LevelCube extends CubeAccess implements LevelClo {
 
         // TODO (P2) lighting
 //        this.initializeLightSources();
-        outputTagConsumer.accept((pos, blockEntityType, tag) -> {
-            BlockEntity blockentity = this.getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
-            if (blockentity != null && tag != null && blockentity.getType() == blockEntityType) {
-                blockentity.loadWithComponents(tag, this.level.registryAccess());
-            }
-        });
+        try (ProblemReporter.ScopedCollector problemreporter$scopedcollector = new ProblemReporter.ScopedCollector(this.problemPath(), LOGGER)) {
+            outputTagConsumer.accept((pos, blockEntityType, tag) -> {
+                BlockEntity blockentity = this.getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
+                if (blockentity != null && tag != null && blockentity.getType() == blockEntityType) {
+                    blockentity.handleUpdateTag(TagValueInput.create(problemreporter$scopedcollector.forChild(blockentity.problemPath()),
+                            this.level.registryAccess(), tag));
+                }
+            });
+        }
     }
 
     @TransformFromMethod(value = @MethodSig("replaceBiomes(Lnet/minecraft/network/FriendlyByteBuf;)V"), owner = @Ref(LevelChunk.class))

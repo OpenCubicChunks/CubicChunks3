@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package io.github.opencubicchunks.cubicchunks.test.client.renderer.cube;
+package io.github.opencubicchunks.cubicchunks.client.renderer.chunk;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

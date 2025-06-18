@@ -96,6 +96,8 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         // TODO (P2) cube ticking
     }
 
+    // TODO (P2) waitForChunkAndEntities
+
     // TODO: comments below don't account for 1.20.4->1.21.5 changes; will need to check for other methods that need CC changes
 
     // TODO: phase 3 - isNaturalSpawningAllowed

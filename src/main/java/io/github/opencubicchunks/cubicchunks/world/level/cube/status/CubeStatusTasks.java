@@ -1,11 +1,13 @@
 package io.github.opencubicchunks.cubicchunks.world.level.cube.status;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.mojang.logging.LogUtils;
 import io.github.notstirred.dasm.api.annotations.Dasm;
+import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
+import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
@@ -16,12 +18,13 @@ import io.github.opencubicchunks.cubicchunks.util.StaticCache3D;
 import io.github.opencubicchunks.cubicchunks.world.level.chunk.status.CCChunkStatusTasks;
 import io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.status.ChunkStatusTasks;
 import net.minecraft.world.level.chunk.status.WorldGenContext;
+import net.minecraft.world.level.storage.ValueInput;
+import org.slf4j.Logger;
 
 /**
  * Equivalent of {@link ChunkStatusTasks} for cube generation.
@@ -31,6 +34,9 @@ import net.minecraft.world.level.chunk.status.WorldGenContext;
 @Dasm(ChunkToCubeSet.class)
 public class CubeStatusTasks {
     private CubeStatusTasks() {}
+
+    @AddFieldToSets(containers = ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class, field = @FieldSig(type = @Ref(Logger.class), name = "LOGGER"))
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @AddTransformToSets(ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class)
     @TransformFromMethod(owner = @Ref(ChunkStatusTasks.class), value = @MethodSig("isLighted(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z"))
@@ -149,6 +155,6 @@ public class CubeStatusTasks {
     );
 
     @AddTransformToSets(ChunkToCubeSet.ChunkStatusTasks_to_CubeStatusTasks_redirects.class)
-    @TransformFromMethod(owner = @Ref(ChunkStatusTasks.class), value = @MethodSig("postLoadProtoChunk(Lnet/minecraft/server/level/ServerLevel;Ljava/util/List;)V"))
-    private static native void postLoadProtoCube(ServerLevel level, List<CompoundTag> entityTags);
+    @TransformFromMethod(owner = @Ref(ChunkStatusTasks.class), value = @MethodSig("postLoadProtoChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/ValueInput$ValueInputList;)V"))
+    private static native void postLoadProtoCube(ServerLevel level, ValueInput.ValueInputList entityTags);
 }

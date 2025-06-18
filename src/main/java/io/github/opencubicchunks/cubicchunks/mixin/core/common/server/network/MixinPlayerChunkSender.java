@@ -76,7 +76,7 @@ public class MixinPlayerChunkSender {
             this.batchQuota = Math.min(this.batchQuota + this.desiredChunksPerTick, f);
             if (!(this.batchQuota < 1.0F)) {
                 if (!this.pendingChunks.isEmpty()) {
-                    ServerLevel serverlevel = player.serverLevel();
+                    ServerLevel serverlevel = player.level();
                     ChunkMap chunkmap = serverlevel.getChunkSource().chunkMap;
                     List<LevelClo> list = this.cc_collectChunksToSend(chunkmap, CloPos.cube(((EntityCubePosGetter) player).cc_cubePosition()));
                     if (!list.isEmpty()) {

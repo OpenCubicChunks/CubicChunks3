@@ -2,7 +2,7 @@
 
 ## Not yet usable or functional, don't try.
 
-Rewrite of the previous rewrite, targeting NeoForge/MC 1.21.5. 
+Rewrite of the previous rewrite, targeting NeoForge/MC 1.21.6. 
 
 This Minecraft mod extends Minecraft height and depth to be nearly infinite (at least a million blocks).
 
@@ -10,7 +10,7 @@ For the most up-to-date information about this mod and its related mods, as well
 
 ### Cubic Chunks (CC) - Links:
 
-Github - [Cubic Chunks - 1.21.5 and above](https://github.com/OpenCubicChunks/CubicChunks3)  
+Github - [Cubic Chunks - 1.21.6 and above](https://github.com/OpenCubicChunks/CubicChunks3)  
 Github - [Cubic Chunks - 1.12.2 and lower](https://github.com/OpenCubicChunks/CubicChunks)
 
 ### Cloning the repository

@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.shorts.ShortList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -154,6 +155,8 @@ public interface CloAccess extends BlockGetter, BiomeManager.NoiseBiomeSource, L
     LevelHeightAccessor getHeightAccessorForGeneration();
 
     void initializeLightSources();
+
+    ProblemReporter.PathElement problemPath();
 
     // TODO static methods
 //    static ShortList getOrCreateOffsetList(ShortList[] p_62096_, int p_62097_);

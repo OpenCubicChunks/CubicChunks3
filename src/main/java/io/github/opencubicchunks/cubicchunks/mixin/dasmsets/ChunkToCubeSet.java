@@ -19,8 +19,6 @@ import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.client.multiplayer.ClientCubeCache;
-import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderCube;
-import io.github.opencubicchunks.cubicchunks.client.renderer.cube.RenderRegionCacheCubeInfo;
 import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.CCCommonHooks;
 import io.github.opencubicchunks.cubicchunks.movetoforgesourcesetlater.EventConstructorDelegates;
 import io.github.opencubicchunks.cubicchunks.server.level.CubeHolder;
@@ -39,7 +37,7 @@ import io.github.opencubicchunks.cubicchunks.world.level.cube.status.CubeStep;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SectionOcclusionGraph;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.SectionCopy;
 import net.minecraft.server.level.ChunkGenerationTask;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkLevel;
@@ -111,6 +109,11 @@ public interface ChunkToCubeSet extends GlobalSet {
         public native CubePos cc_getCubePos();
     }
 
+    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.ChunkAccess$ChunkPathElement"), to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess$CubePathElement"))
+    abstract class ChunkAccess$ChunkPathElement_to_CubeAccess$CubePathElement_redirects {
+
+    }
+
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelCube.class))
     abstract class LevelChunk_to_LevelCube_redirects {
         @FieldRedirect(@FieldSig(type = @Ref(ChunkPos.class), name = "chunkPos"))
@@ -139,12 +142,6 @@ public interface ChunkToCubeSet extends GlobalSet {
     abstract class EmptyLevelChunk_to_EmptyLevelCube_redirects {}
 
     // FIXME probably need to move to a client-only set
-    @TypeRedirect(from = @Ref(RenderChunk.class), to = @Ref(RenderCube.class))
-    abstract class RenderChunk_to_RenderCube_redirects {}
-
-    @TypeRedirect(from = @Ref(string = "net.minecraft.client.renderer.chunk.RenderRegionCache$ChunkInfo"), to = @Ref(RenderRegionCacheCubeInfo.class))
-    abstract class RenderRegionCache$ChunkInfo_to_RenderRegionCacheCubeInfo_redirects {}
-
     @TypeRedirect(from = @Ref(ClientChunkCache.Storage.class), to = @Ref(ClientCubeCache.Storage.class))
     abstract class ClientChunkCache$Storage_to_ClientCubeCache$Storage_redirects {}
 
@@ -267,4 +264,7 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @IntraOwnerContainer(@Ref(LevelRenderer.class))
     class LevelRenderer_redirects {}
+
+    @IntraOwnerContainer(@Ref(SectionCopy.class))
+    class SectionCopy_redirects {}
 }

@@ -29,6 +29,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
@@ -356,5 +357,19 @@ public abstract class CubeAccess implements CloAccess {
 
     @Override public ChunkSkyLightSources getSkyLightSources() {
         throw new UnsupportedOperationException(); // TODO P2
+    }
+
+    public static ProblemReporter.PathElement problemPath(CubePos cubePos) {
+        return new CubePathElement(cubePos);
+    }
+
+    public ProblemReporter.PathElement problemPath() {
+        return problemPath(this.cc_getCubePos());
+    }
+
+    record CubePathElement(CubePos pos) implements ProblemReporter.PathElement {
+        @Override public String get() {
+            return "cube@" + this.pos;
+        }
     }
 }

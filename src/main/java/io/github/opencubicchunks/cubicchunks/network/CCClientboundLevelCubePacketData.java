@@ -63,9 +63,14 @@ public class CCClientboundLevelCubePacketData {
         return i;
     }
 
+    // TODO could dasm-copy this from ClientboundLevelChunkPacketData
     public static void extractChunkData(FriendlyByteBuf buffer, LevelCube cube) {
         for (LevelChunkSection levelchunksection : cube.getSections()) {
             levelchunksection.write(buffer);
+        }
+
+        if (buffer.writerIndex() != buffer.capacity()) {
+            throw new IllegalStateException("Didn't fill cube buffer: expected " + buffer.capacity() + " bytes, got " + buffer.writerIndex());
         }
     }
 
