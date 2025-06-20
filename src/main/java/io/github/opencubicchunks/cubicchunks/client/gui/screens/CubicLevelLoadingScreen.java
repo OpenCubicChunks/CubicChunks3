@@ -144,8 +144,11 @@ public class CubicLevelLoadingScreen {
             var statusLabel = status.getName().substring("minecraft:".length()) + " (" + chunkStatusCounts[status.getIndex()] + ", "
                     + cubeStatusCounts[status.getIndex()] + ")";
             guiGraphics.drawString(font, statusLabel, x + radius + margin, y + 2, ARGB.white(1));
-            int color = ARGB.color(STATUS_ALPHAS.getValue(status.getIndex()), STATUS_COLORS.getOrDefault(status, DEFAULT_STATUS_COLOR));
-            guiGraphics.fill(x, y, x + radius, y + radius, color);
+            int color = ARGB.opaque(STATUS_COLORS.getOrDefault(status, DEFAULT_STATUS_COLOR));
+            int colorWithAlpha = ARGB.color(STATUS_ALPHAS.getValue(status.getIndex()), color);
+            guiGraphics.fill(x, y, x + radius, y + radius, colorWithAlpha);
+            guiGraphics.renderOutline(x, y, radius, radius, color);
+
             y += radius + margin;
         }
     }
