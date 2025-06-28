@@ -77,3 +77,6 @@ config="${mod_id}.mixins.core.json"
 
 [[mixins]]
 config="${mod_id}.mixins.access.json"
+
+[[mixins]]
+config="${mod_id}.mixins.debug.json"
