@@ -2,7 +2,6 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.annotation.UsedFromASM;
@@ -36,6 +35,6 @@ public abstract class MixinChunkTaskPriorityQueue implements MarkableAsCubic {
 
     @UsedFromASM
     @AddTransformToSets(ChunkToCloSet.ChunkTaskPriorityQueue_redirects.class)
-    @TransformFromMethod(@MethodSig("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V"))
+    @TransformFromMethod("resortChunkTasks(ILnet/minecraft/world/level/ChunkPos;I)V")
     public native void cc_resortCubicTasks(int queueLevel, CloPos cloPos, int ticketLevel);
 }

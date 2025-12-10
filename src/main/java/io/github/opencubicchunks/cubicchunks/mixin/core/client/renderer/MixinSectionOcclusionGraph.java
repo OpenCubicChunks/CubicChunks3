@@ -7,7 +7,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
@@ -43,10 +42,11 @@ public abstract class MixinSectionOcclusionGraph {
     }
 
     @AddTransformToSets(ChunkToCubeSet.SectionOcclusionGraph_redirects.class)
-    @TransformFromMethod(@MethodSig("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @TransformFromMethod("onChunkReadyToRender(Lnet/minecraft/world/level/ChunkPos;)V")
     public native void cc_onCubeReadyToRender(CubePos cubePos);
 
-    @AddMethodToSets(containers = ChunkToCubeSet.SectionOcclusionGraph_redirects.class, method = @MethodSig("addNeighbors(Lnet/minecraft/client/renderer/SectionOcclusionGraph$GraphEvents;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddMethodToSets(containers = ChunkToCubeSet.SectionOcclusionGraph_redirects.class,
+        method = "addNeighbors(Lnet/minecraft/client/renderer/SectionOcclusionGraph$GraphEvents;Lnet/minecraft/world/level/ChunkPos;)V")
     private void cc_addNeighbors(SectionOcclusionGraph.GraphEvents graphEvents, CubePos cubePos) {
         var access = ((SectionOcclusionGraph$GraphEventsAccess) (Object) graphEvents);
         int cubeX = cubePos.getX();
@@ -64,9 +64,11 @@ public abstract class MixinSectionOcclusionGraph {
         }
     }
 
-    @WrapOperation(method = "initializeQueueForFullUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ViewArea;getRenderSection(J)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;"))
+    @WrapOperation(method = "initializeQueueForFullUpdate", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/client/renderer/ViewArea;getRenderSection(J)"
+            + "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection;"))
     private @Nullable SectionRenderDispatcher.RenderSection cc_onInitializeQueueForFullUpdate_getRenderSectionAt(
-            ViewArea instance, long sectionPos, Operation<SectionRenderDispatcher.RenderSection> original
+        ViewArea instance, long sectionPos, Operation<SectionRenderDispatcher.RenderSection> original
     ) {
         var result = original.call(instance, sectionPos);
         if (result == null && cc_isCubic) {
@@ -95,13 +97,13 @@ public abstract class MixinSectionOcclusionGraph {
         int posCubeY = Coords.blockToCube(SectionPos.y(sectionPosLong));
         int posCubeZ = Coords.blockToCube(SectionPos.z(sectionPosLong));
         cir.setReturnValue(CloTrackingView.cc_isInViewDistance(originCubeX, originCubeY, originCubeZ,
-                Coords.sectionToCubeRenderDistance(this.viewArea.getViewDistance()), posCubeX, posCubeY, posCubeZ));
+            Coords.sectionToCubeRenderDistance(this.viewArea.getViewDistance()), posCubeX, posCubeY, posCubeZ));
     }
 
     @Inject(method = "getRelativeFrom", at = @At("HEAD"), cancellable = true)
     private void cc_onGetRelativeFrom(
-            long sectionPosLong, SectionRenderDispatcher.RenderSection section, Direction direction,
-            CallbackInfoReturnable<SectionRenderDispatcher.RenderSection> cir
+        long sectionPosLong, SectionRenderDispatcher.RenderSection section, Direction direction,
+        CallbackInfoReturnable<SectionRenderDispatcher.RenderSection> cir
     ) {
         if (!cc_isCubic) {
             return;

@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import io.github.notstirred.dasm.api.annotations.Dasm;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
@@ -57,16 +56,16 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
 
     // Constructors mirroring vanilla signatures
     public ProtoCube(
-            CubePos cubePos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
-            @Nullable BlendingData blendingData
+        CubePos cubePos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+        @Nullable BlendingData blendingData
     ) {
         this(cubePos, upgradeData, null, new ProtoChunkTicks(), new ProtoChunkTicks(), levelHeightAccessor, biomeRegistry, blendingData);
     }
 
     public ProtoCube(
-            CubePos cubePos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTicks,
-            ProtoChunkTicks<Fluid> liquidTicks, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
-            @Nullable BlendingData blendingData
+        CubePos cubePos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTicks,
+        ProtoChunkTicks<Fluid> liquidTicks, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+        @Nullable BlendingData blendingData
     ) {
         super(cubePos, upgradeData, levelHeightAccessor, biomeRegistry, 0L, sections, blendingData);
         this.status = ChunkStatus.EMPTY;
@@ -75,21 +74,24 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
         this.fluidTicks = liquidTicks;
     }
 
-    @TransformFromMethod(value = @MethodSig("getBlockTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getBlockTicks()Lnet/minecraft/world/ticks/TickContainerAccess;", owner = @Ref(ProtoChunk.class))
     @Override public native TickContainerAccess<Block> getBlockTicks();
 
-    @TransformFromMethod(value = @MethodSig("getFluidTicks()Lnet/minecraft/world/ticks/TickContainerAccess;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getFluidTicks()Lnet/minecraft/world/ticks/TickContainerAccess;", owner = @Ref(ProtoChunk.class))
     @Override public native TickContainerAccess<Fluid> getFluidTicks();
 
-    @TransformFromMethod(value = @MethodSig("getTicksForSerialization(J)Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getTicksForSerialization(J)Lnet/minecraft/world/level/chunk/ChunkAccess$PackedTicks;",
+        owner = @Ref(ProtoChunk.class))
     @Override public native ChunkAccess.PackedTicks getTicksForSerialization(long todoNameThis);
 
     // dasm + mixin
-    @TransformFromMethod(value = @MethodSig("getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;",
+        owner = @Ref(ProtoChunk.class))
     @Override public native BlockState getBlockState(BlockPos pos);
 
     // dasm + mixin
-    @TransformFromMethod(value = @MethodSig("getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;",
+        owner = @Ref(ProtoChunk.class))
     @Override public native FluidState getFluidState(BlockPos pos);
 
     @Override public @Nullable BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
@@ -111,80 +113,85 @@ public class ProtoCube extends CubeAccess implements ProtoClo {
         }
     }
 
-    @TransformFromMethod(value = @MethodSig("setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void setBlockEntity(BlockEntity blockEntity);
 
-    @TransformFromMethod(value = @MethodSig("getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;",
+        owner = @Ref(ProtoChunk.class))
     @Override public native @Nullable BlockEntity getBlockEntity(BlockPos pos);
 
-    @TransformFromMethod(value = @MethodSig("getBlockEntities()Ljava/util/Map;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getBlockEntities()Ljava/util/Map;", owner = @Ref(ProtoChunk.class))
     @Override public native Map<BlockPos, BlockEntity> getBlockEntities();
 
-    @TransformFromMethod(value = @MethodSig("addEntity(Lnet/minecraft/nbt/CompoundTag;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "addEntity(Lnet/minecraft/nbt/CompoundTag;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void addEntity(CompoundTag tag);
 
-    @TransformFromMethod(value = @MethodSig("addEntity(Lnet/minecraft/world/entity/Entity;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "addEntity(Lnet/minecraft/world/entity/Entity;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void addEntity(Entity entity);
 
     // setStartForStructure: ProtoChunk logic handles below-zero retrogen then calls super, so we don't need to override
 
-    @TransformFromMethod(value = @MethodSig("getEntities()Ljava/util/List;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getEntities()Ljava/util/List;", owner = @Ref(ProtoChunk.class))
     @Override public native List<CompoundTag> getEntities();
 
-    @TransformFromMethod(value = @MethodSig("getPersistedStatus()Lnet/minecraft/world/level/chunk/status/ChunkStatus;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getPersistedStatus()Lnet/minecraft/world/level/chunk/status/ChunkStatus;", owner = @Ref(ProtoChunk.class))
     @Override public native ChunkStatus getPersistedStatus();
 
-    @TransformFromMethod(value = @MethodSig("setPersistedStatus(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "setPersistedStatus(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void setPersistedStatus(ChunkStatus status);
 
-    @TransformFromMethod(value = @MethodSig("getNoiseBiome(III)Lnet/minecraft/core/Holder;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getNoiseBiome(III)Lnet/minecraft/core/Holder;", owner = @Ref(ProtoChunk.class))
     @Override public native Holder<Biome> getNoiseBiome(int x, int y, int z);
 
-    @TransformFromMethod(value = @MethodSig("packOffsetCoordinates(Lnet/minecraft/core/BlockPos;)S"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "packOffsetCoordinates(Lnet/minecraft/core/BlockPos;)S", owner = @Ref(ProtoChunk.class))
     public static native short packOffsetCoordinates(BlockPos pos);
 
-    @TransformFromMethod(value = @MethodSig("unpackOffsetCoordinates(SILnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "unpackOffsetCoordinates(SILnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;",
+        owner = @Ref(ProtoChunk.class))
     public static native BlockPos unpackOffsetCoordinates(short packedPos, int yOffset, ChunkPos chunkPos);
 
     // dasm + mixin
-    @TransformFromMethod(value = @MethodSig("markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void markPosForPostprocessing(BlockPos pos);
 
-    @TransformFromMethod(value = @MethodSig("addPackedPostProcess(Lit/unimi/dsi/fastutil/shorts/ShortList;I)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "addPackedPostProcess(Lit/unimi/dsi/fastutil/shorts/ShortList;I)V", owner = @Ref(ProtoChunk.class))
     @Override public native void addPackedPostProcess(ShortList offsets, int index);
 
-    @TransformFromMethod(value = @MethodSig("getBlockEntityNbts()Ljava/util/Map;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getBlockEntityNbts()Ljava/util/Map;", owner = @Ref(ProtoChunk.class))
     @Override public native Map<BlockPos, CompoundTag> getBlockEntityNbts();
 
-    @TransformFromMethod(value = @MethodSig("getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(
+        value = "getBlockEntityNbtForSaving(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;",
+        owner = @Ref(ProtoChunk.class))
     @Override public native @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider provider);
 
-    @TransformFromMethod(value = @MethodSig("removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "removeBlockEntity(Lnet/minecraft/core/BlockPos;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void removeBlockEntity(BlockPos pos);
 
-    @TransformFromMethod(value = @MethodSig("getCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;", owner = @Ref(ProtoChunk.class))
     @Override public native @Nullable CarvingMask getCarvingMask();
 
-    @TransformFromMethod(value = @MethodSig("getOrCreateCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "getOrCreateCarvingMask()Lnet/minecraft/world/level/chunk/CarvingMask;", owner = @Ref(ProtoChunk.class))
     @Override public native CarvingMask getOrCreateCarvingMask();
 
-    @TransformFromMethod(value = @MethodSig("setCarvingMask(Lnet/minecraft/world/level/chunk/CarvingMask;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "setCarvingMask(Lnet/minecraft/world/level/chunk/CarvingMask;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void setCarvingMask(CarvingMask carvingMask);
 
-    @TransformFromMethod(value = @MethodSig("setLightEngine(Lnet/minecraft/world/level/lighting/LevelLightEngine;)V"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "setLightEngine(Lnet/minecraft/world/level/lighting/LevelLightEngine;)V", owner = @Ref(ProtoChunk.class))
     @Override public native void setLightEngine(LevelLightEngine lightEngine);
 
     @Override public void setBelowZeroRetrogen(@Nullable BelowZeroRetrogen belowZeroRetrogen) {
         // Below-zero retrogen is unused in CC, hence empty method body
     }
 
-    @TransformFromMethod(value = @MethodSig("unpackTicks(Lnet/minecraft/world/ticks/ProtoChunkTicks;)Lnet/minecraft/world/ticks/LevelChunkTicks;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "unpackTicks(Lnet/minecraft/world/ticks/ProtoChunkTicks;)Lnet/minecraft/world/ticks/LevelChunkTicks;",
+        owner = @Ref(ProtoChunk.class))
     private static native <T> LevelChunkTicks<T> unpackTicks(ProtoChunkTicks<T> ticks);
 
-    @TransformFromMethod(value = @MethodSig("unpackBlockTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "unpackBlockTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;", owner = @Ref(ProtoChunk.class))
     @Override public native LevelChunkTicks<Block> unpackBlockTicks();
 
-    @TransformFromMethod(value = @MethodSig("unpackFluidTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;"), owner = @Ref(ProtoChunk.class))
+    @TransformFromMethod(value = "unpackFluidTicks()Lnet/minecraft/world/ticks/LevelChunkTicks;", owner = @Ref(ProtoChunk.class))
     @Override public native LevelChunkTicks<Fluid> unpackFluidTicks();
 
     @Override public LevelHeightAccessor getHeightAccessorForGeneration() {

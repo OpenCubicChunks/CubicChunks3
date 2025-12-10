@@ -2,7 +2,6 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
@@ -18,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SimulationChunkTracker.class)
 public abstract class MixinSimulationChunkTracker extends MixinChunkTracker implements SimulationCloTracker {
     @AddTransformToSets(ChunkToCloSet.SimulationChunkTracker_redirects.class)
-    @TransformFromMethod(owner = @Ref(SimulationChunkTracker.class), value = @MethodSig("getLevel(Lnet/minecraft/world/level/ChunkPos;)I"))
+    @TransformFromMethod(owner = @Ref(SimulationChunkTracker.class), value = "getLevel(Lnet/minecraft/world/level/ChunkPos;)I")
     public native int cc_getLevel(CloPos cloPos);
 
     @Inject(method = "setLevel", at = @At("HEAD"))

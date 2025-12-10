@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
@@ -36,8 +35,8 @@ public interface ClientCubeCache extends CubeSource {
     void cc_replaceBiomes(int x, int y, int z, FriendlyByteBuf buffer);
 
     @Nullable LevelCube cc_replaceWithPacketData(
-            int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
-            Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
+        int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
+        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     );
 
     void cc_updateViewCenter(int x, int y, int z);
@@ -68,7 +67,7 @@ public interface ClientCubeCache extends CubeSource {
 
         public int getIndex(int x, int y, int z) {
             return Math.floorMod(z, this.viewRange) * this.viewRange * this.viewRange + Math.floorMod(y, this.viewRange) * this.viewRange
-                    + Math.floorMod(x, this.viewRange);
+                + Math.floorMod(x, this.viewRange);
         }
 
         public void replace(int chunkIndex, @Nullable LevelCube chunk) {
@@ -111,7 +110,7 @@ public interface ClientCubeCache extends CubeSource {
                 for (int dy = 0; dy < CubicConstants.DIAMETER_IN_SECTIONS; dy++) {
                     for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
                         long sectionPosLong = SectionPos.asLong(Coords.cubeToSection(cubePos.getX(), dx), Coords.cubeToSection(cubePos.getY(), dy),
-                                Coords.cubeToSection(cubePos.getZ(), dz));
+                            Coords.cubeToSection(cubePos.getZ(), dz));
                         this.loadedEmptySections.remove(sectionPosLong);
                     }
                 }
@@ -127,7 +126,7 @@ public interface ClientCubeCache extends CubeSource {
                     for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
                         var chunkSection = chunkSections[Coords.sectionToIndex(dx, dy, dz)];
                         long sectionPosLong = SectionPos.asLong(Coords.cubeToSection(cubePos.getX(), dx), Coords.cubeToSection(cubePos.getY(), dy),
-                                Coords.cubeToSection(cubePos.getZ(), dz));
+                            Coords.cubeToSection(cubePos.getZ(), dz));
                         if (chunkSection.hasOnlyAir()) {
                             this.loadedEmptySections.add(sectionPosLong);
                         }
@@ -145,7 +144,7 @@ public interface ClientCubeCache extends CubeSource {
                     for (int dz = 0; dz < CubicConstants.DIAMETER_IN_SECTIONS; dz++) {
                         var chunkSection = chunkSections[Coords.sectionToIndex(dx, dy, dz)];
                         long sectionPosLong = SectionPos.asLong(Coords.cubeToSection(cubePos.getX(), dx), Coords.cubeToSection(cubePos.getY(), dy),
-                                Coords.cubeToSection(cubePos.getZ(), dz));
+                            Coords.cubeToSection(cubePos.getZ(), dz));
                         if (chunkSection.hasOnlyAir()) {
                             this.loadedEmptySections.add(sectionPosLong);
                         } else if (this.loadedEmptySections.remove(sectionPosLong)) {
@@ -158,10 +157,11 @@ public interface ClientCubeCache extends CubeSource {
 
         public boolean inRange(int x, int y, int z) {
             return Math.abs(x - this.viewCenterX) <= this.cubeRadius && Math.abs(y - this.viewCenterY) <= this.cubeRadius
-                    && Math.abs(z - this.viewCenterZ) <= this.cubeRadius;
+                && Math.abs(z - this.viewCenterZ) <= this.cubeRadius;
         }
 
-        @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = @MethodSig("getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;"), visibility = PUBLIC)
+        @TransformFromMethod(owner = @Ref(ClientChunkCache.Storage.class), value = "getChunk(I)Lnet/minecraft/world/level/chunk/LevelChunk;",
+            visibility = PUBLIC)
         public native @Nullable LevelCube getChunk(int chunkIndex);
 
         public void dumpChunks(String filePath) {

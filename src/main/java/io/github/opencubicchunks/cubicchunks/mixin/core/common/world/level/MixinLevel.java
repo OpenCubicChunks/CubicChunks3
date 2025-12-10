@@ -10,7 +10,6 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.utils.Coords;
@@ -90,10 +89,11 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     // setBlock
     // Uses LevelChunk to call setBlockState and markAndNotifyBlock, so we replace it with a LevelCube and call the Cubic variants of those functions.
-    @WrapOperation(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level"
+    @WrapOperation(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level"
             + "/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private LevelChunk cc_replaceLevelChunkInGetChunkAt(
-            Level level, BlockPos blockPos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        Level level, BlockPos blockPos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             levelCubeLocalRef.set(this.cc_getCubeAt(blockPos));
@@ -102,10 +102,12 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         return original.call(level, blockPos);
     }
 
-    @WrapOperation(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Lnet/minecraft/world/level/block/state/BlockState;"))
+    @WrapOperation(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/level/chunk/LevelChunk;setBlockState(Lnet/minecraft/core/BlockPos;"
+            + "Lnet/minecraft/world/level/block/state/BlockState;I)Lnet/minecraft/world/level/block/state/BlockState;"))
     private BlockState cc_replaceLevelChunkInSetBlockState(
-            LevelChunk levelChunk, BlockPos blockPos, BlockState blockState, int flags, Operation<BlockState> original,
-            @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        LevelChunk levelChunk, BlockPos blockPos, BlockState blockState, int flags, Operation<BlockState> original,
+        @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             return levelCubeLocalRef.get().setBlockState(blockPos, blockState, flags);
@@ -113,10 +115,13 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         return original.call(levelChunk, blockPos, blockState, flags);
     }
 
-    @WrapWithCondition(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
+    @WrapWithCondition(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",
+        at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/level/Level;markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;"
+                + "Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
     private boolean cc_replaceLevelChunkInMarkAndNotifyBlock(
-            Level level, BlockPos blockPos, LevelChunk levelChunk, BlockState blockStatePrev, BlockState blockStateNew, int flags, int recursionLeft,
-            @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        Level level, BlockPos blockPos, LevelChunk levelChunk, BlockState blockStatePrev, BlockState blockStateNew, int flags, int recursionLeft,
+        @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             this.cc_markAndNotifyBlock(blockPos, levelCubeLocalRef.get(), blockStatePrev, blockStateNew, flags, recursionLeft);
@@ -127,26 +132,30 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     @AddTransformToSets(ChunkToCubeSet.Level_redirects.class)
     @TransformFromMethod(useRedirectSets = {
-        ChunkToCubeSet.class }, value = @MethodSig("markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V"))
+        ChunkToCubeSet.class },
+        value = "markAndNotifyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/chunk/LevelChunk;"
+            + "Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;II)V")
     public native void cc_markAndNotifyBlock(
-            BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int recursionLeft
+        BlockPos blockPos, @Nullable LevelCube levelCube, BlockState blockStatePrev, BlockState blockStateNew, int flags, int recursionLeft
     );
 
     // getBlockState
     // Replaces LevelChunk with a LevelCube to call getBlockState
-    @Inject(method = "getBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @Inject(method = "getBlockState",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private void cc_replaceLevelChunkInGetBlockState(
-            BlockPos blockPos, CallbackInfoReturnable<BlockState> cir, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        BlockPos blockPos, CallbackInfoReturnable<BlockState> cir, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             levelCubeLocalRef.set(this.cc_getCubeAt(blockPos));
         }
     }
 
-    @WrapOperation(method = "getBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;getBlockState(Lnet/minecraft/core/BlockPos;)"
+    @WrapOperation(method = "getBlockState",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;getBlockState(Lnet/minecraft/core/BlockPos;)"
             + "Lnet/minecraft/world/level/block/state/BlockState;"))
     private BlockState cc_replaceLevelChunkInGetBlockState(
-            LevelChunk levelChunk, BlockPos blockPos, Operation<BlockState> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        LevelChunk levelChunk, BlockPos blockPos, Operation<BlockState> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             return levelCubeLocalRef.get().getBlockState(blockPos);
@@ -156,7 +165,8 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     // getBlockEntity
     // Replaces LevelChunk with a LevelCube to call getBlockEntity
-    @Inject(method = "getBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)"
+    @Inject(method = "getBlockEntity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)"
             + "Lnet/minecraft/world/level/chunk/LevelChunk;"), cancellable = true)
     private void cc_replaceGetChunkAtInSetBlockEntity(BlockPos blockPos, CallbackInfoReturnable<BlockEntity> cir) {
         if (cc_isCubic) {
@@ -166,7 +176,9 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     // getFluidState
     // Replaces LevelChunk with a LevelCube to call getFluidState
-    @WrapOperation(method = "getFluidState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
+    @WrapOperation(method = "getFluidState", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/level/chunk/LevelChunk;getFluidState(Lnet/minecraft/core/BlockPos;)"
+            + "Lnet/minecraft/world/level/material/FluidState;"))
     private FluidState cc_replaceGetChunkAtInGetFluidState(LevelChunk levelChunk, BlockPos blockPos, Operation<FluidState> original) {
         if (cc_isCubic) {
             return this.cc_getCubeAt(blockPos).getFluidState(blockPos);
@@ -176,7 +188,8 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     // setBlockEntity
     // Replaces LevelChunk with a LevelCube to call addAndRegisterBlockEntity
-    @Inject(method = "setBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)"
+    @Inject(method = "setBlockEntity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)"
             + "Lnet/minecraft/world/level/chunk/LevelChunk;"), cancellable = true)
     private void cc_replaceLevelChunkInSetBlockEntity(BlockEntity blockEntity, CallbackInfo ci, @Local(ordinal = 0) BlockPos blockPos) {
         if (cc_isCubic) {
@@ -187,9 +200,10 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
 
     // removeBlockEntity
     // Replaces LevelChunk with a LevelCube to call removeBlockEntity, needs a local ref to do so
-    @WrapOperation(method = "removeBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"))
+    @WrapOperation(method = "removeBlockEntity", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/level/Level;getChunkAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private LevelChunk cc_replaceGetChunkAtInRemoveBlockEntity(
-            Level level, BlockPos pos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        Level level, BlockPos pos, Operation<LevelChunk> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             levelCubeLocalRef.set(cc_getCubeAt(pos));
@@ -198,9 +212,10 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
         return original.call(level, pos);
     }
 
-    @WrapOperation(method = "removeBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"))
+    @WrapOperation(method = "removeBlockEntity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunk;removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"))
     private void cc_replaceLevelChunkInRemoveBlockEntity(
-            LevelChunk levelChunk, BlockPos pos, Operation<Void> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
+        LevelChunk levelChunk, BlockPos pos, Operation<Void> original, @Share("levelCube") LocalRef<LevelCube> levelCubeLocalRef
     ) {
         if (cc_isCubic) {
             levelCubeLocalRef.get().removeBlockEntity(pos);
@@ -215,22 +230,25 @@ public abstract class MixinLevel implements CubicLevel, MarkableAsCubic, LevelAc
     private boolean cc_replaceHasChunkInIsLoaded(ChunkSource chunkSource, int x, int z, Operation<Boolean> original, BlockPos blockPos) {
         if (cc_isCubic) {
             return ((CubeSource) chunkSource).cc_hasCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()),
-                    Coords.blockToCube(blockPos.getZ()));
+                Coords.blockToCube(blockPos.getZ()));
         }
         return false;
     }
 
     // loadedAndEntityCanStandOnFace
     // Uses an inject here since the entire second half of the method needs to be replaced anyways
-    @Inject(method = "loadedAndEntityCanStandOnFace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"), cancellable = true)
+    @Inject(method = "loadedAndEntityCanStandOnFace", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/level/Level;getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)"
+            + "Lnet/minecraft/world/level/chunk/ChunkAccess;"),
+        cancellable = true)
     private void cc_replaceGetChunkAtInLoadedAndEntityCanStandOnFace(
-            BlockPos blockPos, Entity entity, Direction direction, CallbackInfoReturnable<Boolean> cir
+        BlockPos blockPos, Entity entity, Direction direction, CallbackInfoReturnable<Boolean> cir
     ) {
         if (cc_isCubic) {
             CubeAccess cubeAccess = this.cc_getCube(Coords.blockToCube(blockPos.getX()), Coords.blockToCube(blockPos.getY()),
-                    Coords.blockToCube(blockPos.getZ()), ChunkStatus.FULL, false);
+                Coords.blockToCube(blockPos.getZ()), ChunkStatus.FULL, false);
             cir.setReturnValue(
-                    cubeAccess == null ? false : cubeAccess.getBlockState(blockPos).entityCanStandOnFace(this, blockPos, entity, direction));
+                cubeAccess == null ? false : cubeAccess.getBlockState(blockPos).entityCanStandOnFace(this, blockPos, entity, direction));
         }
     }
 

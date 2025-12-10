@@ -2,7 +2,6 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.common.movetoforgesourc
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
-import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cubicchunks.mixin.dasmsets.ChunkToCubeSet;
@@ -21,7 +20,8 @@ public class MixinGenerationChunkHolder_Forge {
     @Shadow public LevelChunk currentlyLoading;
 
     // Corresponds to field added by Forge
-    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_Forge_Jank_redirects.class, field = @FieldSig(name = "currentlyLoading", type = @Ref(LevelChunk.class)))
+    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_Forge_Jank_redirects.class,
+        field = "currentlyLoading:Lnet/minecraft/world/level/chunk/LevelChunk;")
     public LevelCube cc_currentlyLoadingCube;
 
     public LevelClo cc_getCurrentlyLoading() {

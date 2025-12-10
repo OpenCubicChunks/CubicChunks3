@@ -7,8 +7,6 @@ import javax.annotation.Nullable;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
-import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromClass;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
@@ -25,25 +23,23 @@ import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.chunk.status.WorldGenContext;
 
 /**
- * {@link ChunkStep} represents a single step in either chunk loading or chunk generation.
- * This class represents a single step in cube loading or generation. It is identical to {@code ChunkStep}, but stores a {@link CubeStatusTask}
- * instead of a {@link ChunkStatusTask}.
- * 
- * @param targetStatus            The status that this step corresponds to.
- * @param directDependencies      The dependencies of this individual step, by radius.
- *                                Always includes the parent status at radius zero (except for EMPTY, which has no parent), and may have additional
- *                                dependencies.
- * @param accumulatedDependencies All dependencies needed to reach this step from unloaded, by radius.
- *                                Effectively a combination of the directDependencies of this step and all previous steps.
- * @param blockStateWriteRadius   The radius of chunks that can receive blockstate writes. 0 if only the center chunk can; -1 if there are no
- *                                blockstate writes. Always -1 for chunk loading.
- * @param task                    The chunk loading or generation task for this step.
+ * {@link ChunkStep} represents a single step in either chunk loading or chunk generation. This class represents a single step in cube loading or
+ * generation. It is identical to {@code ChunkStep}, but stores a {@link CubeStatusTask} instead of a {@link ChunkStatusTask}.
+ *
+ * @param targetStatus The status that this step corresponds to.
+ * @param directDependencies The dependencies of this individual step, by radius. Always includes the parent status at radius zero (except for
+ *     EMPTY, which has no parent), and may have additional dependencies.
+ * @param accumulatedDependencies All dependencies needed to reach this step from unloaded, by radius. Effectively a combination of the
+ *     directDependencies of this step and all previous steps.
+ * @param blockStateWriteRadius The radius of chunks that can receive blockstate writes. 0 if only the center chunk can; -1 if there are no
+ *     blockstate writes. Always -1 for chunk loading.
+ * @param task The chunk loading or generation task for this step.
  */
 @Dasm(ChunkToCubeSet.class)
 @TransformFromClass(sets = ChunkToCubeSet.class, value = @Ref(ChunkStep.class))
 public record CubeStep(
-        ChunkStatus targetStatus, ChunkDependencies directDependencies, ChunkDependencies accumulatedDependencies, int blockStateWriteRadius,
-        CubeStatusTask task
+    ChunkStatus targetStatus, ChunkDependencies directDependencies, ChunkDependencies accumulatedDependencies, int blockStateWriteRadius,
+    CubeStatusTask task
 ) {
     public int getAccumulatedRadiusOf(ChunkStatus status) {
         throw new DasmFailedToApply();
@@ -56,19 +52,22 @@ public record CubeStep(
     @Dasm(ChunkToCubeSet.class)
     public static class Builder {
         private final ChunkStatus status;
-        @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(CubeStep.class), name = "parent"))
+        @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class,
+            field = "parent:Lio/github/opencubicchunks/cubicchunks/world/level/cube/status/CubeStep;")
         private final @Nullable CubeStep parent;
         private ChunkStatus[] directDependenciesByRadius;
         private int blockStateWriteRadius = -1;
-        @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class, field = @FieldSig(type = @Ref(ChunkStatusTask.class), name = "task"))
+        @AddFieldToSets(containers = ChunkToCubeSet.ChunkStep$Builder_to_CubeStep$Builder_redirects.class,
+            field = "task:Lnet/minecraft/world/level/chunk/status/ChunkStatusTask;")
         private CubeStatusTask task = (worldGenContext, step, cache, cube) -> CompletableFuture.completedFuture(cube);
 
-        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = "<init>(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V")
         protected Builder(ChunkStatus status) {
             throw new DasmFailedToApply();
         }
 
-        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("<init>(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/status/ChunkStep;)V"))
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class),
+            value = "<init>(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/status/ChunkStep;)V")
         protected Builder(ChunkStatus status, CubeStep parent) {
             throw new DasmFailedToApply();
         }
@@ -99,16 +98,19 @@ public record CubeStep(
             return this;
         }
 
-        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("setTask(Lnet/minecraft/world/level/chunk/status/ChunkStatusTask;)Lnet/minecraft/world/level/chunk/status/ChunkStep$Builder;"))
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class),
+            value = "setTask(Lnet/minecraft/world/level/chunk/status/ChunkStatusTask;)Lnet/minecraft/world/level/chunk/status/ChunkStep$Builder;")
         public native CubeStep.Builder setTask(CubeStatusTask task);
 
-        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("build()Lnet/minecraft/world/level/chunk/status/ChunkStep;"))
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = "build()Lnet/minecraft/world/level/chunk/status/ChunkStep;")
         public native CubeStep build();
 
-        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("buildAccumulatedDependencies()[Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class),
+            value = "buildAccumulatedDependencies()[Lnet/minecraft/world/level/chunk/status/ChunkStatus;")
         private native ChunkStatus[] buildAccumulatedDependencies();
 
-        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class), value = @MethodSig("getRadiusOfParent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)I"))
+        @TransformFromMethod(owner = @Ref(ChunkStep.Builder.class),
+            value = "getRadiusOfParent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)I")
         private native int getRadiusOfParent(ChunkStatus parentStatus);
     }
 }

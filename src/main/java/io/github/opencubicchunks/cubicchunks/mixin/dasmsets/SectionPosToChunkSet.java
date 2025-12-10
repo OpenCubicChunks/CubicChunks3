@@ -3,7 +3,6 @@ package io.github.opencubicchunks.cubicchunks.mixin.dasmsets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import net.minecraft.core.SectionPos;
@@ -15,7 +14,7 @@ import net.minecraft.core.SectionPos;
 public interface SectionPosToChunkSet {
     @IntraOwnerContainer(@Ref(SectionPos.class))
     abstract class SectionPos_redirects {
-        @MethodRedirect(@MethodSig("chunk()Lnet/minecraft/world/level/ChunkPos;"))
+        @MethodRedirect("chunk()Lnet/minecraft/world/level/ChunkPos;")
         public native CloPos cc_chunk();
     }
 }

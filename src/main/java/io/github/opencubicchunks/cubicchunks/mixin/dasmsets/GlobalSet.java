@@ -11,7 +11,6 @@ import io.github.notstirred.dasm.api.annotations.redirect.redirects.MethodRedire
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.TypeRedirect;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.IntraOwnerContainer;
 import io.github.notstirred.dasm.api.annotations.redirect.sets.RedirectSet;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.server.level.CloTrackingView;
@@ -32,46 +31,54 @@ import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
- * Contains redirects that are applied to all DASM transforms.
- * <br/>
- * <br/>
- * Redirects should only be added to this set if they are applicable in all contexts.
+ * Contains redirects that are applied to all DASM transforms. <br/> <br/> Redirects should only be added to this set if they are applicable in all
+ * contexts.
  */
 @RedirectSet
 public interface GlobalSet extends ForgeSet {
     @IntraOwnerContainer(@Ref(ChunkStatus.class))
     abstract class ChunkStatus_redirects {
-        @MethodRedirect(@MethodSig("generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)Ljava/util/concurrent/CompletableFuture;"))
+        @MethodRedirect(
+            "generate(Ljava/util/concurrent/Executor;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;"
+                + "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;"
+                + "Lnet/minecraft/server/level/ThreadedLevelLightEngine;Ljava/util/function/Function;Ljava/util/List;)"
+                + "Ljava/util/concurrent/CompletableFuture;")
         public abstract CompletableFuture<ChunkResult<CloAccess>> cc_generate(
-                Executor exectutor, ServerLevel level, ChunkGenerator chunkGenerator, StructureTemplateManager structureTemplateManager,
-                ThreadedLevelLightEngine lightEngine, Function<CloAccess, CompletableFuture<ChunkResult<CloAccess>>> task, List<CloAccess> cache
+            Executor exectutor, ServerLevel level, ChunkGenerator chunkGenerator, StructureTemplateManager structureTemplateManager,
+            ThreadedLevelLightEngine lightEngine, Function<CloAccess, CompletableFuture<ChunkResult<CloAccess>>> task, List<CloAccess> cache
         );
     }
 
     @TypeRedirect(from = @Ref(ChunkProgressListener.class), to = @Ref(CloProgressListener.class))
     interface ChunkProgressListener_to_CloProgressListener_redirects {
-        @MethodRedirect(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+        @MethodRedirect("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V")
         void cc_updateSpawnPos(CloPos center);
 
-        @MethodRedirect(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+        @MethodRedirect("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V")
         void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
     }
 
     @TypeRedirect(from = @Ref(ChunkStatusUpdateListener.class), to = @Ref(CloStatusUpdateListener.class))
-    interface ChunkStatusUpdateListener_to_CloStatusUpdateListener_redirects {}
+    interface ChunkStatusUpdateListener_to_CloStatusUpdateListener_redirects {
+    }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
-    interface ChunkTrackingView_to_CloTrackingView_redirects {}
+    interface ChunkTrackingView_to_CloTrackingView_redirects {
+    }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
-    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects {}
+    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects {
+    }
 
     @IntraOwnerContainer(@Ref(StoringChunkProgressListener.class))
-    class StoringChunkProgressListener_redirects {}
+    class StoringChunkProgressListener_redirects {
+    }
 
     @IntraOwnerContainer(@Ref(ChunkMap.class))
-    class ChunkMap_redirects {}
+    class ChunkMap_redirects {
+    }
 
     @IntraOwnerContainer(@Ref(ServerChunkCache.class))
-    class ServerChunkCache_redirects {}
+    class ServerChunkCache_redirects {
+    }
 }

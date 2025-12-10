@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
-import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.opencubicchunks.cc_core.api.CubePos;
 import io.github.opencubicchunks.cc_core.api.CubicConstants;
@@ -38,13 +37,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * The vanilla {@link ClientChunkCache} class stores all loaded chunks on the client and has methods to update and unload them, as well as change the
- * center and range of the chunk storage.
- * This mixin adds versions of these methods for cubes, meaning that this class now stores both cubes and chunks.
+ * center and range of the chunk storage. This mixin adds versions of these methods for cubes, meaning that this class now stores both cubes and
+ * chunks.
  */
 @Dasm(value = ChunkToCubeSet.class, target = @Ref(ClientChunkCache.class))
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements ClientCubeCache {
-    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class, field = @FieldSig(type = @Ref(ClientChunkCache.Storage.class), name = "storage"))
+    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class,
+        field = "storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;")
     volatile ClientCubeCache.Storage cc_cubeStorage;
 
     private LevelCube cc_emptyCube;
@@ -58,7 +58,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     private void cc_onConstruct(ClientLevel level, int viewDistance, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_emptyCube = new EmptyLevelCube(level, CubePos.of(0, 0, 0),
-                    level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
+                level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
             cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter
             updateViewRadius(cc_calculateChunkViewDistance(viewDistance));
@@ -116,8 +116,8 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     }
 
     @Override public @Nullable LevelCube cc_replaceWithPacketData(
-            int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
-            Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
+        int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
+        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         if (!this.cc_cubeStorage.inRange(x, y, z)) {
             LOGGER.warn("Ignoring cube since it's not in the view range: {}, {}, {}", x, y, z);

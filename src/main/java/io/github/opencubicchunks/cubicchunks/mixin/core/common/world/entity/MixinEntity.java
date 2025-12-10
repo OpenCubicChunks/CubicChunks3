@@ -4,8 +4,6 @@ import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
@@ -19,7 +17,6 @@ import io.github.opencubicchunks.cubicchunks.world.level.CubicLevelReader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.objectweb.asm.Opcodes;
@@ -48,23 +45,25 @@ public abstract class MixinEntity implements EntityCubePosGetter {
 
     @Shadow public abstract int getId();
 
-    @AddFieldToSets(containers = ChunkToCubeSet.Entity_redirects.class, field = @FieldSig(type = @Ref(ChunkPos.class), name = "chunkPosition"))
+    @AddFieldToSets(containers = ChunkToCubeSet.Entity_redirects.class, field = "chunkPosition:Lnet/minecraft/world/level/ChunkPos;")
     private CubePos cc_cubePosition = CubePos.of(0, 0, 0);
 
     @AddTransformToSets(ChunkToCubeSet.Entity_redirects.class)
-    @TransformFromMethod(@MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @TransformFromMethod("chunkPosition()Lnet/minecraft/world/level/ChunkPos;")
     public native CubePos cc_cubePosition();
 
-    @AddMethodToSets(containers = ChunkToCloSet.Entity_redirects.class, method = @MethodSig("chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
+    @AddMethodToSets(containers = ChunkToCloSet.Entity_redirects.class, method = "chunkPosition()Lnet/minecraft/world/level/ChunkPos;")
     public CloPos cc_cubePositionAsClo() {
         return CloPos.cube(cc_cubePosition());
     }
 
     // Update cube position when blockpos changes - this is the same location as where vanilla updates the chunk position
-    @Inject(method = "setPosRaw", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;", opcode = Opcodes.PUTFIELD))
+    @Inject(method = "setPosRaw",
+        at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;",
+            opcode = Opcodes.PUTFIELD))
     private void cc_onSetPosRaw(double x, double y, double z, CallbackInfo ci) {
         if (Coords.blockToCube(x) != cc_cubePosition.getX() || Coords.blockToCube(y) != cc_cubePosition.getY()
-                || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
+            || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
             this.cc_cubePosition = CubePos.from(this.blockPosition);
         }
     }

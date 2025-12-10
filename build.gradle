@@ -1,6 +1,5 @@
 import io.github.opencubicchunks.gradle.FixAnnotationsFormatterStep
 import io.github.opencubicchunks.gradle.GeneratePackageInfo
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 buildscript {
     dependencies {
@@ -229,10 +228,10 @@ neoForge {
         enable()
         // Configure which mod is being tested.
         // This allows NeoForge to load the test/ classes and resources as belonging to the mod.
-         testedMod = mods.cubicchunks // <mod name> must match the name in the mods { } block.
-                // Configure which mods are loaded in the test environment, if the default (all declared mods) is not appropriate.
-                // This must contain testedMod, and can include other mods as well.
-                // loadedMods = [mods.<mod name >, mods.<mod name 2>]
+        testedMod = mods.cubicchunks // <mod name> must match the name in the mods { } block.
+        // Configure which mods are loaded in the test environment, if the default (all declared mods) is not appropriate.
+        // This must contain testedMod, and can include other mods as well.
+        // loadedMods = [mods.<mod name >, mods.<mod name 2>]
     }
 }
 
@@ -269,7 +268,7 @@ dependencies {
         targetConfiguration = "testArchivesOutput"
     }
 
-    libraries("io.github.notstirred:dasm:2.5.4") {
+    libraries("io.github.notstirred:dasm:3.1.0") {
         transitive = false
     }
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")

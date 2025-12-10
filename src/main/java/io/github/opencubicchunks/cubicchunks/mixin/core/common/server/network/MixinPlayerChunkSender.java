@@ -7,7 +7,6 @@ import java.util.function.ToIntFunction;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddMethodToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
@@ -53,10 +52,11 @@ public class MixinPlayerChunkSender {
     @Shadow @Final private LongSet pendingChunks;
 
     @AddTransformToSets(ChunkToCloSet.PlayerChunkSender_redirects.class)
-    @TransformFromMethod(value = @MethodSig("markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V"))
+    @TransformFromMethod(value = "markChunkPendingToSend(Lnet/minecraft/world/level/chunk/LevelChunk;)V")
     public native void cc_markCloPendingToSend(LevelClo clo);
 
-    @AddMethodToSets(containers = ChunkToCloSet.PlayerChunkSender_redirects.class, method = @MethodSig("dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V"))
+    @AddMethodToSets(containers = ChunkToCloSet.PlayerChunkSender_redirects.class,
+        method = "dropChunk(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/ChunkPos;)V")
     public void cc_dropClo(ServerPlayer player, CloPos cloPos) {
         if (!this.pendingChunks.remove(cloPos.toLong()) && player.isAlive()) {
             PacketDistributor.sendToPlayer(player, new CCClientboundForgetLevelCloPacket(cloPos));
@@ -138,16 +138,18 @@ public class MixinPlayerChunkSender {
         // net.neoforged.neoforge.event.EventHooks.fireChunkSent(packetListener.player, chunk, level);
     }
 
-    @TransformFromMethod(value = @MethodSig("collectChunksToSend(Lnet/minecraft/server/level/ChunkMap;Lnet/minecraft/world/level/ChunkPos;)Ljava/util/List;"))
+    @TransformFromMethod(value = "collectChunksToSend(Lnet/minecraft/server/level/ChunkMap;Lnet/minecraft/world/level/ChunkPos;)Ljava/util/List;")
     private native List<LevelClo> cc_collectChunksToSend(ChunkMap chunkMap, CloPos cloPos);
 
     // FIXME these should probably have some kind of reasonable sort order - at the very least, chunks before cubes
-    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 0, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 0, value = "INVOKE",
+        target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
     private Comparator<Long> cc_onCollectChunksToSend_comparator1(ToIntFunction<Long> keyExtractor) {
         return (a, b) -> 0;
     }
 
-    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 1, value = "INVOKE", target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
+    @Dynamic @Redirect(method = "cc_dasm$cc_collectChunksToSend", at = @At(ordinal = 1, value = "INVOKE",
+        target = "Ljava/util/Comparator;comparingInt(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;"))
     private Comparator<LevelClo> cc_onCollectChunksToSend_comparator2(ToIntFunction<LevelClo> keyExtractor) {
         return (a, b) -> 0;
     }

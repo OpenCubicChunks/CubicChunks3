@@ -5,7 +5,6 @@ import java.util.function.IntSupplier;
 
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.api.CubePos;
@@ -20,7 +19,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(ChunkTaskDispatcher.class)
 public class MixinChunkTaskDispatcher implements CubeHolder.LevelChangeListener, CloTaskDispatcher {
     @AddTransformToSets(ChunkToCloSet.ChunkTaskDispatcher_redirects.class)
-    @TransformFromMethod(owner = @Ref(ChunkTaskDispatcher.class), value = @MethodSig("onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V"))
+    @TransformFromMethod(owner = @Ref(ChunkTaskDispatcher.class),
+        value = "onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V")
     @Override public native void cc_onLevelChange(CloPos cloPos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter);
 
     public void cc_onLevelChange(CubePos cubePos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter) {

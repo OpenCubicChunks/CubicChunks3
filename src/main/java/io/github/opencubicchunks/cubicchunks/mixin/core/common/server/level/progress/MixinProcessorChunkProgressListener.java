@@ -7,8 +7,6 @@ import javax.annotation.Nullable;
 import io.github.notstirred.dasm.api.annotations.Dasm;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddFieldToSets;
 import io.github.notstirred.dasm.api.annotations.redirect.redirects.AddTransformToSets;
-import io.github.notstirred.dasm.api.annotations.selector.FieldSig;
-import io.github.notstirred.dasm.api.annotations.selector.MethodSig;
 import io.github.notstirred.dasm.api.annotations.selector.Ref;
 import io.github.notstirred.dasm.api.annotations.transform.TransformFromMethod;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
@@ -26,7 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ProcessorChunkProgressListener.class)
 public abstract class MixinProcessorChunkProgressListener implements CloProgressListener {
     // We need a field referencing the delegate as a CloProgressListener, otherwise we end up trying to access a field of the wrong type
-    @AddFieldToSets(containers = ChunkToCloSet.ProcessorChunkProgressListener_redirects.class, field = @FieldSig(type = @Ref(ChunkProgressListener.class), name = "delegate"))
+    @AddFieldToSets(containers = ChunkToCloSet.ProcessorChunkProgressListener_redirects.class,
+        field = "delegate:Lnet/minecraft/server/level/progress/ChunkProgressListener;")
     private CloProgressListener cc_delegate;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -35,10 +34,10 @@ public abstract class MixinProcessorChunkProgressListener implements CloProgress
     }
 
     @AddTransformToSets(ChunkToCloSet.ProcessorChunkProgressListener_redirects.class)
-    @TransformFromMethod(@MethodSig("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V"))
+    @TransformFromMethod("updateSpawnPos(Lnet/minecraft/world/level/ChunkPos;)V")
     @Override public native void cc_updateSpawnPos(CloPos center);
 
     @AddTransformToSets(ChunkToCloSet.ProcessorChunkProgressListener_redirects.class)
-    @TransformFromMethod(@MethodSig("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V"))
+    @TransformFromMethod("onStatusChange(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/status/ChunkStatus;)V")
     @Override public native void cc_onStatusChange(CloPos chunkPosition, @Nullable ChunkStatus newStatus);
 }
