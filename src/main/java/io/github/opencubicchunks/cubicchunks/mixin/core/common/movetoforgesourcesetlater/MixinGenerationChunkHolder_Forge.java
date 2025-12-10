@@ -20,8 +20,7 @@ public class MixinGenerationChunkHolder_Forge {
     @Shadow public LevelChunk currentlyLoading;
 
     // Corresponds to field added by Forge
-    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_Forge_Jank_redirects.class,
-        field = "currentlyLoading:Lnet/minecraft/world/level/chunk/LevelChunk;")
+    @AddFieldToSets(containers = ChunkToCubeSet.GenerationChunkHolder_Forge_Jank_redirects.class, field = "currentlyLoading:Lnet/minecraft/world/level/chunk/LevelChunk;")
     public LevelCube cc_currentlyLoadingCube;
 
     public LevelClo cc_getCurrentlyLoading() {

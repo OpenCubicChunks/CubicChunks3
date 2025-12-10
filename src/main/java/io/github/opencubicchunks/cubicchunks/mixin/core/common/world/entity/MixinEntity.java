@@ -58,12 +58,10 @@ public abstract class MixinEntity implements EntityCubePosGetter {
     }
 
     // Update cube position when blockpos changes - this is the same location as where vanilla updates the chunk position
-    @Inject(method = "setPosRaw",
-        at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;",
-            opcode = Opcodes.PUTFIELD))
+    @Inject(method = "setPosRaw", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;blockPosition:Lnet/minecraft/core/BlockPos;", opcode = Opcodes.PUTFIELD))
     private void cc_onSetPosRaw(double x, double y, double z, CallbackInfo ci) {
         if (Coords.blockToCube(x) != cc_cubePosition.getX() || Coords.blockToCube(y) != cc_cubePosition.getY()
-            || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
+                || Coords.blockToCube(z) != cc_cubePosition.getZ()) {
             this.cc_cubePosition = CubePos.from(this.blockPosition);
         }
     }

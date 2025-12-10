@@ -63,8 +63,11 @@ import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
- * Should be used for DASM transforms that work with only Cubes (as opposed to working with both Chunks and Cubes) <br/> <br/> Cube-related field and
- * type redirects, and method redirects containing Cube-related types in the signature or return type should be added to this set. <br/> Other
+ * Should be used for DASM transforms that work with only Cubes (as opposed to working with both Chunks and Cubes) <br/>
+ * <br/>
+ * Cube-related field and
+ * type redirects, and method redirects containing Cube-related types in the signature or return type should be added to this set. <br/>
+ * Other
  * redirects may also be added to this set if they should only be applied in contexts working with only Cubes. Redirects applicable in all contexts
  * should be added to {@link GlobalSet}.
  */
@@ -102,75 +105,53 @@ public interface ChunkToCubeSet extends GlobalSet {
         public native CubePos cc_getCubePos();
     }
 
-    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.ChunkAccess$ChunkPathElement"),
-        to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess$CubePathElement"))
+    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.ChunkAccess$ChunkPathElement"), to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.CubeAccess$CubePathElement"))
     abstract class ChunkAccess$ChunkPathElement_to_CubeAccess$CubePathElement_redirects {
 
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelCube.class))
-    abstract class LevelChunk_to_LevelCube_redirects {
-        @FieldRedirect("chunkPos:Lnet/minecraft/world/level/ChunkPos;")
-        protected CubePos cubePos;
-
-        @MethodRedirect("getPos()Lnet/minecraft/world/level/ChunkPos;")
-        public native CubePos cc_getCubePos();
-    }
+    abstract class LevelChunk_to_LevelCube_redirects extends ChunkAccess_to_CubeAccess_redirects {}
 
     @TypeRedirect(from = @Ref(LevelChunk.PostLoadProcessor.class), to = @Ref(LevelCube.PostLoadProcessor.class))
-    interface LevelChunk$PostLoadProcessor_to_LevelCube$PostLoadProcessor_redirects {
-    }
+    interface LevelChunk$PostLoadProcessor_to_LevelCube$PostLoadProcessor_redirects {}
 
-    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"),
-        to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$BoundTickingBlockEntity"))
-    abstract class LevelChunk$BoundTickingBlockEntity_to_LevelCube$BoundTickingBlockEntity_redirects {
-    }
+    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$BoundTickingBlockEntity"), to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$BoundTickingBlockEntity"))
+    abstract class LevelChunk$BoundTickingBlockEntity_to_LevelCube$BoundTickingBlockEntity_redirects {}
 
-    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"),
-        to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$RebindableTickingBlockEntityWrapper"))
-    abstract class LevelChunk$RebindableTickingBlockEntityWrapper_to_LevelCube$RebindableTickingBlockEntityWrapper_redirects {
-    }
+    @TypeRedirect(from = @Ref(string = "net.minecraft.world.level.chunk.LevelChunk$RebindableTickingBlockEntityWrapper"), to = @Ref(string = "io.github.opencubicchunks.cubicchunks.world.level.cube.LevelCube$RebindableTickingBlockEntityWrapper"))
+    abstract class LevelChunk$RebindableTickingBlockEntityWrapper_to_LevelCube$RebindableTickingBlockEntityWrapper_redirects {}
 
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoCube.class))
-    abstract class ProtoChunk_to_ProtoCube_redirects {
-    }
+    abstract class ProtoChunk_to_ProtoCube_redirects {}
 
     @TypeRedirect(from = @Ref(ImposterProtoChunk.class), to = @Ref(ImposterProtoCube.class))
-    abstract class ImposterProtoChunk_to_ImposterProtoCube_redirects {
-    }
+    abstract class ImposterProtoChunk_to_ImposterProtoCube_redirects {}
 
     @TypeRedirect(from = @Ref(EmptyLevelChunk.class), to = @Ref(EmptyLevelCube.class))
-    abstract class EmptyLevelChunk_to_EmptyLevelCube_redirects {
-    }
+    abstract class EmptyLevelChunk_to_EmptyLevelCube_redirects {}
 
     // FIXME probably need to move to a client-only set
     @TypeRedirect(from = @Ref(ClientChunkCache.Storage.class), to = @Ref(ClientCubeCache.Storage.class))
-    abstract class ClientChunkCache$Storage_to_ClientCubeCache$Storage_redirects {
-    }
+    abstract class ClientChunkCache$Storage_to_ClientCubeCache$Storage_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkStatusTask.class), to = @Ref(CubeStatusTask.class))
-    interface ChunkStatusTask_to_CubeStatusTask_redirects {
-    }
+    interface ChunkStatusTask_to_CubeStatusTask_redirects {}
 
     @TypeRedirect(from = @Ref(StaticCache2D.class), to = @Ref(StaticCache3D.class))
-    abstract class StaticCache2D_to_StaticCache3D_redirects {
-    }
+    abstract class StaticCache2D_to_StaticCache3D_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkStep.class), to = @Ref(CubeStep.class))
-    abstract class ChunkStep_to_CubeStep_redirects {
-    }
+    abstract class ChunkStep_to_CubeStep_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkStep.Builder.class), to = @Ref(CubeStep.Builder.class))
-    abstract class ChunkStep$Builder_to_CubeStep$Builder_redirects {
-    }
+    abstract class ChunkStep$Builder_to_CubeStep$Builder_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkPyramid.class), to = @Ref(CubePyramid.class))
-    abstract class ChunkPyramid_to_CubePyramid_redirects {
-    }
+    abstract class ChunkPyramid_to_CubePyramid_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkPyramid.Builder.class), to = @Ref(CubePyramid.Builder.class))
-    abstract class ChunkPyramid$Builder_to_CubePyramid$Builder_redirects {
-    }
+    abstract class ChunkPyramid$Builder_to_CubePyramid$Builder_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkHolder.LevelChangeListener.class), to = @Ref(CubeHolder.LevelChangeListener.class))
     interface ChunkHolder$LevelChangeListener_to_CubeHolder$LevelChangeListener_redirects {
@@ -186,13 +167,11 @@ public interface ChunkToCubeSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(GeneratingChunkMap.class), to = @Ref(GeneratingCubeMap.class))
     interface GeneratingChunkMap_to_GeneratingCubeMap_redirects {
-        @MethodRedirect(
-            "applyStep(Lnet/minecraft/server/level/GenerationChunkHolder;Lnet/minecraft/world/level/chunk/status/ChunkStep;"
+        @MethodRedirect("applyStep(Lnet/minecraft/server/level/GenerationChunkHolder;Lnet/minecraft/world/level/chunk/status/ChunkStep;"
                 + "Lnet/minecraft/util/StaticCache2D;)Ljava/util/concurrent/CompletableFuture;")
         CompletableFuture<CubeAccess> cc_applyCubeStep(GenerationChunkHolder chunk, CubeStep step, StaticCache3D<GenerationChunkHolder> cache);
 
-        @MethodRedirect(
-            "scheduleGenerationTask(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)"
+        @MethodRedirect("scheduleGenerationTask(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/ChunkPos;)"
                 + "Lnet/minecraft/server/level/ChunkGenerationTask;")
         ChunkGenerationTask cc_scheduleGenerationTask(ChunkStatus targetStatus, CubePos pos);
     }
@@ -204,18 +183,15 @@ public interface ChunkToCubeSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.UnsavedListener.class), to = @Ref(LevelCube.UnsavedListener.class))
-    interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects {
-    }
+    interface LevelChunk$UnsavedListener_to_LevelCube$UnsavedListener_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    abstract class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
-    }
+    abstract class ChunkHolder_redirects extends GenerationChunkHolder_redirects {}
 
     // region [Forge stuff]
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
-    abstract class ChunkEvent$Load_to_Event_redirects {
-    }
+    abstract class ChunkEvent$Load_to_Event_redirects {}
 
     @InterOwnerContainer(from = @Ref(ChunkEvent.Load.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Load_delegateConstruction {
@@ -224,8 +200,7 @@ public interface ChunkToCubeSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
-    abstract class ChunkEvent$Unload_to_Event_redirects {
-    }
+    abstract class ChunkEvent$Unload_to_Event_redirects {}
 
     @InterOwnerContainer(from = @Ref(ChunkEvent.Unload.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Unload_delegateConstruction {
@@ -234,21 +209,17 @@ public interface ChunkToCubeSet extends GlobalSet {
     }
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
-    abstract class GenerationChunkHolder_Forge_Jank_redirects {
-    }
+    abstract class GenerationChunkHolder_Forge_Jank_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {
-    }
+    abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {}
     // endregion
 
     @InterOwnerContainer(from = @Ref(ChunkLevel.class), to = @Ref(CubeLevel.class))
-    class ChunkLevel_to_CubeLevel_redirects {
-    }
+    class ChunkLevel_to_CubeLevel_redirects {}
 
     @InterOwnerContainer(from = @Ref(ChunkStatusTasks.class), to = @Ref(CubeStatusTasks.class))
-    class ChunkStatusTasks_to_CubeStatusTasks_redirects {
-    }
+    class ChunkStatusTasks_to_CubeStatusTasks_redirects {}
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
     class GenerationChunkHolder_redirects {
@@ -257,46 +228,35 @@ public interface ChunkToCubeSet extends GlobalSet {
     }
 
     @IntraOwnerContainer(@Ref(ChunkMap.class))
-    class ChunkMap_redirects {
-    }
+    class ChunkMap_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerChunkCache.class))
-    class ServerChunkCache_redirects {
-    }
+    class ServerChunkCache_redirects {}
 
     @IntraOwnerContainer(@Ref(Entity.class))
-    class Entity_redirects {
-    }
+    class Entity_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerPlayer.class))
-    class ServerPlayer_redirects extends Entity_redirects {
-    }
+    class ServerPlayer_redirects extends Entity_redirects {}
 
     @IntraOwnerContainer(@Ref(ClientChunkCache.class))
-    class ClientChunkCache_redirects {
-    }
+    class ClientChunkCache_redirects {}
 
     @IntraOwnerContainer(@Ref(SectionOcclusionGraph.class))
-    class SectionOcclusionGraph_redirects {
-    }
+    class SectionOcclusionGraph_redirects {}
 
     @InterOwnerContainer(from = @Ref(CommonHooks.class), to = @Ref(CCCommonHooks.class))
-    class CommonHooks_to_CCCommonHooks_redirects {
-    }
+    class CommonHooks_to_CCCommonHooks_redirects {}
 
     @IntraOwnerContainer(@Ref(Level.class))
-    class Level_redirects {
-    }
+    class Level_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerLevel.class))
-    class ServerLevel_redirects extends Level_redirects {
-    }
+    class ServerLevel_redirects extends Level_redirects {}
 
     @IntraOwnerContainer(@Ref(LevelRenderer.class))
-    class LevelRenderer_redirects {
-    }
+    class LevelRenderer_redirects {}
 
     @IntraOwnerContainer(@Ref(SectionCopy.class))
-    class SectionCopy_redirects {
-    }
+    class SectionCopy_redirects {}
 }

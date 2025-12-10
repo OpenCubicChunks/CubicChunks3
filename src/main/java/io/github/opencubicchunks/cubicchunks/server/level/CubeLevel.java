@@ -18,8 +18,7 @@ import org.jetbrains.annotations.Contract;
  */
 @Dasm(GlobalSet.class)
 public class CubeLevel {
-    private CubeLevel() {
-    }
+    private CubeLevel() {}
 
     private static final int FULL_CHUNK_LEVEL = 33;
     private static final CubeStep FULL_CUBE_STEP = CubePyramid.CC_GENERATION_PYRAMID_CUBES.getStepTo(ChunkStatus.FULL);
@@ -29,14 +28,12 @@ public class CubeLevel {
     // is greater.
     public static final int MAX_LEVEL = FULL_CHUNK_LEVEL + RADIUS_AROUND_FULL_CUBE;
 
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class,
-        method = "generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;")
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class, method = "generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;")
     public static @Nullable ChunkStatus cubeGenerationStatus(int level) {
         return getStatusAroundFullCube(level - FULL_CHUNK_LEVEL, null);
     }
 
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class,
-        method = "getStatusAroundFullChunk(ILnet/minecraft/world/level/chunk/status/ChunkStatus;)"
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class, method = "getStatusAroundFullChunk(ILnet/minecraft/world/level/chunk/status/ChunkStatus;)"
             + "Lnet/minecraft/world/level/chunk/status/ChunkStatus;")
     @Nullable @Contract("_,!null->!null;_,_->_")
     public static ChunkStatus getStatusAroundFullCube(int distance, @Nullable ChunkStatus chunkStatus) {
@@ -47,14 +44,12 @@ public class CubeLevel {
         }
     }
 
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class,
-        method = "getStatusAroundFullChunk(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;")
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class, method = "getStatusAroundFullChunk(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;")
     public static ChunkStatus getStatusAroundFullCube(int distance) {
         return getStatusAroundFullCube(distance, ChunkStatus.EMPTY);
     }
 
-    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class,
-        method = "byStatus(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)I")
+    @AddMethodToSets(containers = ChunkToCubeSet.ChunkLevel_to_CubeLevel_redirects.class, method = "byStatus(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)I")
     public static int byCubeStatus(ChunkStatus status) {
         return FULL_CHUNK_LEVEL + FULL_CUBE_STEP.getAccumulatedRadiusOf(status);
     }

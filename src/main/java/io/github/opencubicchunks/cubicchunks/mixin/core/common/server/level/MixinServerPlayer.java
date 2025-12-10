@@ -15,8 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Dasm(value = ChunkToCloSet.class, target = @Ref(ServerPlayer.class))
 @Mixin(ServerPlayer.class)
 public abstract class MixinServerPlayer extends MixinEntity implements CCServerPlayer {
-    @AddFieldToSets(containers = ChunkToCloSet.ServerPlayer_redirects.class,
-        field = "chunkTrackingView:Lnet/minecraft/server/level/ChunkTrackingView;")
+    @AddFieldToSets(containers = ChunkToCloSet.ServerPlayer_redirects.class, field = "chunkTrackingView:Lnet/minecraft/server/level/ChunkTrackingView;")
     private CloTrackingView cc_cloTrackingView = CloTrackingView.EMPTY;
 
     @AddTransformToSets(ChunkToCloSet.ServerPlayer_redirects.class)

@@ -44,9 +44,9 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
 
     @Inject(method = "<init>", at = @At("CTOR_HEAD"))
     private void cc_onInit(
-        MinecraftServer server, Executor dispatcher, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData,
-        ResourceKey dimension, LevelStem levelStem, ChunkProgressListener progressListener, boolean isDebug, long biomeZoomSeed,
-        List customSpawners, boolean tickTime, RandomSequences randomSequences, CallbackInfo ci
+            MinecraftServer server, Executor dispatcher, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData,
+            ResourceKey dimension, LevelStem levelStem, ChunkProgressListener progressListener, boolean isDebug, long biomeZoomSeed,
+            List customSpawners, boolean tickTime, RandomSequences randomSequences, CallbackInfo ci
     ) {
         // TODO conditionally mark as cubic based on dimension, config, level data, etc
     }
@@ -59,11 +59,10 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
     @TransformFromMethod("startTickingChunk(Lnet/minecraft/world/level/chunk/LevelChunk;)V")
     public native void cc_startTickingClo(LevelClo chunk);
 
-    @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/server/level/ServerChunkCache;removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;"
+    @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;removeTicketWithRadius(Lnet/minecraft/server/level/TicketType;"
             + "Lnet/minecraft/world/level/ChunkPos;I)V"))
     private void cc_onSetDefaultSpawnPos_removeTicketWithRadius(
-        ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos
+            ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos
     ) {
         if (cc_isCubic) {
             ((ServerCubeCache) instance).cc_removeTicketWithRadius(ticket, CloPos.cube(pos), radius);
@@ -72,11 +71,10 @@ public abstract class MixinServerLevel extends MixinLevel implements CubicServer
         }
     }
 
-    @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/server/level/ServerChunkCache;addTicketWithRadius(Lnet/minecraft/server/level/TicketType;"
+    @WrapOperation(method = "setDefaultSpawnPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;addTicketWithRadius(Lnet/minecraft/server/level/TicketType;"
             + "Lnet/minecraft/world/level/ChunkPos;I)V"))
     private void cc_onSetDefaultSpawnPos_addicketWithRadius(
-        ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos
+            ServerChunkCache instance, TicketType ticket, ChunkPos chunkPos, int radius, Operation<Void> original, BlockPos pos
     ) {
         if (cc_isCubic) {
             ((ServerCubeCache) instance).cc_addTicketWithRadius(ticket, CloPos.cube(pos), radius);

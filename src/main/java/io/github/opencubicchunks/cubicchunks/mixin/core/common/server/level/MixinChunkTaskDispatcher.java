@@ -19,8 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(ChunkTaskDispatcher.class)
 public class MixinChunkTaskDispatcher implements CubeHolder.LevelChangeListener, CloTaskDispatcher {
     @AddTransformToSets(ChunkToCloSet.ChunkTaskDispatcher_redirects.class)
-    @TransformFromMethod(owner = @Ref(ChunkTaskDispatcher.class),
-        value = "onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V")
+    @TransformFromMethod(owner = @Ref(ChunkTaskDispatcher.class), value = "onLevelChange(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/IntSupplier;ILjava/util/function/IntConsumer;)V")
     @Override public native void cc_onLevelChange(CloPos cloPos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter);
 
     public void cc_onLevelChange(CubePos cubePos, IntSupplier queueLevelGetter, int ticketLevel, IntConsumer queueLevelSetter) {

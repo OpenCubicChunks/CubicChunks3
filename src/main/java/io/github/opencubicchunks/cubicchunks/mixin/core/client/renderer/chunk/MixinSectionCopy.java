@@ -20,8 +20,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(SectionCopy.class)
 public class MixinSectionCopy {
     // TODO is this field on the vanilla class actually used anywhere? based on snowblower output not having it, it seems like neoforge is adding it?
-    @AddFieldToSets(containers = ChunkToCubeSet.SectionCopy_redirects.class,
-        field = "wrapped:Lnet/minecraft/world/level/chunk/LevelChunk;") final LevelCube cc_wrapped;
+    @AddFieldToSets(containers = ChunkToCubeSet.SectionCopy_redirects.class, field = "wrapped:Lnet/minecraft/world/level/chunk/LevelChunk;")
+    final LevelCube cc_wrapped;
 
     @AddTransformToSets(ChunkToCubeSet.SectionCopy_redirects.class)
     @TransformFromMethod("<init>(Lnet/minecraft/world/level/chunk/LevelChunk;I)V")

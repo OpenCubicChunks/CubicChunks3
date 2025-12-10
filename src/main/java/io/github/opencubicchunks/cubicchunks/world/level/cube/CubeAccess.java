@@ -80,8 +80,8 @@ public abstract class CubeAccess implements CloAccess {
 
     // Constructor signature matches ChunkAccess for DASM redirect purposes
     public CubeAccess(
-        CubePos cubePos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, long inhabitedTime,
-        @Nullable LevelChunkSection[] chunkSections, @Nullable BlendingData blendingData
+            CubePos cubePos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, long inhabitedTime,
+            @Nullable LevelChunkSection[] chunkSections, @Nullable BlendingData blendingData
     ) {
         this.cubePos = cubePos;
         this.upgradeData = upgradeData;
@@ -96,7 +96,7 @@ public abstract class CubeAccess implements CloAccess {
                 System.arraycopy(chunkSections, 0, this.sections, 0, this.sections.length);
             } else {
                 CubicChunks.LOGGER.warn("Could not set level cube sections, array length is {} instead of {}", chunkSections.length,
-                    this.sections.length);
+                        this.sections.length);
             }
         }
 
@@ -111,12 +111,10 @@ public abstract class CubeAccess implements CloAccess {
         }
     }
 
-    @TransformFromMethod(value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;",
-        owner = @Ref(ChunkAccess.class))
+    @TransformFromMethod(value = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;", owner = @Ref(ChunkAccess.class))
     @Override public native GameEventListenerRegistry getListenerRegistry(int sectionY);
 
-    @TransformFromMethod(owner = @Ref(ChunkAccess.class),
-        value = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)"
+    @TransformFromMethod(owner = @Ref(ChunkAccess.class), value = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)"
             + "Lnet/minecraft/world/level/block/state/BlockState;")
     @Override public native @Nullable BlockState setBlockState(BlockPos pos, BlockState state);
 
@@ -150,8 +148,7 @@ public abstract class CubeAccess implements CloAccess {
         throw new UnsupportedOperationException();
     }
 
-    @Override public void setHeightmap(Heightmap.Types type, long[] data) {
-    }
+    @Override public void setHeightmap(Heightmap.Types type, long[] data) {}
 
     @Override public Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types type) {
         throw new UnsupportedOperationException();
@@ -174,16 +171,12 @@ public abstract class CubeAccess implements CloAccess {
         return CloPos.cube(cubePos);
     }
 
-    @TransformFromMethod(
-        value = "getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
-            + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;",
-        owner = @Ref(ChunkAccess.class))
+    @TransformFromMethod(value = "getStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)"
+            + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;", owner = @Ref(ChunkAccess.class))
     @Override public native @Nullable StructureStart getStartForStructure(Structure structure);
 
-    @TransformFromMethod(
-        value = "setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;"
-            + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V",
-        owner = @Ref(ChunkAccess.class))
+    @TransformFromMethod(value = "setStartForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;"
+            + "Lnet/minecraft/world/level/levelgen/structure/StructureStart;)V", owner = @Ref(ChunkAccess.class))
     @Override public native void setStartForStructure(Structure structure, StructureStart structureStart);
 
     @TransformFromMethod(value = "getAllStarts()Ljava/util/Map;", owner = @Ref(ChunkAccess.class))
@@ -192,13 +185,10 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFromMethod(value = "setAllStarts(Ljava/util/Map;)V", owner = @Ref(ChunkAccess.class))
     @Override public native void setAllStarts(Map<Structure, StructureStart> structureStarts);
 
-    @TransformFromMethod(
-        value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)Lit/unimi/dsi/fastutil/longs/LongSet;",
-        owner = @Ref(ChunkAccess.class))
+    @TransformFromMethod(value = "getReferencesForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;)Lit/unimi/dsi/fastutil/longs/LongSet;", owner = @Ref(ChunkAccess.class))
     @Override public native LongSet getReferencesForStructure(Structure structure);
 
-    @TransformFromMethod(value = "addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V",
-        owner = @Ref(ChunkAccess.class))
+    @TransformFromMethod(value = "addReferenceForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;J)V", owner = @Ref(ChunkAccess.class))
     @Override public native void addReferenceForStructure(Structure structure, long reference);
 
     @TransformFromMethod(value = "getAllReferences()Ljava/util/Map;", owner = @Ref(ChunkAccess.class))
@@ -259,7 +249,7 @@ public abstract class CubeAccess implements CloAccess {
     @Override public native void findBlocks(Predicate<BlockState> predicate, BiConsumer<BlockPos, BlockState> output);
 
     @Override public void findBlocks(
-        Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output
+            Predicate<BlockState> predicate, java.util.function.BiPredicate<BlockState, BlockPos> fineFilter, BiConsumer<BlockPos, BlockState> output
     ) {
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 
@@ -314,8 +304,7 @@ public abstract class CubeAccess implements CloAccess {
     @TransformFromMethod(value = "setInhabitedTime(J)V", owner = @Ref(ChunkAccess.class))
     @Override public native void setInhabitedTime(long inhabitedTime);
 
-    @TransformFromMethod(value = "getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;",
-        owner = @Ref(ChunkAccess.class))
+    @TransformFromMethod(value = "getOrCreateOffsetList([Lit/unimi/dsi/fastutil/shorts/ShortList;I)Lit/unimi/dsi/fastutil/shorts/ShortList;", owner = @Ref(ChunkAccess.class))
     public static native ShortList getOrCreateOffsetList(ShortList[] packedPositions, int index);
 
     @TransformFromMethod(value = "isLightCorrect()Z", owner = @Ref(ChunkAccess.class))

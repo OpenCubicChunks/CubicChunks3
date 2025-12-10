@@ -41,6 +41,6 @@ public abstract class MixinStoringChunkProgressListener implements CloProgressLi
         int cubeRadius = Coords.sectionToCubeCeil(radius);
         var spawnPos = cc_spawnPos != null && cc_spawnPos.isCube() ? cc_spawnPos.cubePos() : CubePos.ZERO;
         return this.statuses.get(
-            CubePos.asLong(cubeX + spawnPos.getX() - cubeRadius, cubeY + spawnPos.getY() - cubeRadius, cubeZ + spawnPos.getZ() - cubeRadius));
+                CubePos.asLong(cubeX + spawnPos.getX() - cubeRadius, cubeY + spawnPos.getY() - cubeRadius, cubeZ + spawnPos.getZ() - cubeRadius));
     }
 }

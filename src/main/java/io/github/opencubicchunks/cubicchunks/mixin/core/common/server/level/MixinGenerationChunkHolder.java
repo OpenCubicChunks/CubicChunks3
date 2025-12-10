@@ -71,15 +71,13 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     }
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
-    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class),
-        value = "applyStep(Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/server/level/GeneratingChunkMap;"
+    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = "applyStep(Lnet/minecraft/world/level/chunk/status/ChunkStep;Lnet/minecraft/server/level/GeneratingChunkMap;"
             + "Lnet/minecraft/util/StaticCache2D;)Ljava/util/concurrent/CompletableFuture;")
     native CompletableFuture<ChunkResult<CubeAccess>> cc_applyCubeStep(
-        CubeStep step, GeneratingChunkMap chunkMap, StaticCache3D<GenerationChunkHolder> cache
+            CubeStep step, GeneratingChunkMap chunkMap, StaticCache3D<GenerationChunkHolder> cache
     );
 
-    @WrapOperation(method = "updateHighestAllowedStatus", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/server/level/ChunkLevel;generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
+    @WrapOperation(method = "updateHighestAllowedStatus", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkLevel;generationStatus(I)Lnet/minecraft/world/level/chunk/status/ChunkStatus;"))
     protected @Nullable ChunkStatus cc_onUpdateHighestAllowedStatus_generationStatus(int level, Operation<ChunkStatus> original) {
         if (cc_cubePos != null) {
             return CubeLevel.cubeGenerationStatus(level);
@@ -88,15 +86,13 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     }
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
-    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class),
-        value = "replaceProtoChunk(Lnet/minecraft/world/level/chunk/ImposterProtoChunk;)V")
+    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = "replaceProtoChunk(Lnet/minecraft/world/level/chunk/ImposterProtoChunk;)V")
     public native void cc_replaceProtoCube(ImposterProtoCube cube);
 
-    @WrapOperation(method = "rescheduleChunkTask", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/server/level/ChunkMap;scheduleGenerationTask(Lnet/minecraft/world/level/chunk/status/ChunkStatus;"
+    @WrapOperation(method = "rescheduleChunkTask", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;scheduleGenerationTask(Lnet/minecraft/world/level/chunk/status/ChunkStatus;"
             + "Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/server/level/ChunkGenerationTask;"))
     private ChunkGenerationTask cc_onRescheduleChunkTask_scheduleGenerationTask(
-        ChunkMap instance, ChunkStatus status, ChunkPos chunkPos, Operation<ChunkGenerationTask> original
+            ChunkMap instance, ChunkStatus status, ChunkPos chunkPos, Operation<ChunkGenerationTask> original
     ) {
         if (cc_cubePos != null) {
             return ((CubicChunkMap) instance).cc_scheduleGenerationTask(status, cc_cubePos);
@@ -105,18 +101,15 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     }
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
-    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class),
-        value = "completeFuture(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/ChunkAccess;)V")
+    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = "completeFuture(Lnet/minecraft/world/level/chunk/status/ChunkStatus;Lnet/minecraft/world/level/chunk/ChunkAccess;)V")
     private native void cc_completeFuture(ChunkStatus targetStatus, CubeAccess cubeAccess);
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
-    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class),
-        value = "getChunkIfPresentUnchecked(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;")
+    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = "getChunkIfPresentUnchecked(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;")
     public native @Nullable CubeAccess cc_getCubeIfPresentUnchecked(ChunkStatus status);
 
     @AddTransformToSets(ChunkToCubeSet.GenerationChunkHolder_redirects.class)
-    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class),
-        value = "getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;")
+    @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = "getChunkIfPresent(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Lnet/minecraft/world/level/chunk/ChunkAccess;")
     public native @Nullable CubeAccess cc_getCubeIfPresent(ChunkStatus status);
 
     @Shadow public abstract @Nullable ChunkAccess getLatestChunk();
@@ -125,8 +118,7 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     @TransformFromMethod(owner = @Ref(GenerationChunkHolder.class), value = "getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;")
     public native @Nullable CubeAccess cc_getLatestCube();
 
-    @AddMethodToSets(containers = ChunkToCloSet.GenerationChunkHolder_redirects.class,
-        method = "getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;")
+    @AddMethodToSets(containers = ChunkToCloSet.GenerationChunkHolder_redirects.class, method = "getLatestChunk()Lnet/minecraft/world/level/chunk/ChunkAccess;")
     public @Nullable CloAccess cc_getLatestClo() {
         if (cc_cubePos != null) {
             return cc_getLatestCube();
@@ -139,9 +131,9 @@ public abstract class MixinGenerationChunkHolder implements GenerationCloHolder 
     public void cc_onGetPersistedStatus(CallbackInfoReturnable<ChunkStatus> cir) {
         if (cc_cubePos != null) {
             CompletableFuture<ChunkResult<CubeAccess>> completablefuture = (CompletableFuture<ChunkResult<CubeAccess>>) (Object) this.futures
-                .get(ChunkStatus.EMPTY.getIndex());
+                    .get(ChunkStatus.EMPTY.getIndex());
             CubeAccess cubeAccess = completablefuture == null ? null
-                : completablefuture.getNow((ChunkResult<CubeAccess>) (Object) NOT_DONE_YET).orElse(null);
+                    : completablefuture.getNow((ChunkResult<CubeAccess>) (Object) NOT_DONE_YET).orElse(null);
             cir.setReturnValue(cubeAccess == null ? null : cubeAccess.getPersistedStatus());
         }
     }

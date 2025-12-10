@@ -20,15 +20,13 @@ public abstract class MixinChunkStorage {
         return false; // TODO (P2) should be dasm'd once IOWorker is done
     }
 
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkStorage_redirects.class,
-        method = "read(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;")
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkStorage_redirects.class, method = "read(Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;")
     public CompletableFuture<Optional<CompoundTag>> cc_read(CloPos cloPos) {
         // TODO (P2) loading - this method should be dasm'd
         return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    @AddMethodToSets(containers = ChunkToCloSet.ChunkStorage_redirects.class,
-        method = "write(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/nbt/CompoundTag;)V")
+    @AddMethodToSets(containers = ChunkToCloSet.ChunkStorage_redirects.class, method = "write(Lnet/minecraft/world/level/ChunkPos;Ljava/util/function/Supplier;)Ljava/util/concurrent/CompletableFuture;")
     public void cc_write(CloPos cloPos, CompoundTag chunkData) {
         // TODO (P2) loading/unloading
     }

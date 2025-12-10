@@ -24,8 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ProcessorChunkProgressListener.class)
 public abstract class MixinProcessorChunkProgressListener implements CloProgressListener {
     // We need a field referencing the delegate as a CloProgressListener, otherwise we end up trying to access a field of the wrong type
-    @AddFieldToSets(containers = ChunkToCloSet.ProcessorChunkProgressListener_redirects.class,
-        field = "delegate:Lnet/minecraft/server/level/progress/ChunkProgressListener;")
+    @AddFieldToSets(containers = ChunkToCloSet.ProcessorChunkProgressListener_redirects.class, field = "delegate:Lnet/minecraft/server/level/progress/ChunkProgressListener;")
     private CloProgressListener cc_delegate;
 
     @Inject(method = "<init>", at = @At("RETURN"))

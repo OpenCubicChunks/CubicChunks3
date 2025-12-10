@@ -43,8 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Dasm(value = ChunkToCubeSet.class, target = @Ref(ClientChunkCache.class))
 @Mixin(ClientChunkCache.class)
 public abstract class MixinClientChunkCache extends MixinChunkSource implements ClientCubeCache {
-    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class,
-        field = "storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;")
+    @AddFieldToSets(containers = ChunkToCubeSet.ClientChunkCache_redirects.class, field = "storage:Lnet/minecraft/client/multiplayer/ClientChunkCache$Storage;")
     volatile ClientCubeCache.Storage cc_cubeStorage;
 
     private LevelCube cc_emptyCube;
@@ -58,7 +57,7 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     private void cc_onConstruct(ClientLevel level, int viewDistance, CallbackInfo ci) {
         if (((CanBeCubic) level).cc_isCubic()) {
             cc_emptyCube = new EmptyLevelCube(level, CubePos.of(0, 0, 0),
-                level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
+                    level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
             cc_cubeStorage = new ClientCubeCache.Storage(calculateStorageRange(viewDistance), level);
             // TODO we could redirect the initial construction instead of immediately resizing. doesn't really matter
             updateViewRadius(cc_calculateChunkViewDistance(viewDistance));
@@ -116,8 +115,8 @@ public abstract class MixinClientChunkCache extends MixinChunkSource implements 
     }
 
     @Override public @Nullable LevelCube cc_replaceWithPacketData(
-        int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
-        Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
+            int x, int y, int z, FriendlyByteBuf buffer, Map<Heightmap.Types, long[]> map,
+            Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer
     ) {
         if (!this.cc_cubeStorage.inRange(x, y, z)) {
             LOGGER.warn("Ignoring cube since it's not in the view range: {}, {}, {}", x, y, z);

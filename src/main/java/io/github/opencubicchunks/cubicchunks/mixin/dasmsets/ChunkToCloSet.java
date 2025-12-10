@@ -63,8 +63,11 @@ import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /**
- * Should be used for DASM transforms that work with Clos (i.e. work with both Chunks and Cubes) <br/> <br/> Clo-related field and type redirects, and
- * method redirects containing Clo-related types in the signature or return type should be added to this set. <br/> Other redirects may also be added
+ * Should be used for DASM transforms that work with Clos (i.e. work with both Chunks and Cubes) <br/>
+ * <br/>
+ * Clo-related field and type redirects, and
+ * method redirects containing Clo-related types in the signature or return type should be added to this set. <br/>
+ * Other redirects may also be added
  * to this set if they should only be applied in contexts working with both Chunks and Cubes. Redirects applicable in all contexts should be added to
  * {@link GlobalSet}.
  */
@@ -103,25 +106,23 @@ public interface ChunkToCloSet extends GlobalSet {
 
     @TypeRedirect(from = @Ref(LevelChunk.class), to = @Ref(LevelClo.class))
     interface LevelChunk_to_LevelClo_redirects extends ChunkAccess_to_CloAccess_redirects {
-        @ConstructorToFactoryRedirect("<init>(Lnet/minecraft/world/level/Level;Lio/github/opencubicchunks/cc_core/world/level/CloPos;)V")
+        @ConstructorToFactoryRedirect("<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;)V")
         static LevelClo create(Level level, ChunkPos pos) {
             throw new DasmFailedToApply();
         }
 
-        @ConstructorToFactoryRedirect(
-            "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;"
+        @ConstructorToFactoryRedirect("<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;"
                 + "Lnet/minecraft/world/ticks/LevelChunkTicks;Lnet/minecraft/world/ticks/LevelChunkTicks;"
                 + "J[Lnet/minecraft/world/level/chunk/LevelChunkSection;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;"
                 + "Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
         static LevelClo create(
-            Level level, CloPos pos, UpgradeData data, LevelChunkTicks<Block> blockTicks, LevelChunkTicks<Fluid> fluidTicks, long inhabitedTime,
-            @Nullable LevelChunkSection[] sections, @Nullable LevelClo.PostLoadProcessor postLoad, @Nullable BlendingData blendingData
+                Level level, CloPos pos, UpgradeData data, LevelChunkTicks<Block> blockTicks, LevelChunkTicks<Fluid> fluidTicks, long inhabitedTime,
+                @Nullable LevelChunkSection[] sections, @Nullable LevelClo.PostLoadProcessor postLoad, @Nullable BlendingData blendingData
         ) {
             throw new DasmFailedToApply();
         }
 
-        @ConstructorToFactoryRedirect(
-            "<init>(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ProtoChunk;"
+        @ConstructorToFactoryRedirect("<init>(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ProtoChunk;"
                 + "Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;)V")
         static LevelClo create(ServerLevel level, ProtoClo clo, @Nullable LevelClo.PostLoadProcessor postLoad) {
             throw new DasmFailedToApply();
@@ -129,31 +130,28 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(LevelChunk.PostLoadProcessor.class), to = @Ref(LevelClo.PostLoadProcessor.class))
-    interface LevelChunk$PostLoadProcessor_to_LevelClo$PostLoadProcessor_redirects {
-    }
+    interface LevelChunk$PostLoadProcessor_to_LevelClo$PostLoadProcessor_redirects {}
 
     @TypeRedirect(from = @Ref(ProtoChunk.class), to = @Ref(ProtoClo.class))
     interface ProtoChunk_to_ProtoClo_redirects extends ChunkAccess_to_CloAccess_redirects {
-        @ConstructorToFactoryRedirect(
-            "<init>(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;"
+        @ConstructorToFactoryRedirect("<init>(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;"
                 + "Lnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/core/Registry;"
                 + "Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
         static ProtoClo create(
-            CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
-            @Nullable BlendingData blendingData
+                CloPos cloPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+                @Nullable BlendingData blendingData
         ) {
             throw new DasmFailedToApply();
         }
 
-        @ConstructorToFactoryRedirect(
-            "<init>(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;"
+        @ConstructorToFactoryRedirect("<init>(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;"
                 + "[Lnet/minecraft/world/level/chunk/LevelChunkSection;Lnet/minecraft/world/ticks/ProtoChunkTicks;"
                 + "Lnet/minecraft/world/ticks/ProtoChunkTicks;Lnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/core/Registry;"
                 + "Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V")
         static ProtoClo create(
-            CloPos cloPos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTicks,
-            ProtoChunkTicks<Fluid> liquidTicks, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
-            @Nullable BlendingData blendingData
+                CloPos cloPos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTicks,
+                ProtoChunkTicks<Fluid> liquidTicks, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry,
+                @Nullable BlendingData blendingData
         ) {
             throw new DasmFailedToApply();
         }
@@ -171,18 +169,15 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.class), to = @Ref(CloTrackingView.class))
-    interface ChunkTrackingView_to_CloTrackingView_redirects {
-    }
+    interface ChunkTrackingView_to_CloTrackingView_redirects {}
 
     @TypeRedirect(from = @Ref(ChunkTrackingView.Positioned.class), to = @Ref(CloTrackingView.Positioned.class))
-    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects implements ChunkTrackingView_to_CloTrackingView_redirects {
-    }
+    abstract class ChunkTrackingView$Positioned_to_CloTrackingView$Positioned_redirects implements ChunkTrackingView_to_CloTrackingView_redirects {}
 
     // region [Forge stuff]
     // TODO move to a forge-specific sourceset
     @TypeRedirect(from = @Ref(ChunkEvent.Load.class), to = @Ref(Event.class))
-    abstract class ChunkEvent$Load_to_Event_redirects {
-    }
+    abstract class ChunkEvent$Load_to_Event_redirects {}
 
     @InterOwnerContainer(from = @Ref(ChunkEvent.Load.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Load_delegateConstruction {
@@ -191,8 +186,7 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @TypeRedirect(from = @Ref(ChunkEvent.Unload.class), to = @Ref(Event.class))
-    abstract class ChunkEvent$Unload_to_Event_redirects {
-    }
+    abstract class ChunkEvent$Unload_to_Event_redirects {}
 
     @InterOwnerContainer(from = @Ref(ChunkEvent.Unload.class), to = @Ref(EventConstructorDelegates.class))
     abstract class ChunkEvent$Unload_delegateConstruction {
@@ -207,87 +201,66 @@ public interface ChunkToCloSet extends GlobalSet {
     }
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {
-    }
+    abstract class ChunkHolder_Forge_Jank_redirects extends GenerationChunkHolder_Forge_Jank_redirects {}
     // endregion
 
     @IntraOwnerContainer(@Ref(ChunkHolder.class))
-    class ChunkHolder_redirects extends GenerationChunkHolder_redirects {
-    }
+    class ChunkHolder_redirects extends GenerationChunkHolder_redirects {}
 
     @IntraOwnerContainer(@Ref(ProcessorChunkProgressListener.class))
-    class ProcessorChunkProgressListener_redirects {
-    }
+    class ProcessorChunkProgressListener_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkGenerationTask.class))
-    class ChunkGenerationTask_redirects {
-    }
+    class ChunkGenerationTask_redirects {}
 
     @IntraOwnerContainer(@Ref(GenerationChunkHolder.class))
-    class GenerationChunkHolder_redirects {
-    }
+    class GenerationChunkHolder_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkStorage.class))
-    class ChunkStorage_redirects {
-    }
+    class ChunkStorage_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkMap.class))
-    class ChunkMap_redirects extends ChunkStorage_redirects {
-    }
+    class ChunkMap_redirects extends ChunkStorage_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkMap.TrackedEntity.class))
-    class ChunkMap$TrackedEntity_redirects {
-    }
+    class ChunkMap$TrackedEntity_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerChunkCache.class))
-    class ServerChunkCache_redirects {
-    }
+    class ServerChunkCache_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerLevel.class))
-    class ServerLevel_redirects {
-    }
+    class ServerLevel_redirects {}
 
     @IntraOwnerContainer(@Ref(Entity.class))
-    class Entity_redirects {
-    }
+    class Entity_redirects {}
 
     @IntraOwnerContainer(@Ref(ServerPlayer.class))
-    class ServerPlayer_redirects extends Entity_redirects {
-    }
+    class ServerPlayer_redirects extends Entity_redirects {}
 
     @IntraOwnerContainer(@Ref(PlayerChunkSender.class))
-    class PlayerChunkSender_redirects {
-    }
+    class PlayerChunkSender_redirects {}
 
     @InterOwnerContainer(from = @Ref(EventHooks.class), to = @Ref(CCEventHooks.class))
-    class EventHooks_to_CCEventHooks_redirects {
-    }
+    class EventHooks_to_CCEventHooks_redirects {}
 
     @InterOwnerContainer(from = @Ref(CommonHooks.class), to = @Ref(CCCommonHooks.class))
-    class CommonHooks_to_CCCommonHooks_redirects {
-    }
+    class CommonHooks_to_CCCommonHooks_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkTaskDispatcher.class))
-    class ChunkTaskDispatcher_redirects {
-    }
+    class ChunkTaskDispatcher_redirects {}
 
     @IntraOwnerContainer(@Ref(ChunkTaskPriorityQueue.class))
-    class ChunkTaskPriorityQueue_redirects {
-    }
+    class ChunkTaskPriorityQueue_redirects {}
 
     @IntraOwnerContainer(@Ref(SimulationChunkTracker.class))
-    class SimulationChunkTracker_redirects {
-    }
+    class SimulationChunkTracker_redirects {}
 
     @IntraOwnerContainer(@Ref(LoggerChunkProgressListener.class))
-    class LoggerChunkProgressListener_redirects {
-    }
+    class LoggerChunkProgressListener_redirects {}
 
     @IntraOwnerContainer(@Ref(StoringChunkProgressListener.class))
-    class StoringChunkProgressListener_redirects {
-    }
+    class StoringChunkProgressListener_redirects {}
 
     @IntraOwnerContainer(@Ref(TicketStorage.class))
-    class TicketStorage_redirects {
-    }
+    class TicketStorage_redirects {}
 }
