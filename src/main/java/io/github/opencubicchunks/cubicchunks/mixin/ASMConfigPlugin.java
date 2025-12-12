@@ -2,86 +2,22 @@ package io.github.opencubicchunks.cubicchunks.mixin;
 
 import static org.objectweb.asm.Opcodes.*;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import com.mojang.datafixers.util.Either;
-import io.github.notstirred.dasm.annotation.AnnotationParser;
-import io.github.notstirred.dasm.annotation.AnnotationUtil;
-import io.github.notstirred.dasm.annotation.parse.RefImpl;
-import io.github.notstirred.dasm.api.annotations.Dasm;
-import io.github.notstirred.dasm.api.annotations.transform.ApplicationStage;
-import io.github.notstirred.dasm.api.provider.MappingsProvider;
-import io.github.notstirred.dasm.exception.DasmException;
-import io.github.notstirred.dasm.notify.Notification;
-import io.github.notstirred.dasm.transformer.Transformer;
-import io.github.notstirred.dasm.transformer.data.ClassTransform;
-import io.github.notstirred.dasm.transformer.data.MethodTransform;
-import io.github.notstirred.dasm.util.CachingClassProvider;
-import io.github.notstirred.dasm.util.Format;
-import io.github.notstirred.dasm.util.NotifyStack;
-import io.github.notstirred.dasm.util.Pair;
 import io.github.opencubicchunks.cc_core.annotation.Public;
-import io.github.opencubicchunks.cubicchunks.CubicChunks;
 import io.github.opencubicchunks.cubicchunks.util.asm.FactoryFromConstructor;
-import net.minecraft.Util;
-import net.neoforged.fml.loading.FMLEnvironment;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.asm.mixin.transformer.ClassInfo;
-import org.spongepowered.asm.service.MixinService;
 
 public class ASMConfigPlugin implements IMixinConfigPlugin {
-    private final Map<String, Boolean> dasmTransformedInPreApply = new ConcurrentHashMap<>();
-    private final Transformer transformer;
-    private final AnnotationParser annotationParser;
-
-    private final Map<String, Either<ClassTransform, Collection<MethodTransform>>> preApplyTargets = new HashMap<>();
-    private final Map<String, Either<ClassTransform, Collection<MethodTransform>>> postApplyTargets = new HashMap<>();
-
-    private final Logger logger = LogManager.getLogger("dasm");
-
-    @SuppressWarnings("checkstyle:EmptyCatchBlock") // <-- TODO stirred's problem not mine :)
-    public ASMConfigPlugin() {
-        boolean developmentEnvironment = false;
-        try {
-            developmentEnvironment = !FMLEnvironment.production;
-        } catch (Throwable ignored) {}
-        MappingsProvider mappings = MappingsProvider.IDENTITY;
-
-        // TODO: breaks on fabric (remapped at runtime)
-        var classProvider = new CachingClassProvider(s -> {
-            try (var classStream = ASMConfigPlugin.class.getClassLoader().getResourceAsStream(s.replace(".", "/") + ".class")) {
-                return Optional.ofNullable(classStream.readAllBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        this.transformer = new Transformer(classProvider, mappings);
-        this.annotationParser = new AnnotationParser(classProvider);
-    }
+    public ASMConfigPlugin() {}
 
     @Override public void onLoad(String mixinPackage) {}
 
@@ -89,63 +25,7 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         return null;
     }
 
-    @SuppressWarnings("checkstyle:CyclomaticComplexity") // I'm to lazy to fix this as the class is hopefully being deleted soon
     @Override public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        try {
-            ClassNode targetClass = MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
-            ClassNode mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-
-            // Helpfully crash if dasm target doesn't make sense for a mixin class. This uses a ton of mostly static dasm internals.
-            AnnotationNode dasmAnnotation = AnnotationUtil.getAnnotationIfPresent(mixinClass.invisibleAnnotations, Dasm.class);
-            if (dasmAnnotation != null) {
-                Optional<Type> dasmTarget = RefImpl
-                        .parseOptionalRefAnnotation((AnnotationNode) AnnotationUtil.getAnnotationValues(dasmAnnotation, Dasm.class).get("target"));
-                if (dasmTarget.isEmpty() || dasmTarget.get().equals(Type.getType(Dasm.SELF_TARGET.class))) {
-                    throw new RuntimeException("Mixin class " + Format.formatObjectType(Type.getObjectType(mixinClass.name))
-                            + " with @Dasm annotation should probably have a @Dasm(value = Set.class, target = ...) targeting the mixin target class");
-                }
-            }
-
-            // PRE_APPLY
-            handleError(this.annotationParser.findDasmAnnotations(mixinClass));
-            var methodTransformsMixin = handleError(this.annotationParser.buildContext().buildMethodTargets(mixinClass, "cc_dasm$"));
-            handleError(this.annotationParser.findDasmAnnotations(targetClass));
-            var classTransform = handleError(this.annotationParser.buildContext().buildClassTarget(targetClass));
-            var methodTransformsTarget = handleError(this.annotationParser.buildContext().buildMethodTargets(targetClass, "cc_dasm$"));
-
-            var methodTransforms = Stream.of(methodTransformsTarget, methodTransformsMixin).filter(Optional::isPresent).map(Optional::get)
-                    .flatMap(Collection::stream).toList();
-
-            String key = mixinClassName + "|" + targetClassName;
-            if (classTransform.isPresent()) {
-                // TODO: nice error
-                assert methodTransformsMixin.isEmpty() && methodTransforms.isEmpty() : "Whole class transform WITH method transforms?";
-                ClassTransform transform = classTransform.get();
-                if (transform.stage() == ApplicationStage.PRE_APPLY) {
-                    this.preApplyTargets.put(key, Either.left(transform));
-                } else {
-                    this.postApplyTargets.put(key, Either.left(transform));
-                }
-            } else {
-                Collection<MethodTransform> preTransforms = this.preApplyTargets.computeIfAbsent(key, k -> Either.right(new ArrayList<>())).right()
-                        .get();
-                Collection<MethodTransform> postTransforms = this.postApplyTargets.computeIfAbsent(key, k -> Either.right(new ArrayList<>())).right()
-                        .get();
-                methodTransforms.forEach(transform -> {
-                    if (transform.stage() == ApplicationStage.PRE_APPLY) {
-                        preTransforms.add(transform);
-                    } else {
-                        postTransforms.add(transform);
-                    }
-                });
-            }
-        } catch (DasmException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         return true;
     }
 
@@ -155,98 +35,11 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         return null;
     }
 
-    @Override public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-        boolean wasTransformed;
-        try {
-            wasTransformed = transformClass(targetClassName, targetClass, mixinClassName, ApplicationStage.PRE_APPLY);
-        } catch (DasmException e) {
-            throw new RuntimeException(e);
-        }
-        dasmTransformedInPreApply.put(mixinClassName + "|" + targetClassName, wasTransformed);
-
-        try {
-            // ugly hack to add class metadata to mixin
-            // based on
-            // https://github.com/Chocohead/OptiFabric/blob/54fc2ef7533e43d1982e14bc3302bcf156f590d8/src/main/java/me/modmuss50/optifabric/compat/fabricrendererapi
-            // /RendererMixinPlugin.java#L25:L44
-            Method addMethod = ClassInfo.class.getDeclaredMethod("addMethod", MethodNode.class, boolean.class);
-            addMethod.setAccessible(true);
-
-            ClassInfo ci = ClassInfo.forName(targetClassName);
-            Set<String> existingMethods = ci.getMethods().stream().map(x -> x.getName() + x.getDesc()).collect(Collectors.toSet());
-            for (MethodNode method : targetClass.methods) {
-                if (!existingMethods.contains(method.name + method.desc)) {
-                    addMethod.invoke(ci, method, false);
-                }
-            }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    @Override public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
 
     @Override public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         doPublicAnnotation(targetClass);
         doFactoryFromConstructorAnnotation(targetClass);
-
-        // Apply POST_APPLY dasm transforms
-        boolean wasTransformed;
-        try {
-            wasTransformed = transformClass(targetClassName, targetClass, mixinClassName, ApplicationStage.POST_APPLY);
-        } catch (DasmException e) {
-            throw new RuntimeException(e);
-        }
-        // If no DASM transformation happened to this class, we can skip removing the prefixed methods
-        if (!(wasTransformed | dasmTransformedInPreApply.get(mixinClassName + "|" + targetClassName))) {
-            return;
-        }
-
-        // Find all DASM-added method nodes and their corresponding MixinMerged method nodes
-        record PrefixMethodPair(MethodNode dasmAddedMethod, MethodNode mixinAddedMethod) {}
-        List<PrefixMethodPair> methodPairs = new ArrayList<>();
-        for (MethodNode methodNode : targetClass.methods) {
-            if (methodNode.name.contains("cc_dasm$")) {
-                var methodNameWithoutPrefix = methodNode.name.substring(methodNode.name.indexOf("$") + 1).replace("__init__", "<init>")
-                        .replace("__clinit__", "<clinit>");
-
-                var mixinAddedMethod = targetClass.methods.stream()
-                        .filter(m -> m.name.equals(methodNameWithoutPrefix) && m.desc.equals(methodNode.desc)).findFirst();
-
-                if (mixinAddedMethod.isEmpty()) {
-                    CubicChunks.LOGGER
-                            .info(String.format("Found DASM added method `%s` without a corresponding MixinMerged method", methodNameWithoutPrefix));
-                }
-                methodPairs.add(new PrefixMethodPair(methodNode, mixinAddedMethod.orElse(null)));
-            }
-        }
-
-        // Remove the mixin-added methods and set the dasm-added names
-        methodPairs.forEach(prefixMethodPair -> {
-            if (prefixMethodPair.mixinAddedMethod != null) {
-                targetClass.methods.remove(prefixMethodPair.mixinAddedMethod);
-
-                // Copy annotations and visibility from mixin method
-                prefixMethodPair.dasmAddedMethod.visibleAnnotations = prefixMethodPair.mixinAddedMethod.visibleAnnotations;
-                prefixMethodPair.dasmAddedMethod.invisibleAnnotations = prefixMethodPair.mixinAddedMethod.invisibleAnnotations;
-                prefixMethodPair.dasmAddedMethod.access &= ~(ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED);
-                prefixMethodPair.dasmAddedMethod.access |= (ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) & prefixMethodPair.mixinAddedMethod.access;
-            }
-
-            prefixMethodPair.dasmAddedMethod.name = prefixMethodPair.dasmAddedMethod.name.replace("__init__", "<init>").replace("__clinit__",
-                    "<clinit>");
-
-            // remove the prefix
-            prefixMethodPair.dasmAddedMethod.name = prefixMethodPair.dasmAddedMethod.name.substring("cc_dasm$".length());
-        });
-
-        ClassWriter classWriter = new ClassWriter(0);
-        targetClass.accept(classWriter);
-        try {
-            Path path = Path.of(".dasm.out/" + "POSTIER_APPLY" + "/" + targetClassName.replace('.', '/') + ".class").toAbsolutePath();
-            Files.createDirectories(path.getParent());
-            Files.write(path, classWriter.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void doPublicAnnotation(ClassNode targetClass) {
@@ -302,72 +95,5 @@ public class ASMConfigPlugin implements IMixinConfigPlugin {
         method.visitMethodInsn(INVOKESPECIAL, returnType.getInternalName(), "<init>",
                 method.desc.substring(0, method.desc.lastIndexOf(')') + 1) + "V", false);
         method.visitInsn(ARETURN);
-    }
-
-    /**
-     * @return Whether any transformation was done to the targetClass
-     */
-    private boolean transformClass(String targetClassName, ClassNode targetClass, String mixinClassName, ApplicationStage stage)
-            throws DasmException {
-        Either<ClassTransform, Collection<MethodTransform>> target = null;
-        switch (stage) {
-            case PRE_APPLY -> {
-                target = preApplyTargets.get(mixinClassName + "|" + targetClassName);
-            }
-            case POST_APPLY -> {
-                target = postApplyTargets.get(mixinClassName + "|" + targetClassName);
-            }
-            default -> throw new IllegalStateException("Unknown enum variant: " + stage);
-        }
-        if (target == null) {
-            return false;
-        }
-
-        if (target.left().isPresent()) {
-            this.transformer.transform(targetClass, target.left().get());
-        } else {
-            this.transformer.transform(targetClass, target.right().get());
-        }
-        ClassWriter classWriter = new ClassWriter(0);
-        targetClass.accept(classWriter);
-        try {
-            Path path = Path.of(".dasm.out/" + stage + "/" + targetClassName.replace('.', '/') + ".class").toAbsolutePath();
-            Files.createDirectories(path.getParent());
-            Files.write(path, classWriter.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return true;
-    }
-
-    private <T> T handleError(Pair<T, List<Notification>> result) {
-        handleError(result.second());
-        return result.first();
-    }
-
-    private void handleError(NotifyStack notifyStack) {
-        handleError(notifyStack.notifications());
-    }
-
-    private void handleError(List<Notification> notifications) {
-        for (var notification : notifications) {
-            switch (notification.kind) {
-                case INFO:
-                    logger.info(notification.message);
-                    break;
-                case WARNING:
-                    logger.warn(notification.message);
-                    break;
-                case ERROR:
-                    logger.fatal(notification.message);
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown enum variant: " + notification.kind);
-            }
-        }
-        if (notifications.stream().anyMatch(n -> n.kind == Notification.Kind.ERROR)) {
-            throw Util.pauseInIde(new RuntimeException("DASM Failure, please see log output"));
-        }
     }
 }

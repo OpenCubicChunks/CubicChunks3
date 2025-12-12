@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-// Needed for DASM to apply
 @Mixin(CubeStep.class)
 public class MixinCubeStep {
     @Dynamic @Redirect(method = "apply", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/jfr/JvmProfiler;onChunkGenerate(Lio/github/opencubicchunks/cc_core/api/CubePos;Lnet/minecraft/resources/ResourceKey;Ljava/lang/String;)Lnet/minecraft/util/profiling/jfr/callback/ProfiledDuration;"))

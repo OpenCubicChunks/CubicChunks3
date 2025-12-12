@@ -17,6 +17,7 @@ plugins {
     id("io.github.opencubicchunks.javaheaders").version("1.2.8")
     id("io.github.opencubicchunks.gradle.mcGitVersion")
     id("io.github.opencubicchunks.gradle.mixingen")
+    id("io.github.opencubicchunks.gradle.dasmgen")
 }
 
 version = mod_version
@@ -66,7 +67,16 @@ tasks.register("generatePackageInfo") {
 
 tasks.register("genAll") {
     group = "filegen"
-    dependsOn(generatePackageInfo, generateMixinConfigs)
+    dependsOn(generatePackageInfo, generateMixinConfigs, generateDasmConfigs)
+}
+
+dasmGen {
+    filePattern = "%s.dasm.json"
+    defaultMinVersion = "0.8"
+
+    config(sourceSets.main, "cubicchunks") {
+        it.packageName = "io.github.opencubicchunks.cubicchunks"
+    }
 }
 
 mixinGen {
@@ -268,9 +278,9 @@ dependencies {
         targetConfiguration = "testArchivesOutput"
     }
 
-    libraries("io.github.notstirred:dasm:3.1.0") {
-        transitive = false
-    }
+    compileOnly("io.github.notstirred:dasm:3.2.0:api")
+    runtimeOnly(jarJar("io.github.notstirred:dasm-neoforge:3.2.0"))
+
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")
     libraries("org.spongepowered:noise:2.0.0-SNAPSHOT")
 

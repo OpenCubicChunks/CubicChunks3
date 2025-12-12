@@ -8,13 +8,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-// Needed for DASM to apply
 @Mixin(LevelCube.class)
-public abstract class MixinLevelCube extends MixinCubeAccess {
+public abstract class MixinLevelCube {
     /**
      * Redirect to use cube section indexing instead of chunk section indexing
      */
-    @Dynamic @Redirect(method = "cc_dasm$getBlockState", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/world/level/cube/LevelCube;getSectionIndex(I)I"))
+    @Dynamic @Redirect(method = "getBlockState", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks/world/level/cube/LevelCube;getSectionIndex(I)I"))
     private int cc_onGetBlockState_SectionIndex(LevelCube instance, int y, BlockPos pos) {
         return Coords.blockToIndex(pos);
     }
@@ -22,7 +21,7 @@ public abstract class MixinLevelCube extends MixinCubeAccess {
     /**
      * Redirect to use cube section indexing instead of chunk section indexing
      */
-    @Dynamic @Redirect(method = "cc_dasm$getFluidState(III)Lnet/minecraft/world/level/material/FluidState;", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks"
+    @Dynamic @Redirect(method = "getFluidState(III)Lnet/minecraft/world/level/material/FluidState;", at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks"
             + "/world/level/cube/LevelCube;getSectionIndex(I)I"))
     private int cc_onGetFluidState_SectionIndex(LevelCube instance, int yUnused, int x, int y, int z) {
         return Coords.blockToIndex(x, y, z);

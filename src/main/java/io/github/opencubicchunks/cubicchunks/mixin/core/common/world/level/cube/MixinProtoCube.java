@@ -8,14 +8,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-// Needed for DASM to apply
 @Mixin(ProtoCube.class)
-public abstract class MixinProtoCube extends MixinCubeAccess {
+public abstract class MixinProtoCube {
     /**
      * Redirect to use cube section indexing instead of chunk section indexing
      */
-    @Dynamic @Redirect(method = { "markPosForPostprocessing", "cc_dasm$getBlockState",
-        "cc_dasm$getFluidState" }, at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks"
+    @Dynamic @Redirect(method = { "markPosForPostprocessing", "getBlockState",
+        "getFluidState" }, at = @At(value = "INVOKE", target = "Lio/github/opencubicchunks/cubicchunks"
                 + "/world/level/cube/ProtoCube;getSectionIndex(I)I"))
     private int cc_onGetBlockState_SectionIndex(ProtoCube instance, int i, BlockPos pos) {
         return Coords.blockToIndex(pos);
