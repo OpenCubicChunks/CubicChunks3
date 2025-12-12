@@ -112,8 +112,7 @@ public class MixinPlayerChunkSender {
         }
     }
 
-    @Unique
-    private static void cc_sendCube(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelCube cube) {
+    @Unique private static void cc_sendCube(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelCube cube) {
         PacketDistributor.sendToPlayer(packetListener.player, new CCClientboundLevelCubeWithLightPacket(cube));
 
         // ChunkPos chunkpos = chunk.getPos();
@@ -125,8 +124,7 @@ public class MixinPlayerChunkSender {
         // net.neoforged.neoforge.event.EventHooks.fireChunkSent(packetListener.player, chunk, level);
     }
 
-    @Unique
-    private static void cc_sendChunk(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelChunk chunk) {
+    @Unique private static void cc_sendChunk(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelChunk chunk) {
         PacketDistributor.sendToPlayer(packetListener.player, new CCClientboundLevelChunkPacket(chunk.getPos()));
 
         // ChunkPos chunkpos = chunk.getPos();

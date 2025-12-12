@@ -89,6 +89,13 @@ mixinGen {
         it.injectorsDefaultRequire = 1
     }
 
+    config(sourceSets.main, "debug") {
+        it.required = false
+        it.conformVisibility = true
+        it.injectorsDefaultRequire = 0
+        it.configurationPlugin = "io.github.opencubicchunks.cubicchunks.mixin.DebugMixinConfig"
+    }
+
     config(sourceSets.forge, "forge") {
         it.required = true
         it.conformVisibility = true
@@ -129,13 +136,6 @@ mixinGen {
         injectorsDefaultRequire = 1
     }
 
-    config("debug") {
-        required = false
-        conformVisibility = true
-        injectorsDefaultRequire = 0
-        configurationPlugin = "io.github.opencubicchunks.cubicchunks.mixin.DebugMixinConfig"
-    }
-
     config("test") {
         required = true
         conformVisibility = true
@@ -173,16 +173,8 @@ neoForge {
                 "-Dmixin.debug.export=true",
                 "-Dmixin.checks.interfaces=true",
                 "-Dcubicchunks.debug=false",
-                "-Dcubicchunks.debug.loadorder=false",
-                "-Dcubicchunks.debug.window=false",
-                "-Dcubicchunks.debug.statusrenderer=false",
-                "-Dcubicchunks.debug.heightmaprenderer=false",
-                "-Dcubicchunks.debug.heightmaprenderer.server=false",
-                "-Dcubicchunks.debug.heightmaprenderer.render_lightmap=false",
-                "-Dcubicchunks.debug.heightmaprenderer.radius=2",
-                "-Dcubicchunks.debug.heightmapverification=false",
-                "-Dcubicchunks.debug.heightmapverification.frequency=1",
-                "-Dcubicchunks.debug.biomes=false",
+                "-Dcubicchunks.debug.profiler=false",
+                "-Dcubicchunks.debug.profiler.interval_ns=1",
                 "-ea"
         ]
         // applies to all the run configs below
@@ -274,6 +266,8 @@ dependencies {
     }
     libraries("io.github.opencubicchunks:regionlib:0.63.0-SNAPSHOT")
     libraries("org.spongepowered:noise:2.0.0-SNAPSHOT")
+
+    libraries('tools.profiler:async-profiler:4.0')
 
     testImplementation("org.assertj:assertj-core:3.25.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
