@@ -80,3 +80,7 @@ config="${mod_id}.mixins.access.json"
 
 [[mixins]]
 config="${mod_id}.mixins.test.json"
+
+
+[[dasm]]
+config="${mod_id}.dasm.json"
