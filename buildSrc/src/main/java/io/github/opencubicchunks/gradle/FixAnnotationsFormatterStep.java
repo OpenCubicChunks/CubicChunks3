@@ -12,7 +12,7 @@ public class FixAnnotationsFormatterStep implements FormatterStep {
     }
 
     private static final String[] ANNOTATIONS = { "@Shadow", "@Final", "@Mutable", "@Public", "@Override", "@Nullable", "@NotNull", "@Invoker",
-        "@Accessor", "@Dynamic" };
+        "@Accessor", "@Dynamic", "@Unique" };
 
     @Override public @Nullable String format(String s, @NotNull File file) {
         var outputString = s;

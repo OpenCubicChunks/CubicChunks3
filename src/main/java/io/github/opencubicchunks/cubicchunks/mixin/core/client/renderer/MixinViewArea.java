@@ -31,12 +31,9 @@ public abstract class MixinViewArea {
     @Shadow private SectionPos cameraSectionPos;
     @Shadow @Final protected LevelRenderer levelRenderer;
 
-    @Unique
-    private int cc_oldCameraX = Integer.MAX_VALUE;
-    @Unique
-    private int cc_oldCameraY = Integer.MAX_VALUE;
-    @Unique
-    private int cc_oldCameraZ = Integer.MAX_VALUE;
+    @Unique private int cc_oldCameraX = Integer.MAX_VALUE;
+    @Unique private int cc_oldCameraY = Integer.MAX_VALUE;
+    @Unique private int cc_oldCameraZ = Integer.MAX_VALUE;
 
     @Shadow protected abstract int getSectionIndex(int x, int y, int z);
 
@@ -191,8 +188,7 @@ public abstract class MixinViewArea {
         this.levelRenderer.getSectionOcclusionGraph().invalidate();
     }
 
-    @Unique
-    private void cc_refreshSectionNode(int sectionIndex, int originX, int originY, int originZ) {
+    @Unique private void cc_refreshSectionNode(int sectionIndex, int originX, int originY, int originZ) {
         SectionRenderDispatcher.RenderSection renderSection = this.sections[sectionIndex];
         long oldSectionNode = renderSection.getSectionNode();
         if (oldSectionNode != SectionPos.asLong(originX, originY, originZ)) {
@@ -200,8 +196,7 @@ public abstract class MixinViewArea {
         }
     }
 
-    @Unique
-    private boolean cc_containsSection(int x, int y, int z) {
+    @Unique private boolean cc_containsSection(int x, int y, int z) {
         return x >= this.cameraSectionPos.x() - this.viewDistance && x <= this.cameraSectionPos.x() + this.viewDistance
                 && y >= this.cameraSectionPos.y() - this.viewDistance && y <= this.cameraSectionPos.y() + this.viewDistance
                 && z >= this.cameraSectionPos.z() - this.viewDistance && z <= this.cameraSectionPos.z() + this.viewDistance;
