@@ -133,6 +133,15 @@ public abstract class MixinChunkMap extends MixinChunkStorage implements Generat
         }
     }
 
+    /**
+     * Player tickets are propagated in cube distance in cubic worlds, so the server view distance (in chunks) must be converted to cubes, as is done
+     * for player tracking in {@code cc_updateChunkTracking}
+     */
+    @WrapOperation(method = "setServerViewDistance", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap$DistanceManager;updatePlayerTickets(I)V"))
+    private void cc_onSetServerViewDistance_updatePlayerTickets(ChunkMap.DistanceManager instance, int viewDistance, Operation<Void> original) {
+        original.call(instance, ((CanBeCubic) level).cc_isCubic() ? Coords.sectionToCubeRenderDistance(viewDistance) : viewDistance);
+    }
+
     @AddTransformToSets(ChunkToCloSet.ChunkMap_redirects.class)
     @TransformFromMethod("setChunkUnsaved(Lnet/minecraft/world/level/ChunkPos;)V")
     private native void cc_setCloUnsaved(CloPos cloPos);
