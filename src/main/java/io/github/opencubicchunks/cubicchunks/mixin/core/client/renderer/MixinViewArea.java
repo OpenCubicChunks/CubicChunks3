@@ -2,14 +2,11 @@ package io.github.opencubicchunks.cubicchunks.mixin.core.client.renderer;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cubicchunks.CanBeCubic;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.core.SectionPos;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -86,14 +83,11 @@ public abstract class MixinViewArea {
         }
         ci.cancel();
 
-        Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
-        if (cameraEntity == null) {
-            return;
-        }
-
-        int cameraX = Coords.blockToCube(cameraEntity.getX());
-        int cameraY = Coords.blockToCube(cameraEntity.getY());
-        int cameraZ = Coords.blockToCube(cameraEntity.getZ());
+        // The grid is in sections, so the camera position must be in sections too. Use the position we're given (from the camera) rather than the
+        // camera entity's position, which can differ (e.g. in third person)
+        int cameraX = newSectionPos.x();
+        int cameraY = newSectionPos.y();
+        int cameraZ = newSectionPos.z();
 
         int dx = this.sectionGridSizeX;
         int dy = this.sectionGridSizeY;
