@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,6 +27,10 @@ public abstract class MixinViewArea {
     @Shadow public SectionRenderDispatcher.RenderSection[] sections;
     @Shadow private SectionPos cameraSectionPos;
     @Shadow @Final protected LevelRenderer levelRenderer;
+
+    @Unique private int cc_oldCameraX = Integer.MAX_VALUE;
+    @Unique private int cc_oldCameraY = Integer.MAX_VALUE;
+    @Unique private int cc_oldCameraZ = Integer.MAX_VALUE;
 
     @Shadow protected abstract int getSectionIndex(int x, int y, int z);
 
@@ -49,7 +54,7 @@ public abstract class MixinViewArea {
             return original.call(instance);
         }
         return 0; // I don't really understand the logic here, but returning 0 makes the Y axis behave equivalently to X and Z, which *should* be what
-                  // we want
+        // we want
     }
 
     // TODO can we do this without fully overwriting the method?
@@ -69,38 +74,112 @@ public abstract class MixinViewArea {
     }
 
     // TODO can we do this with dasm + mixin? probably too messy
-    // I don't really understand the coordinate maths here, but we replicate it for the Y axis
+    // 1.21.6+ port by Zonix-Official of daporkchop_'s fast-path logic that was implemented to 1.12.2
+    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     @Inject(method = "repositionCamera", at = @At("HEAD"), cancellable = true)
     private void cc_onRepositionCamera(SectionPos newSectionPos, CallbackInfo ci) {
         if (!((CanBeCubic) level).cc_isCubic()) {
             return;
         }
         ci.cancel();
-        for (int sectionX = 0; sectionX < this.sectionGridSizeX; sectionX++) {
-            int i1 = newSectionPos.x() - this.viewDistance;
-            int originX = i1 + Math.floorMod(sectionX - i1, this.sectionGridSizeX);
 
-            for (int sectionZ = 0; sectionZ < this.sectionGridSizeZ; sectionZ++) {
-                int i2 = newSectionPos.z() - this.viewDistance;
-                int originZ = i2 + Math.floorMod(sectionZ - i2, this.sectionGridSizeZ);
+        // The grid is in sections, so the camera position must be in sections too. Use the position we're given (from the camera) rather than the
+        // camera entity's position, which can differ (e.g. in third person)
+        int cameraX = newSectionPos.x();
+        int cameraY = newSectionPos.y();
+        int cameraZ = newSectionPos.z();
 
-                for (int sectionY = 0; sectionY < this.sectionGridSizeY; sectionY++) {
-                    int i3 = newSectionPos.y() - this.viewDistance;
-                    int originY = i3 + Math.floorMod(sectionY - i3, this.sectionGridSizeY);
-                    SectionRenderDispatcher.RenderSection renderSection = this.sections[this.getSectionIndex(sectionX, sectionY, sectionZ)];
-                    long oldSectionNode = renderSection.getSectionNode();
-                    if (oldSectionNode != SectionPos.asLong(originX, originY, originZ)) {
-                        renderSection.setSectionNode(SectionPos.asLong(originX, originY, originZ));
-                    }
-                }
+        int dx = this.sectionGridSizeX;
+        int dy = this.sectionGridSizeY;
+        int dz = this.sectionGridSizeZ;
+
+        int minX = cameraX - this.viewDistance;
+        int minY = cameraY - this.viewDistance;
+        int minZ = cameraZ - this.viewDistance;
+
+        long changeX = (long) cameraX - this.cc_oldCameraX;
+        long changeY = (long) cameraY - this.cc_oldCameraY;
+        long changeZ = (long) cameraZ - this.cc_oldCameraZ;
+        this.cc_oldCameraX = cameraX;
+        this.cc_oldCameraY = cameraY;
+        this.cc_oldCameraZ = cameraZ;
+
+        if (Math.abs(changeX) <= 1 && Math.abs(changeY) <= 1 && Math.abs(changeZ) <= 1) {
+            // When the camera moves one section along an axis, only the slab of sections that wraps around to the new edge changes position: index
+            // (minX - 1) when moving in the positive direction, and minX when moving in the negative direction
+            if (changeX != 0) {
+                int indexX = Math.floorMod(changeX > 0 ? minX - 1 : minX, dx);
+                cc_repositionSections(indexX, indexX + 1, 0, dy, 0, dz, minX, minY, minZ);
             }
+            if (changeY != 0) {
+                int indexY = Math.floorMod(changeY > 0 ? minY - 1 : minY, dy);
+                cc_repositionSections(0, dx, indexY, indexY + 1, 0, dz, minX, minY, minZ);
+            }
+            if (changeZ != 0) {
+                int indexZ = Math.floorMod(changeZ > 0 ? minZ - 1 : minZ, dz);
+                cc_repositionSections(0, dx, 0, dy, indexZ, indexZ + 1, minX, minY, minZ);
+            }
+
+            // Check against a full rescan that all sections are in the correct position. This cancels out the benefit of the fast path, but only
+            // runs with assertions enabled
+            assert cc_allSectionsInPosition(minX, minY, minZ) : "Not all sections are in the correct position!";
+        } else {
+            cc_repositionSections(0, dx, 0, dy, 0, dz, minX, minY, minZ);
         }
 
         this.cameraSectionPos = newSectionPos;
         this.levelRenderer.getSectionOcclusionGraph().invalidate();
     }
 
-    private boolean cc_containsSection(int x, int y, int z) {
+    /**
+     * Positions the sections at grid indices within the given ranges (min inclusive, max exclusive) for a grid whose minimum section position is
+     * ({@code minX}, {@code minY}, {@code minZ})
+     */
+    @Unique private void cc_repositionSections(
+            int minIndexX, int maxIndexX, int minIndexY, int maxIndexY, int minIndexZ, int maxIndexZ, int minX, int minY, int minZ
+    ) {
+        for (int indexZ = minIndexZ; indexZ < maxIndexZ; indexZ++) {
+            int sectionZ = minZ + Math.floorMod(indexZ - minZ, this.sectionGridSizeZ);
+            for (int indexY = minIndexY; indexY < maxIndexY; indexY++) {
+                int sectionY = minY + Math.floorMod(indexY - minY, this.sectionGridSizeY);
+                for (int indexX = minIndexX; indexX < maxIndexX; indexX++) {
+                    int sectionX = minX + Math.floorMod(indexX - minX, this.sectionGridSizeX);
+                    cc_refreshSectionNode(this.getSectionIndex(indexX, indexY, indexZ), sectionX, sectionY, sectionZ);
+                }
+            }
+        }
+    }
+
+    /**
+     * Whether every section is in the position that {@link #cc_repositionSections} would give it for a grid whose minimum section position is
+     * ({@code minX}, {@code minY}, {@code minZ})
+     */
+    @Unique private boolean cc_allSectionsInPosition(int minX, int minY, int minZ) {
+        for (int indexZ = 0; indexZ < this.sectionGridSizeZ; indexZ++) {
+            int sectionZ = minZ + Math.floorMod(indexZ - minZ, this.sectionGridSizeZ);
+            for (int indexY = 0; indexY < this.sectionGridSizeY; indexY++) {
+                int sectionY = minY + Math.floorMod(indexY - minY, this.sectionGridSizeY);
+                for (int indexX = 0; indexX < this.sectionGridSizeX; indexX++) {
+                    int sectionX = minX + Math.floorMod(indexX - minX, this.sectionGridSizeX);
+                    long sectionNode = this.sections[this.getSectionIndex(indexX, indexY, indexZ)].getSectionNode();
+                    if (sectionNode != SectionPos.asLong(sectionX, sectionY, sectionZ)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    @Unique private void cc_refreshSectionNode(int sectionIndex, int sectionX, int sectionY, int sectionZ) {
+        SectionRenderDispatcher.RenderSection renderSection = this.sections[sectionIndex];
+        long oldSectionNode = renderSection.getSectionNode();
+        if (oldSectionNode != SectionPos.asLong(sectionX, sectionY, sectionZ)) {
+            renderSection.setSectionNode(SectionPos.asLong(sectionX, sectionY, sectionZ));
+        }
+    }
+
+    @Unique private boolean cc_containsSection(int x, int y, int z) {
         return x >= this.cameraSectionPos.x() - this.viewDistance && x <= this.cameraSectionPos.x() + this.viewDistance
                 && y >= this.cameraSectionPos.y() - this.viewDistance && y <= this.cameraSectionPos.y() + this.viewDistance
                 && z >= this.cameraSectionPos.z() - this.viewDistance && z <= this.cameraSectionPos.z() + this.viewDistance;
