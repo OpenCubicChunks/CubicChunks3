@@ -75,7 +75,7 @@ public abstract class MixinViewArea {
 
     // TODO can we do this with dasm + mixin? probably too messy
     // 1.21.6+ port by Zonix-Official of daporkchop_'s fast-path logic that was implemented to 1.12.2
-    @SuppressWarnings({ "checkstyle:CyclomaticComplexity", "checkstyle:JavaNCSS", "checkstyle:NPathComplexity" })
+    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     @Inject(method = "repositionCamera", at = @At("HEAD"), cancellable = true)
     private void cc_onRepositionCamera(SectionPos newSectionPos, CallbackInfo ci) {
         if (!((CanBeCubic) level).cc_isCubic()) {
@@ -109,75 +109,22 @@ public abstract class MixinViewArea {
             // (minX - 1) when moving in the positive direction, and minX when moving in the negative direction
             if (changeX != 0) {
                 int indexX = Math.floorMod(changeX > 0 ? minX - 1 : minX, dx);
-                int sectionX = minX + Math.floorMod(indexX - minX, dx);
-
-                for (int indexZ = 0; indexZ < dz; indexZ++) {
-                    int idxZ = indexZ * dy * dx;
-                    int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
-
-                    for (int indexY = 0; indexY < dy; indexY++) {
-                        int idxYZ = idxZ + indexY * dx;
-                        int sectionY = minY + Math.floorMod(indexY - minY, dy);
-
-                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
-                    }
-                }
+                cc_repositionSections(indexX, indexX + 1, 0, dy, 0, dz, minX, minY, minZ);
             }
-
             if (changeY != 0) {
                 int indexY = Math.floorMod(changeY > 0 ? minY - 1 : minY, dy);
-                int sectionY = minY + Math.floorMod(indexY - minY, dy);
-
-                for (int indexZ = 0; indexZ < dz; indexZ++) {
-                    int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
-                    int idxZ = indexZ * dy * dx;
-
-                    int idxYZ = idxZ + indexY * dx;
-
-                    for (int indexX = 0; indexX < dx; indexX++) {
-                        int sectionX = minX + Math.floorMod(indexX - minX, dx);
-
-                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
-                    }
-                }
+                cc_repositionSections(0, dx, indexY, indexY + 1, 0, dz, minX, minY, minZ);
             }
-
             if (changeZ != 0) {
                 int indexZ = Math.floorMod(changeZ > 0 ? minZ - 1 : minZ, dz);
-                int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
-                int idxZ = indexZ * dy * dx;
-
-                for (int indexY = 0; indexY < dy; indexY++) {
-                    int sectionY = minY + Math.floorMod(indexY - minY, dy);
-                    int idxYZ = idxZ + indexY * dx;
-
-                    for (int indexX = 0; indexX < dx; indexX++) {
-                        int sectionX = minX + Math.floorMod(indexX - minX, dx);
-
-                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
-                    }
-                }
+                cc_repositionSections(0, dx, 0, dy, indexZ, indexZ + 1, minX, minY, minZ);
             }
 
             // Check against a full rescan that all sections are in the correct position. This cancels out the benefit of the fast path, but only
             // runs with assertions enabled
             assert cc_allSectionsInPosition(minX, minY, minZ) : "Not all sections are in the correct position!";
         } else {
-            for (int indexZ = 0; indexZ < dz; indexZ++) {
-                int idxZ = indexZ * dy * dx;
-                int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
-
-                for (int indexY = 0; indexY < dy; indexY++) {
-                    int idxYZ = idxZ + indexY * dx;
-                    int sectionY = minY + Math.floorMod(indexY - minY, dy);
-
-                    for (int indexX = 0; indexX < dx; indexX++) {
-                        int sectionX = minX + Math.floorMod(indexX - minX, dx);
-
-                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
-                    }
-                }
-            }
+            cc_repositionSections(0, dx, 0, dy, 0, dz, minX, minY, minZ);
         }
 
         this.cameraSectionPos = newSectionPos;
