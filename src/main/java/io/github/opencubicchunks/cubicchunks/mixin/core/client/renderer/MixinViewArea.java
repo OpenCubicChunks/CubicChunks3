@@ -93,9 +93,9 @@ public abstract class MixinViewArea {
         int dy = this.sectionGridSizeY;
         int dz = this.sectionGridSizeZ;
 
-        int px = newSectionPos.x() - this.viewDistance;
-        int py = newSectionPos.y() - this.viewDistance;
-        int pz = newSectionPos.z() - this.viewDistance;
+        int minX = cameraX - this.viewDistance;
+        int minY = cameraY - this.viewDistance;
+        int minZ = cameraZ - this.viewDistance;
 
         long changeX = (long) cameraX - this.cc_oldCameraX;
         long changeY = (long) cameraY - this.cc_oldCameraY;
@@ -106,71 +106,71 @@ public abstract class MixinViewArea {
 
         if (Math.abs(changeX) <= 1 && Math.abs(changeY) <= 1 && Math.abs(changeZ) <= 1) {
             // When the camera moves one section along an axis, only the slab of sections that wraps around to the new edge changes position: index
-            // (px - 1) when moving in the positive direction, and px when moving in the negative direction
+            // (minX - 1) when moving in the positive direction, and minX when moving in the negative direction
             if (changeX != 0) {
-                int indexX = Math.floorMod(changeX > 0 ? px - 1 : px, dx);
-                int originX = px + Math.floorMod(indexX - px, dx);
+                int indexX = Math.floorMod(changeX > 0 ? minX - 1 : minX, dx);
+                int sectionX = minX + Math.floorMod(indexX - minX, dx);
 
                 for (int indexZ = 0; indexZ < dz; indexZ++) {
-                    int idxz = indexZ * dy * dx;
-                    int originZ = pz + Math.floorMod(indexZ - pz, dz);
+                    int idxZ = indexZ * dy * dx;
+                    int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
 
                     for (int indexY = 0; indexY < dy; indexY++) {
-                        int idxyz = idxz + indexY * dx;
-                        int originY = py + Math.floorMod(indexY - py, dy);
+                        int idxYZ = idxZ + indexY * dx;
+                        int sectionY = minY + Math.floorMod(indexY - minY, dy);
 
-                        cc_refreshSectionNode(idxyz + indexX, originX, originY, originZ);
+                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
                     }
                 }
             }
 
             if (changeY != 0) {
-                int indexY = Math.floorMod(changeY > 0 ? py - 1 : py, dy);
-                int originY = py + Math.floorMod(indexY - py, dy);
+                int indexY = Math.floorMod(changeY > 0 ? minY - 1 : minY, dy);
+                int sectionY = minY + Math.floorMod(indexY - minY, dy);
 
                 for (int indexZ = 0; indexZ < dz; indexZ++) {
-                    int originZ = pz + Math.floorMod(indexZ - pz, dz);
+                    int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
                     int idxZ = indexZ * dy * dx;
 
-                    int idxyz = idxZ + indexY * dx;
+                    int idxYZ = idxZ + indexY * dx;
 
                     for (int indexX = 0; indexX < dx; indexX++) {
-                        int originX = px + Math.floorMod(indexX - px, dx);
+                        int sectionX = minX + Math.floorMod(indexX - minX, dx);
 
-                        cc_refreshSectionNode(idxyz + indexX, originX, originY, originZ);
+                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
                     }
                 }
             }
 
             if (changeZ != 0) {
-                int indexZ = Math.floorMod(changeZ > 0 ? pz - 1 : pz, dz);
-                int originZ = pz + Math.floorMod(indexZ - pz, dz);
-                int idxz = indexZ * dy * dx;
+                int indexZ = Math.floorMod(changeZ > 0 ? minZ - 1 : minZ, dz);
+                int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
+                int idxZ = indexZ * dy * dx;
 
                 for (int indexY = 0; indexY < dy; indexY++) {
-                    int originY = py + Math.floorMod(indexY - py, dy);
-                    int idxyz = idxz + indexY * dx;
+                    int sectionY = minY + Math.floorMod(indexY - minY, dy);
+                    int idxYZ = idxZ + indexY * dx;
 
                     for (int indexX = 0; indexX < dx; indexX++) {
-                        int originX = px + Math.floorMod(indexX - px, dx);
+                        int sectionX = minX + Math.floorMod(indexX - minX, dx);
 
-                        cc_refreshSectionNode(idxyz + indexX, originX, originY, originZ);
+                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
                     }
                 }
             }
         } else {
             for (int indexZ = 0; indexZ < dz; indexZ++) {
-                int idxz = indexZ * dy * dx;
-                int originZ = pz + Math.floorMod(indexZ - pz, dz);
+                int idxZ = indexZ * dy * dx;
+                int sectionZ = minZ + Math.floorMod(indexZ - minZ, dz);
 
                 for (int indexY = 0; indexY < dy; indexY++) {
-                    int idxyz = idxz + indexY * dx;
-                    int originY = py + Math.floorMod(indexY - py, dy);
+                    int idxYZ = idxZ + indexY * dx;
+                    int sectionY = minY + Math.floorMod(indexY - minY, dy);
 
                     for (int indexX = 0; indexX < dx; indexX++) {
-                        int originX = px + Math.floorMod(indexX - px, dx);
+                        int sectionX = minX + Math.floorMod(indexX - minX, dx);
 
-                        cc_refreshSectionNode(idxyz + indexX, originX, originY, originZ);
+                        cc_refreshSectionNode(idxYZ + indexX, sectionX, sectionY, sectionZ);
                     }
                 }
             }
@@ -180,11 +180,11 @@ public abstract class MixinViewArea {
         this.levelRenderer.getSectionOcclusionGraph().invalidate();
     }
 
-    @Unique private void cc_refreshSectionNode(int sectionIndex, int originX, int originY, int originZ) {
+    @Unique private void cc_refreshSectionNode(int sectionIndex, int sectionX, int sectionY, int sectionZ) {
         SectionRenderDispatcher.RenderSection renderSection = this.sections[sectionIndex];
         long oldSectionNode = renderSection.getSectionNode();
-        if (oldSectionNode != SectionPos.asLong(originX, originY, originZ)) {
-            renderSection.setSectionNode(SectionPos.asLong(originX, originY, originZ));
+        if (oldSectionNode != SectionPos.asLong(sectionX, sectionY, sectionZ)) {
+            renderSection.setSectionNode(SectionPos.asLong(sectionX, sectionY, sectionZ));
         }
     }
 
