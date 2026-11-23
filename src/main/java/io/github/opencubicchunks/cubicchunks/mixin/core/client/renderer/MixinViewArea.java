@@ -97,10 +97,6 @@ public abstract class MixinViewArea {
         int py = newSectionPos.y() - this.viewDistance;
         int pz = newSectionPos.z() - this.viewDistance;
 
-        int minX = cameraX - (dx >> 1);
-        int minY = cameraY - (dy >> 1);
-        int minZ = cameraZ - (dz >> 1);
-
         long changeX = (long) cameraX - this.cc_oldCameraX;
         long changeY = (long) cameraY - this.cc_oldCameraY;
         long changeZ = (long) cameraZ - this.cc_oldCameraZ;
@@ -109,8 +105,10 @@ public abstract class MixinViewArea {
         this.cc_oldCameraZ = cameraZ;
 
         if (Math.abs(changeX) <= 1 && Math.abs(changeY) <= 1 && Math.abs(changeZ) <= 1) {
+            // When the camera moves one section along an axis, only the slab of sections that wraps around to the new edge changes position: index
+            // (px - 1) when moving in the positive direction, and px when moving in the negative direction
             if (changeX != 0) {
-                int indexX = Math.floorMod(changeX < 0 ? minX - px : minX - px - 1, dx);
+                int indexX = Math.floorMod(changeX > 0 ? px - 1 : px, dx);
                 int originX = px + Math.floorMod(indexX - px, dx);
 
                 for (int indexZ = 0; indexZ < dz; indexZ++) {
@@ -127,7 +125,7 @@ public abstract class MixinViewArea {
             }
 
             if (changeY != 0) {
-                int indexY = Math.floorMod(changeY < 0 ? minY - py : minY - py - 1, dy);
+                int indexY = Math.floorMod(changeY > 0 ? py - 1 : py, dy);
                 int originY = py + Math.floorMod(indexY - py, dy);
 
                 for (int indexZ = 0; indexZ < dz; indexZ++) {
@@ -145,7 +143,7 @@ public abstract class MixinViewArea {
             }
 
             if (changeZ != 0) {
-                int indexZ = Math.floorMod(changeZ < 0 ? minZ - pz : minZ - pz - 1, dz);
+                int indexZ = Math.floorMod(changeZ > 0 ? pz - 1 : pz, dz);
                 int originZ = pz + Math.floorMod(indexZ - pz, dz);
                 int idxz = indexZ * dy * dx;
 
