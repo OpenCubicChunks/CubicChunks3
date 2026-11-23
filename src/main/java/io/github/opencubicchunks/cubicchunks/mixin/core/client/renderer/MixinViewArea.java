@@ -158,6 +158,10 @@ public abstract class MixinViewArea {
                     }
                 }
             }
+
+            // Check against a full rescan that all sections are in the correct position. This cancels out the benefit of the fast path, but only
+            // runs with assertions enabled
+            assert cc_allSectionsInPosition(minX, minY, minZ) : "Not all sections are in the correct position!";
         } else {
             for (int indexZ = 0; indexZ < dz; indexZ++) {
                 int idxZ = indexZ * dy * dx;
@@ -178,6 +182,46 @@ public abstract class MixinViewArea {
 
         this.cameraSectionPos = newSectionPos;
         this.levelRenderer.getSectionOcclusionGraph().invalidate();
+    }
+
+    /**
+     * Positions the sections at grid indices within the given ranges (min inclusive, max exclusive) for a grid whose minimum section position is
+     * ({@code minX}, {@code minY}, {@code minZ})
+     */
+    @Unique private void cc_repositionSections(
+            int minIndexX, int maxIndexX, int minIndexY, int maxIndexY, int minIndexZ, int maxIndexZ, int minX, int minY, int minZ
+    ) {
+        for (int indexZ = minIndexZ; indexZ < maxIndexZ; indexZ++) {
+            int sectionZ = minZ + Math.floorMod(indexZ - minZ, this.sectionGridSizeZ);
+            for (int indexY = minIndexY; indexY < maxIndexY; indexY++) {
+                int sectionY = minY + Math.floorMod(indexY - minY, this.sectionGridSizeY);
+                for (int indexX = minIndexX; indexX < maxIndexX; indexX++) {
+                    int sectionX = minX + Math.floorMod(indexX - minX, this.sectionGridSizeX);
+                    cc_refreshSectionNode(this.getSectionIndex(indexX, indexY, indexZ), sectionX, sectionY, sectionZ);
+                }
+            }
+        }
+    }
+
+    /**
+     * Whether every section is in the position that {@link #cc_repositionSections} would give it for a grid whose minimum section position is
+     * ({@code minX}, {@code minY}, {@code minZ})
+     */
+    @Unique private boolean cc_allSectionsInPosition(int minX, int minY, int minZ) {
+        for (int indexZ = 0; indexZ < this.sectionGridSizeZ; indexZ++) {
+            int sectionZ = minZ + Math.floorMod(indexZ - minZ, this.sectionGridSizeZ);
+            for (int indexY = 0; indexY < this.sectionGridSizeY; indexY++) {
+                int sectionY = minY + Math.floorMod(indexY - minY, this.sectionGridSizeY);
+                for (int indexX = 0; indexX < this.sectionGridSizeX; indexX++) {
+                    int sectionX = minX + Math.floorMod(indexX - minX, this.sectionGridSizeX);
+                    long sectionNode = this.sections[this.getSectionIndex(indexX, indexY, indexZ)].getSectionNode();
+                    if (sectionNode != SectionPos.asLong(sectionX, sectionY, sectionZ)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     @Unique private void cc_refreshSectionNode(int sectionIndex, int sectionX, int sectionY, int sectionZ) {
