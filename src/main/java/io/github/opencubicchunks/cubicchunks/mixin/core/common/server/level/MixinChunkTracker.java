@@ -75,7 +75,10 @@ public abstract class MixinChunkTracker extends DynamicGraphMinFixedPoint implem
     private void cc_onCheckNeighborsAfterUpdate(long pos, int level, boolean isDecreasing, CallbackInfo ci) {
         if (cc_isCubic) {
             ci.cancel();
-            CloPos.forEachNeighbor(pos, n -> this.checkNeighbor(pos, n, level, isDecreasing));
+            // Same condition as vanilla: nothing can be propagated from the last two levels
+            if (!isDecreasing || level < this.levelCount - 2) {
+                CloPos.forEachNeighbor(pos, n -> this.checkNeighbor(pos, n, level, isDecreasing));
+            }
         }
     }
 

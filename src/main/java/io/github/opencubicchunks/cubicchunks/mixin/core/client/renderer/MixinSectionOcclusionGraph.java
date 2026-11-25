@@ -80,7 +80,8 @@ public abstract class MixinSectionOcclusionGraph {
         if (!cc_isCubic) {
             return original.call(sectionPosLong);
         }
-        return CubePos.asLong(SectionPos.x(sectionPosLong), SectionPos.y(sectionPosLong), SectionPos.z(sectionPosLong));
+        return CubePos.asLong(Coords.sectionToCube(SectionPos.x(sectionPosLong)), Coords.sectionToCube(SectionPos.y(sectionPosLong)),
+                Coords.sectionToCube(SectionPos.z(sectionPosLong)));
     }
 
     @Inject(method = "isInViewDistance", at = @At("HEAD"), cancellable = true)
@@ -88,12 +89,12 @@ public abstract class MixinSectionOcclusionGraph {
         if (!cc_isCubic) {
             return;
         }
-        int originCubeX = Coords.blockToCube(SectionPos.x(originSectionPosLong));
-        int originCubeY = Coords.blockToCube(SectionPos.y(originSectionPosLong));
-        int originCubeZ = Coords.blockToCube(SectionPos.z(originSectionPosLong));
-        int posCubeX = Coords.blockToCube(SectionPos.x(sectionPosLong));
-        int posCubeY = Coords.blockToCube(SectionPos.y(sectionPosLong));
-        int posCubeZ = Coords.blockToCube(SectionPos.z(sectionPosLong));
+        int originCubeX = Coords.sectionToCube(SectionPos.x(originSectionPosLong));
+        int originCubeY = Coords.sectionToCube(SectionPos.y(originSectionPosLong));
+        int originCubeZ = Coords.sectionToCube(SectionPos.z(originSectionPosLong));
+        int posCubeX = Coords.sectionToCube(SectionPos.x(sectionPosLong));
+        int posCubeY = Coords.sectionToCube(SectionPos.y(sectionPosLong));
+        int posCubeZ = Coords.sectionToCube(SectionPos.z(sectionPosLong));
         cir.setReturnValue(CloTrackingView.cc_isInViewDistance(originCubeX, originCubeY, originCubeZ,
                 Coords.sectionToCubeRenderDistance(this.viewArea.getViewDistance()), posCubeX, posCubeY, posCubeZ));
     }

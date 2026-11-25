@@ -12,13 +12,16 @@ import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
 
+import io.github.opencubicchunks.cc_core.utils.Coords;
 import io.github.opencubicchunks.cc_core.world.level.CloPos;
 import io.github.opencubicchunks.cubicchunks.MarkableAsCubic;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinDistanceManager;
 import io.github.opencubicchunks.cubicchunks.mixin.core.common.server.level.MixinPlayerTicketTracker;
 import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.CubicDistanceManagerTestAccess;
+import io.github.opencubicchunks.cubicchunks.mixin.test.common.server.level.FixedPlayerDistanceChunkTrackerTestAccess;
 import io.github.opencubicchunks.cubicchunks.testutils.BaseTest;
 import io.github.opencubicchunks.cubicchunks.world.level.CubicTicketStorage;
+import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
@@ -298,6 +301,30 @@ public class TestCubicDistanceManager extends BaseTest {
         var distanceManager = setupDistanceManager(ticketStorage);
         ((MarkableAsCubic) distanceManager).cc_setCubic();
         ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager().runAllUpdates();
+    }
+
+    /**
+     * Player ticket levels should only be propagated out to the maximum view distance in cubes, not the vanilla maximum view distance in chunks
+     */
+    @Test
+    public void testPlayerTicketPropagationDistance() {
+        var ticketStorage = new TicketStorage();
+        var distanceManager = setupDistanceManager(ticketStorage);
+        ((MarkableAsCubic) distanceManager).cc_setCubic();
+        var playerTicketManager = ((CubicDistanceManagerTestAccess) distanceManager).get_playerTicketManager();
+
+        distanceManager.addPlayer(SectionPos.of(0, 0, 0), mock(ServerPlayer.class));
+        playerTicketManager.runAllUpdates();
+
+        Long2ByteMap levels = ((FixedPlayerDistanceChunkTrackerTestAccess) playerTicketManager).get_chunks();
+        int maxDistance = Coords.sectionToCubeRenderDistance(ChunkMap.MAX_VIEW_DISTANCE);
+        assertEquals(0, levels.get(CloPos.cubeAsLong(0, 0, 0)));
+        assertEquals(maxDistance, levels.get(CloPos.cubeAsLong(maxDistance, -maxDistance, maxDistance)));
+        assertFalse(levels.containsKey(CloPos.cubeAsLong(maxDistance + 1, 0, 0)));
+        assertFalse(levels.containsKey(CloPos.cubeAsLong(0, -maxDistance - 1, 0)));
+        int diameter = maxDistance * 2 + 1;
+        long cubeCount = levels.keySet().longStream().filter(CloPos::isCube).count();
+        assertEquals((long) diameter * diameter * diameter, cubeCount);
     }
 
 }

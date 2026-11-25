@@ -1,6 +1,11 @@
 import io.github.opencubicchunks.gradle.FixAnnotationsFormatterStep
 import io.github.opencubicchunks.gradle.GeneratePackageInfo
 
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+
 buildscript {
     dependencies {
         classpath("com.google.code.gson:gson:2.8.5")
@@ -339,6 +344,46 @@ compileJava.dependsOn("CubicChunksCore:assemble")
 //    into(sourceSets.test.output.classesDirs.asPath)
 //}
 
+// Show DASM log output in the Gradle console: patch the log4j config ModDevGradle generates for unit tests so
+// DASM's loggers also write to stdout with a fixed prefix, which test.onOutput picks out.
+//
+// Why: Gradle hides everything tests print, so DASM's messages (including the errors that explain why Minecraft
+// failed to start) were only visible by digging through the XML test results. Picking DASM's lines out of the normal
+// log output would mean parsing Minecraft's log format, which is fragile. Instead log4j copies just the DASM lines
+// with a simple marker in front, so they're easy to find. We patch the generated config rather than committing our own
+// copy, so we keep getting ModDevGradle's defaults when it updates.'
+// FIXME(notstirred): dasm gradle plugin that does this for consumers.
+def dasmLogPrefix = "[DASM-GRADLE] "
+tasks.named("prepareNeoForgeTestFiles") {
+    inputs.property("dasmLogPrefix", dasmLogPrefix)
+    doLast {
+        // Patching the xml log config (ew)
+        def configFile = log4jConfigFile.get().asFile
+        def doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(configFile)
+
+        def appender = doc.createElement("Console")
+        appender.setAttribute("name", "DasmGradle")
+        appender.setAttribute("target", "SYSTEM_OUT")
+        def layout = doc.createElement("PatternLayout")
+        layout.setAttribute("pattern", "${dasmLogPrefix}%level %msg{nolookup}%n")
+        appender.appendChild(layout)
+        doc.getElementsByTagName("Appenders").item(0).appendChild(appender)
+
+        // dasm-mod logs as "dasm", dasm core uses class loggers. Loggers are additive, so DASM output still reaches the normal appenders too.
+        def loggers = doc.getElementsByTagName("Loggers").item(0)
+        ["dasm", "io.github.notstirred.dasm"].each { loggerName ->
+            def loggerElement = doc.createElement("Logger")
+            loggerElement.setAttribute("name", loggerName)
+            def appenderRef = doc.createElement("AppenderRef")
+            appenderRef.setAttribute("ref", "DasmGradle")
+            loggerElement.appendChild(appenderRef)
+            loggers.appendChild(loggerElement)
+        }
+
+        TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(configFile))
+    }
+}
+
 tasks.withType(Test).configureEach {
     // gradle docs suggest processors/2 which actually runs fractionally faster than just processors
     // forking a jvm is expensive.
@@ -360,6 +405,24 @@ test {
     // Show test results.
     testLogging {
         events("passed", "skipped", "failed")
+        exceptionFormat = "full"
+        // Also report failures of the per-JVM "Gradle Test Executor N" suites, e.g. Minecraft failing to start.
+        minGranularity = 1
+    }
+
+    // Print DASM log lines (see prepareNeoForgeTestFiles), once each: every test fork logs the same lines.
+    def reportedDasmLines = Collections.synchronizedSet(new HashSet<String>())
+    onOutput { descriptor, event ->
+        event.message.eachLine { String line ->
+            if (!line.startsWith(dasmLogPrefix) || !reportedDasmLines.add(line)) return
+            def (level, message) = line.substring(dasmLogPrefix.length()).split(" ", 2)
+            def text = "DASM ${level}: ${message}"
+            switch (level) {
+                case ["FATAL", "ERROR"]: logger.error(text); break
+                case "WARN": logger.warn(text); break
+                default: logger.lifecycle(text)
+            }
+        }
     }
 
     jvmArgs("-ea", "-Dmixin.debug.verbose=true", "-Dmixin.debug.export=true", "-Dmixin.checks.interfaces=true")

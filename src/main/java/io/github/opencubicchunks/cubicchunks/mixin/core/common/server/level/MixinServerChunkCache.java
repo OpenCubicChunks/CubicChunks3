@@ -321,7 +321,7 @@ public abstract class MixinServerChunkCache extends MixinChunkSource implements 
         cc_removeTicketWithRadius(ticket, CloPos.cube(cubePos), radius);
     }
 
-    @AddMethodToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, method = "updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z\"")
+    @AddMethodToSets(containers = ChunkToCubeSet.ServerChunkCache_redirects.class, method = "updateChunkForced(Lnet/minecraft/world/level/ChunkPos;Z)Z")
     @Override public boolean cc_updateCubeForced(CubePos cubePos, boolean forced) {
         return cc_updateCloForced(CloPos.cube(cubePos), forced);
     }
